@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms of Service - Motive Hosting</title>
+  <meta name="description" content="Terms of Service for Motive Hosting managed hosting services. Read our service agreement, acceptable use policy, and client rights.">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Terms of Service - Motive Hosting">
+  <meta property="og:description" content="Terms of Service for Motive Hosting managed hosting services.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://motive.host/terms">
+  <meta property="og:site_name" content="Motive Hosting">
+
+  <!-- Preload Fonts -->
+  <link rel="preload" href="fonts/playfair-display-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/inter-500.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/JetBrainsMono-Medium.woff2" as="font" type="font/woff2" crossorigin>
+
+  <style>
+    /* FONTS */
+    @font-face {
+      font-family: 'Playfair Display';
+      font-style: normal;
+      font-weight: 600;
+      font-display: swap;
+      src: url('fonts/playfair-display-latin.woff2') format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: 'Playfair Display';
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: url('fonts/playfair-display-latin.woff2') format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('fonts/inter-400.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url('fonts/inter-500.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 600;
+      font-display: swap;
+      src: url('fonts/inter-600.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'JetBrains Mono';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url('fonts/JetBrainsMono-Medium.woff2') format('woff2');
+    }
+
+    /* RESET & BASE */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --deep-navy: #1F2329;
+      --navy: #23272E;
+      --gold: #D4AF37;
+      --gold-hover: #C4A030;
+      --slate: #8892A0;
+      --muted-white: #E8ECF1;
+      --off-white: #272B31;
+      --font-heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+      --max-width: 1200px;
+      --gutter: 64px;
+      --nav-height: 72px;
+    }
+
+    html { scroll-behavior: smooth; scroll-padding-top: 88px; }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--muted-white);
+      background: var(--off-white);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    img { max-width: 100%; height: auto; display: block; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+    ul, ol { list-style: none; }
+
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+    :focus:not(:focus-visible) { outline: none; }
+
+    /* NAVIGATION */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      height: var(--nav-height);
+      background: var(--deep-navy);
+      border-bottom: 1px solid rgba(136, 146, 160, 0.1);
+    }
+    .nav__inner {
+      max-width: var(--max-width); margin: 0 auto; padding: 0 var(--gutter);
+      height: 100%; display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav__logo { display: flex; align-items: center; }
+    .nav__logo img { height: 36px; width: auto; }
+    .nav__links { display: flex; align-items: center; gap: 32px; }
+    .nav__link {
+      font-family: var(--font-mono); font-size: 13px; font-weight: 500;
+      letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted-white);
+      transition: color 150ms ease; padding: 4px 0;
+    }
+    .nav__link:hover { color: var(--gold); }
+
+    .nav__hamburger {
+      display: none; width: 44px; height: 44px;
+      align-items: center; justify-content: center; color: var(--muted-white);
+    }
+    .nav__hamburger svg { width: 22px; height: 22px; }
+
+    /* LEGAL PAGE LAYOUT */
+    .legal-hero {
+      background: var(--deep-navy);
+      padding: 120px 0 56px;
+      margin-top: var(--nav-height);
+      text-align: center;
+      position: relative;
+    }
+    .legal-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(136, 146, 160, 0.05) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+    .legal-hero__inner {
+      max-width: 840px; margin: 0 auto; padding: 0 var(--gutter);
+      position: relative; z-index: 1;
+    }
+    .legal-hero__overline {
+      font-family: var(--font-mono); font-size: 13px; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--slate);
+      margin-bottom: 16px;
+    }
+    .legal-hero__title {
+      font-family: var(--font-heading); font-size: 48px; font-weight: 700;
+      line-height: 1.12; letter-spacing: -0.025em; color: var(--muted-white);
+      margin-bottom: 16px;
+    }
+    .legal-hero__meta {
+      font-family: var(--font-mono); font-size: 13px; font-weight: 500;
+      color: var(--slate); letter-spacing: 0.04em;
+    }
+
+    /* LEGAL CONTENT */
+    .legal-content {
+      background: var(--off-white);
+      padding: 64px 0 96px;
+    }
+    .legal-content__inner {
+      max-width: 800px; margin: 0 auto; padding: 0 var(--gutter);
+    }
+
+    /* TABLE OF CONTENTS */
+    .legal-toc {
+      background: #2C3038;
+      border: 1px solid rgba(136, 146, 160, 0.1);
+      border-radius: 4px;
+      padding: 32px;
+      margin-bottom: 56px;
+    }
+    .legal-toc__title {
+      font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted-white);
+      margin-bottom: 20px; padding-bottom: 16px;
+      border-bottom: 1px solid rgba(136, 146, 160, 0.12);
+    }
+    .legal-toc__list {
+      columns: 2; column-gap: 32px;
+    }
+    .legal-toc__item {
+      font-size: 14px; line-height: 1.5; margin-bottom: 10px;
+      break-inside: avoid;
+    }
+    .legal-toc__link {
+      color: var(--slate); transition: color 150ms ease;
+    }
+    .legal-toc__link:hover { color: var(--gold); }
+    .legal-toc__number {
+      font-family: var(--font-mono); font-size: 12px; color: var(--gold);
+      margin-right: 8px;
+    }
+
+    /* LEGAL SECTIONS */
+    .legal-section {
+      margin-bottom: 48px;
+      padding-top: 8px;
+    }
+    .legal-section__title {
+      font-family: var(--font-heading); font-size: 24px; font-weight: 600;
+      line-height: 1.25; color: var(--muted-white); margin-bottom: 20px;
+      padding-bottom: 12px; border-bottom: 1px solid rgba(136, 146, 160, 0.1);
+    }
+    .legal-section__number {
+      font-family: var(--font-mono); font-size: 14px; font-weight: 500;
+      color: var(--gold); margin-right: 10px;
+    }
+    .legal-section h4 {
+      font-family: var(--font-body); font-size: 17px; font-weight: 600;
+      color: var(--muted-white); margin: 24px 0 12px;
+    }
+    .legal-section p {
+      font-size: 15px; line-height: 1.7; color: var(--slate); margin-bottom: 16px;
+    }
+    .legal-section ul, .legal-section ol {
+      margin: 12px 0 16px 0; padding-left: 0;
+    }
+    .legal-section li {
+      font-size: 15px; line-height: 1.7; color: var(--slate);
+      margin-bottom: 8px; padding-left: 20px; position: relative;
+    }
+    .legal-section ul li::before {
+      content: '';
+      position: absolute; left: 0; top: 10px;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--gold);
+    }
+    .legal-section ol {
+      counter-reset: legal-list;
+    }
+    .legal-section ol li {
+      counter-increment: legal-list;
+    }
+    .legal-section ol li::before {
+      content: counter(legal-list) ".";
+      position: absolute; left: 0; top: 0;
+      font-family: var(--font-mono); font-size: 13px; font-weight: 500;
+      color: var(--gold);
+    }
+    .legal-section strong {
+      color: var(--muted-white); font-weight: 600;
+    }
+    .legal-section a {
+      color: var(--gold); text-decoration: underline;
+      text-decoration-color: rgba(212, 175, 55, 0.3);
+      transition: text-decoration-color 150ms ease;
+    }
+    .legal-section a:hover {
+      text-decoration-color: var(--gold);
+    }
+
+    /* CALLOUT BOX */
+    .legal-callout {
+      background: rgba(212, 175, 55, 0.06);
+      border-left: 3px solid var(--gold);
+      padding: 20px 24px;
+      margin: 20px 0 24px;
+      border-radius: 0 4px 4px 0;
+    }
+    .legal-callout p {
+      font-size: 14px; line-height: 1.65; color: var(--slate); margin-bottom: 0;
+    }
+
+    /* TABLE */
+    .legal-table {
+      width: 100%; border-collapse: collapse; margin: 16px 0 24px;
+    }
+    .legal-table th, .legal-table td {
+      text-align: left; padding: 12px 16px; font-size: 14px;
+      border-bottom: 1px solid rgba(136, 146, 160, 0.1);
+    }
+    .legal-table th {
+      font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--muted-white); background: rgba(136, 146, 160, 0.06);
+    }
+    .legal-table td { color: var(--slate); }
+
+    /* LEGAL LINKS NAV */
+    .legal-links {
+      display: flex; align-items: center; gap: 24px;
+      padding: 32px 0; margin-top: 48px;
+      border-top: 1px solid rgba(136, 146, 160, 0.1);
+    }
+    .legal-links__label {
+      font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--slate);
+    }
+    .legal-links a {
+      font-size: 14px; color: var(--gold);
+      transition: opacity 150ms ease;
+    }
+    .legal-links a:hover { opacity: 0.8; }
+
+    /* ATTORNEY NOTICE */
+    .legal-notice {
+      background: #2C3038;
+      border: 1px solid rgba(136, 146, 160, 0.1);
+      border-radius: 4px;
+      padding: 24px 28px;
+      margin-top: 48px;
+    }
+    .legal-notice p {
+      font-size: 13px; line-height: 1.6; color: var(--slate); margin: 0;
+    }
+    .legal-notice strong { color: var(--muted-white); }
+
+    /* FOOTER */
+    .footer {
+      background: var(--deep-navy); padding: 56px 0 36px;
+      border-top: 1px solid rgba(136, 146, 160, 0.1);
+    }
+    .footer__inner {
+      max-width: var(--max-width); margin: 0 auto; padding: 0 var(--gutter);
+      text-align: center;
+    }
+    .footer__logo { display: flex; justify-content: center; margin-bottom: 16px; }
+    .footer__logo img { height: 36px; width: auto; }
+    .footer__text {
+      font-size: 14px; line-height: 1.5; color: var(--slate); margin-bottom: 20px;
+    }
+    .footer__links {
+      display: flex; justify-content: center; gap: 24px; margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .footer__link {
+      font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+      letter-spacing: 0.06em; text-transform: uppercase; color: var(--slate);
+      transition: color 150ms ease;
+    }
+    .footer__link:hover { color: var(--gold); }
+    .footer__copyright {
+      font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+      letter-spacing: 0.04em; color: rgba(136, 146, 160, 0.5);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      :root { --gutter: 24px; --nav-height: 60px; }
+      .nav__links { display: none; }
+      .nav__hamburger { display: flex; }
+      .nav__logo img { height: 30px; }
+      .legal-hero { padding: 88px 0 40px; }
+      .legal-hero__title { font-size: 32px; }
+      .legal-toc__list { columns: 1; }
+      .legal-content { padding: 48px 0 72px; }
+      .legal-section__title { font-size: 20px; }
+      .legal-table { font-size: 13px; }
+      .legal-table th, .legal-table td { padding: 10px 12px; }
+      .legal-links { flex-direction: column; gap: 12px; }
+    }
+
+    @media (max-width: 480px) {
+      .legal-hero__title { font-size: 28px; }
+      .legal-toc { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav__inner">
+      <a href="index.html" class="nav__logo" aria-label="Motive Hosting home">
+        <img src="img/logo-nav.png" alt="Motive Hosting" height="36" width="52">
+      </a>
+      <div class="nav__links">
+        <a href="index.html" class="nav__link">Home</a>
+        <a href="index.html#pricing" class="nav__link">Plans</a>
+        <a href="index.html#features" class="nav__link">Features</a>
+        <a href="index.html#faq" class="nav__link">FAQ</a>
+      </div>
+      <button class="nav__hamburger" aria-label="Open menu" onclick="window.location.href='index.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <main>
+    <!-- Hero -->
+    <section class="legal-hero">
+      <div class="legal-hero__inner">
+        <p class="legal-hero__overline">Legal</p>
+        <h1 class="legal-hero__title">Terms of Service</h1>
+        <p class="legal-hero__meta">Last updated: February 14, 2026</p>
+      </div>
+    </section>
+
+    <!-- Content -->
+    <div class="legal-content">
+      <div class="legal-content__inner">
+
+        <!-- Table of Contents -->
+        <nav class="legal-toc" aria-label="Table of contents">
+          <p class="legal-toc__title">Table of Contents</p>
+          <ol class="legal-toc__list">
+            <li class="legal-toc__item"><a href="#definitions" class="legal-toc__link"><span class="legal-toc__number">1</span>Definitions</a></li>
+            <li class="legal-toc__item"><a href="#service-description" class="legal-toc__link"><span class="legal-toc__number">2</span>Service Description</a></li>
+            <li class="legal-toc__item"><a href="#registration" class="legal-toc__link"><span class="legal-toc__number">3</span>Account Registration & Eligibility</a></li>
+            <li class="legal-toc__item"><a href="#pricing" class="legal-toc__link"><span class="legal-toc__number">4</span>Plans, Pricing & Payment</a></li>
+            <li class="legal-toc__item"><a href="#uptime" class="legal-toc__link"><span class="legal-toc__number">5</span>Service Level Commitments</a></li>
+            <li class="legal-toc__item"><a href="#acceptable-use" class="legal-toc__link"><span class="legal-toc__number">6</span>Acceptable Use Policy</a></li>
+            <li class="legal-toc__item"><a href="#client-content" class="legal-toc__link"><span class="legal-toc__number">7</span>Client Content & Data</a></li>
+            <li class="legal-toc__item"><a href="#ip" class="legal-toc__link"><span class="legal-toc__number">8</span>Intellectual Property</a></li>
+            <li class="legal-toc__item"><a href="#backups" class="legal-toc__link"><span class="legal-toc__number">9</span>Backups & Data Recovery</a></li>
+            <li class="legal-toc__item"><a href="#termination" class="legal-toc__link"><span class="legal-toc__number">10</span>Suspension & Termination</a></li>
+            <li class="legal-toc__item"><a href="#liability" class="legal-toc__link"><span class="legal-toc__number">11</span>Limitation of Liability</a></li>
+            <li class="legal-toc__item"><a href="#indemnification" class="legal-toc__link"><span class="legal-toc__number">12</span>Indemnification</a></li>
+            <li class="legal-toc__item"><a href="#disputes" class="legal-toc__link"><span class="legal-toc__number">13</span>Dispute Resolution</a></li>
+            <li class="legal-toc__item"><a href="#changes" class="legal-toc__link"><span class="legal-toc__number">14</span>Changes to Terms</a></li>
+            <li class="legal-toc__item"><a href="#general" class="legal-toc__link"><span class="legal-toc__number">15</span>General Provisions</a></li>
+          </ol>
+        </nav>
+
+        <!-- Intro -->
+        <div class="legal-section">
+          <p>Welcome to Motive Hosting. These Terms of Service ("Terms") are a legal agreement between you ("Client," "you," or "your") and <!-- NOTE: The contracting entity may change based on entity structuring decisions. Currently using Motive AI, LLC. --> <strong>Motive AI, LLC</strong>, an Alabama limited liability company doing business as Motive Hosting ("Motive Hosting," "we," "us," or "our").</p>
+          <p>By creating an account, purchasing a plan, or using any of our services, you agree to be bound by these Terms. If you do not agree to these Terms, do not use our services.</p>
+          <p>We wrote these Terms in plain English because we believe you should be able to understand the agreement you are entering. If anything is unclear, please contact us at <a href="mailto:hello@motive.host">hello@motive.host</a>.</p>
+        </div>
+
+        <!-- 1. Definitions -->
+        <section id="definitions" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">1.</span> Definitions</h2>
+          <p>Throughout these Terms, certain words have specific meanings:</p>
+          <ul>
+            <li><strong>"Services"</strong> means the managed hosting, email, backup, security, monitoring, newsletter, and related services we provide through our platform at host.motiveai.ai.</li>
+            <li><strong>"Client Portal"</strong> means our management interface at host.motiveai.ai where you can view your account, services, and support requests.</li>
+            <li><strong>"Client Content"</strong> means all files, data, text, images, software, and other materials you upload, store, or transmit through the Services.</li>
+            <li><strong>"Plan"</strong> means the specific service tier you have selected (Harbor, Gulf, or Horizon), including the features and resource allocations for that tier.</li>
+            <li><strong>"End Users"</strong> means any person who accesses or uses your website or applications hosted on our Services.</li>
+            <li><strong>"Effective Date"</strong> means the date you first create an account or purchase a Plan, whichever comes first.</li>
+          </ul>
+        </section>
+
+        <!-- 2. Service Description -->
+        <section id="service-description" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">2.</span> Service Description</h2>
+          <p>Motive Hosting provides managed web hosting and related services to small and mid-sized businesses. Our Services include, depending on your Plan:</p>
+          <ul>
+            <li>Website hosting (WordPress, Node.js, and React applications)</li>
+            <li>Professional business email on your domain</li>
+            <li>SSL certificates</li>
+            <li>Automated backups</li>
+            <li>Security monitoring and malware scanning</li>
+            <li>24/7 uptime monitoring</li>
+            <li>Content delivery network (CDN) acceleration</li>
+            <li>Newsletter platform and email marketing tools</li>
+            <li>Technical support</li>
+          </ul>
+          <p>The specific features and resource allocations included in each Plan are described on our website at <a href="https://motive.host">motive.host</a>. We reserve the right to modify, improve, or discontinue specific features at any time, provided that we will not materially reduce the core features of your Plan during your current billing period without notice.</p>
+        </section>
+
+        <!-- 3. Account Registration & Eligibility -->
+        <section id="registration" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">3.</span> Account Registration & Eligibility</h2>
+          <h4>Eligibility</h4>
+          <p>To use our Services, you must:</p>
+          <ul>
+            <li>Be at least 18 years of age</li>
+            <li>Have the legal authority to enter into a binding contract</li>
+            <li>Provide accurate and complete registration information</li>
+            <li>Not have been previously suspended or removed from our Services</li>
+          </ul>
+          <p>If you are using the Services on behalf of a business, you represent that you have the authority to bind that business to these Terms.</p>
+
+          <h4>Account Security</h4>
+          <p>You are responsible for maintaining the security of your account credentials. You must notify us immediately at <a href="mailto:hello@motive.host">hello@motive.host</a> if you believe your account has been compromised. We are not liable for any loss or damage resulting from unauthorized access to your account caused by your failure to safeguard your credentials.</p>
+
+          <h4>Account Information</h4>
+          <p>You agree to keep your account information accurate and up to date, including your name, business name, email address, and billing information. We use this information to communicate with you about your Services and process payments.</p>
+        </section>
+
+        <!-- 4. Plans, Pricing & Payment -->
+        <section id="pricing" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">4.</span> Plans, Pricing & Payment</h2>
+
+          <h4>Current Plans</h4>
+          <p>We offer three service tiers, each billed monthly:</p>
+          <table class="legal-table">
+            <thead>
+              <tr>
+                <th>Plan</th>
+                <th>Price</th>
+                <th>Billing</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Harbor</td>
+                <td>$99/month</td>
+                <td>Monthly</td>
+              </tr>
+              <tr>
+                <td>Gulf</td>
+                <td>$179/month</td>
+                <td>Monthly</td>
+              </tr>
+              <tr>
+                <td>Horizon</td>
+                <td>$249/month</td>
+                <td>Monthly</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>Full feature details for each Plan are available at <a href="https://motive.host">motive.host</a>.</p>
+
+          <h4>Payment Processing</h4>
+          <p>All payments are processed through Stripe, our third-party payment processor. By providing your payment information, you authorize us to charge your payment method on a recurring monthly basis. Motive Hosting does not store your credit card numbers. All payment data is handled directly by Stripe in accordance with PCI-DSS standards.</p>
+
+          <h4>No Setup Fees, No Contracts</h4>
+          <p>There are no setup fees and no long-term contracts. All Plans are month-to-month. There are no early termination fees. This is a deliberate choice -- we believe we should earn your business every month.</p>
+
+          <h4>Failed Payments</h4>
+          <p>If a payment fails, we will:</p>
+          <ol>
+            <li>Notify you by email within 24 hours of the failed charge</li>
+            <li>Retry the payment automatically according to Stripe's retry schedule</li>
+            <li>Provide a 7-day grace period during which your Services remain fully active</li>
+            <li>Suspend your Services if payment is not resolved within 7 days (your data remains intact)</li>
+            <li>Terminate your account and begin the 30-day data export window if payment is not resolved within 30 days of the original failure</li>
+          </ol>
+
+          <h4>Price Changes</h4>
+          <p>We may change our pricing from time to time. If we increase the price of your current Plan, we will give you at least 30 days written notice by email before the new price takes effect. If you do not agree to the new pricing, you may cancel your Plan before the new price takes effect. Continuing to use the Services after a price change constitutes your acceptance of the new pricing.</p>
+
+          <h4>Refunds</h4>
+          <p>We do not issue refunds for partial months of service. If you cancel mid-month, your Services will remain active until the end of your current billing period. If Motive Hosting terminates your account without cause, we will issue a pro-rated refund for any unused portion of your current billing period.</p>
+
+          <h4>Plan Changes</h4>
+          <p>You may upgrade your Plan at any time. Upgrades take effect immediately, and billing is adjusted on a pro-rated basis for the remainder of your current billing period. Downgrades take effect at the beginning of your next billing period.</p>
+        </section>
+
+        <!-- 5. Service Level Commitments -->
+        <section id="uptime" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">5.</span> Service Level Commitments</h2>
+
+          <h4>Uptime Target</h4>
+          <p>We use commercially reasonable efforts to maintain 99.9% uptime for your hosted websites and applications. This target measures availability of our hosting infrastructure and does not constitute a guarantee or a service level agreement (SLA) with financial penalties.</p>
+
+          <div class="legal-callout">
+            <p><strong>Plain English:</strong> We take uptime seriously and build our infrastructure for high availability. Our 99.9% target means we aim for less than 8.8 hours of unplanned downtime per year. While we do not offer financial credits for downtime, we are transparent about incidents and work to resolve them as quickly as possible.</p>
+          </div>
+
+          <h4>Excluded Downtime</h4>
+          <p>The following situations are excluded from uptime calculations:</p>
+          <ul>
+            <li>Scheduled maintenance (we will provide at least 24 hours notice for planned maintenance and schedule it during low-traffic hours when possible)</li>
+            <li>Force majeure events (natural disasters, acts of government, widespread internet outages)</li>
+            <li>Issues caused by Client Content, third-party software, or actions taken by the Client</li>
+            <li>DNS propagation delays outside our control</li>
+            <li>DDoS attacks or other malicious activity targeting your specific site</li>
+          </ul>
+
+          <h4>Monitoring</h4>
+          <p>We monitor all hosted sites and applications 24 hours a day, 7 days a week. When our monitoring detects an issue, our team is notified and begins working on a resolution. We will notify you of any significant service disruption affecting your account.</p>
+        </section>
+
+        <!-- 6. Acceptable Use Policy -->
+        <section id="acceptable-use" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">6.</span> Acceptable Use Policy</h2>
+          <p>You agree to use our Services only for lawful purposes and in a manner consistent with these Terms. You may not use the Services to:</p>
+
+          <h4>Prohibited Content</h4>
+          <ul>
+            <li>Host, store, or distribute content that is illegal under federal or Alabama state law</li>
+            <li>Store or distribute child sexual abuse material (CSAM) -- we will report any such content to the National Center for Missing & Exploited Children (NCMEC) and law enforcement immediately</li>
+            <li>Host phishing sites or pages designed to fraudulently collect personal information</li>
+            <li>Distribute malware, viruses, or other harmful software</li>
+            <li>Host content that infringes on the intellectual property rights of others</li>
+            <li>Store or distribute unsolicited bulk email lists (spam lists)</li>
+          </ul>
+
+          <h4>Prohibited Activities</h4>
+          <ul>
+            <li>Use the Services to send unsolicited bulk email (spam)</li>
+            <li>Attempt to gain unauthorized access to our systems or other clients' accounts</li>
+            <li>Use the Services as a file storage or backup service unrelated to your hosted website</li>
+            <li>Run cryptocurrency mining software on our infrastructure</li>
+            <li>Operate proxy services, VPN endpoints, or Tor exit nodes</li>
+            <li>Engage in activities that consume excessive server resources and degrade service for other clients</li>
+            <li>Resell or redistribute the Services without our written consent</li>
+            <li>Use the Services to facilitate illegal gambling or the sale of illegal substances</li>
+          </ul>
+
+          <h4>Resource Usage</h4>
+          <p>Each Plan includes specific resource allocations (storage, bandwidth, email accounts, etc.) as described on our website. If your usage consistently exceeds your Plan's allocations, we will contact you to discuss upgrading to a more appropriate Plan. We will not suspend your account for occasional traffic spikes.</p>
+
+          <h4>Enforcement</h4>
+          <p>If we determine that you are violating this Acceptable Use Policy, we may, at our discretion:</p>
+          <ol>
+            <li>Notify you of the violation and request that you remedy it within a reasonable time</li>
+            <li>Temporarily restrict or suspend the offending content or functionality</li>
+            <li>Suspend your account entirely if the violation is severe or you fail to remedy it</li>
+            <li>Terminate your account immediately in cases of illegal activity, CSAM, or activity that threatens the security or stability of our platform</li>
+          </ol>
+          <p>We prefer to work with clients to resolve issues before resorting to suspension or termination.</p>
+        </section>
+
+        <!-- 7. Client Content & Data -->
+        <section id="client-content" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">7.</span> Client Content & Data</h2>
+
+          <h4>Ownership</h4>
+          <p>You retain all ownership rights in your Client Content. Motive Hosting does not claim ownership of any content you upload, create, or store through the Services.</p>
+
+          <h4>License to Motive Hosting</h4>
+          <p>By using the Services, you grant Motive Hosting a limited, non-exclusive, worldwide license to host, store, cache, transmit, backup, and display your Client Content solely for the purpose of providing the Services to you. This license exists only for as long as your account is active and terminates when your content is deleted from our systems.</p>
+
+          <h4>Your Responsibilities</h4>
+          <p>You are solely responsible for:</p>
+          <ul>
+            <li>The legality, accuracy, and appropriateness of your Client Content</li>
+            <li>Ensuring you have all necessary rights and permissions for content you upload</li>
+            <li>Compliance with all applicable laws regarding the data your website collects from your End Users</li>
+            <li>Providing appropriate privacy policies and disclosures on your own website</li>
+            <li>Obtaining any required consents from your End Users for data collection</li>
+          </ul>
+
+          <h4>Data Processing</h4>
+          <p>With respect to personal data that your End Users submit through your hosted website, Motive Hosting acts as a data processor on your behalf. You act as the data controller. This means you determine what data is collected and how it is used. We only process that data as necessary to provide the Services to you. See our <a href="privacy.html">Privacy Policy</a> for more details on how we handle data.</p>
+        </section>
+
+        <!-- 8. Intellectual Property -->
+        <section id="ip" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">8.</span> Intellectual Property</h2>
+
+          <h4>Our Property</h4>
+          <p>The Motive Hosting platform, website, branding, documentation, and all related technology, designs, and software are the property of Motive AI, LLC. Nothing in these Terms grants you any right to use our trademarks, logos, or brand assets except as necessary to identify us as your hosting provider.</p>
+
+          <h4>Your Property</h4>
+          <p>Your Client Content, your business name, your domain names, and your brand assets remain your property. We will not use your name, logo, or identity in marketing materials without your prior written consent.</p>
+
+          <h4>DMCA and Copyright Complaints</h4>
+          <p>We respect the intellectual property rights of others. If you believe that content hosted on our platform infringes your copyright, please send a notice to <a href="mailto:hello@motive.host">hello@motive.host</a> with the following information:</p>
+          <ol>
+            <li>A description of the copyrighted work you claim has been infringed</li>
+            <li>The URL where the infringing content is located on our platform</li>
+            <li>Your contact information (name, address, telephone, email)</li>
+            <li>A statement that you have a good-faith belief that the use is not authorized by the copyright owner</li>
+            <li>A statement, under penalty of perjury, that the information in your notice is accurate and that you are the copyright owner or authorized to act on their behalf</li>
+            <li>Your physical or electronic signature</li>
+          </ol>
+          <p>We will respond to valid DMCA notices in accordance with the Digital Millennium Copyright Act.</p>
+        </section>
+
+        <!-- 9. Backups & Data Recovery -->
+        <section id="backups" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">9.</span> Backups & Data Recovery</h2>
+
+          <h4>Backup Schedule</h4>
+          <p>We perform automated backups of your hosted content according to your Plan:</p>
+          <table class="legal-table">
+            <thead>
+              <tr>
+                <th>Plan</th>
+                <th>Backup Frequency</th>
+                <th>Retention Period</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Harbor</td>
+                <td>Weekly</td>
+                <td>7 days</td>
+              </tr>
+              <tr>
+                <td>Gulf</td>
+                <td>Daily</td>
+                <td>30 days</td>
+              </tr>
+              <tr>
+                <td>Horizon</td>
+                <td>Daily</td>
+                <td>30 days</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h4>Backup Restoration</h4>
+          <p>If you need to restore your site from a backup, contact us at <a href="mailto:hello@motive.host">hello@motive.host</a>. We will work with you to restore the appropriate backup as quickly as possible. There is no additional charge for backup restoration.</p>
+
+          <h4>Limitations</h4>
+          <p>While we take every reasonable precaution to ensure backup integrity, backups are provided as a convenience and are not guaranteed. We strongly recommend that you maintain your own independent backups of critical business data. Motive Hosting is not liable for any loss of data resulting from backup failures, corruption, or retention policy expiration.</p>
+
+          <h4>Data Export After Termination</h4>
+          <p>After your account is terminated (whether by you or by us), we will retain your data for 30 days. During this period, you may request a full export of your Client Content by contacting us at <a href="mailto:hello@motive.host">hello@motive.host</a>. After the 30-day window, we will permanently delete your data from our systems, including all backups, within a commercially reasonable time frame.</p>
+        </section>
+
+        <!-- 10. Suspension & Termination -->
+        <section id="termination" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">10.</span> Suspension & Termination</h2>
+
+          <h4>Termination by You</h4>
+          <p>You may cancel your account at any time through the Client Portal or by emailing <a href="mailto:hello@motive.host">hello@motive.host</a>. Your Services will remain active until the end of your current billing period. There are no early termination fees or cancellation penalties.</p>
+
+          <h4>Suspension by Motive Hosting</h4>
+          <p>We may suspend your account if:</p>
+          <ul>
+            <li>Payment is overdue by more than 7 days</li>
+            <li>You are in violation of the Acceptable Use Policy and have not remedied the violation after notice</li>
+            <li>Your account is involved in activity that threatens the security or stability of our platform</li>
+            <li>We are required to do so by law or a valid legal order</li>
+          </ul>
+          <p>When we suspend an account, we will notify you by email with the reason for suspension and what steps are needed to restore service. During suspension, your data remains intact but your website and services are not accessible to the public.</p>
+
+          <h4>Termination by Motive Hosting</h4>
+          <p>We may terminate your account:</p>
+          <ul>
+            <li>Immediately, if you are hosting illegal content or engaging in activity that is illegal or that threatens the safety of others</li>
+            <li>After 30 days of account suspension due to unresolved payment or policy violations</li>
+            <li>With 30 days written notice, for any reason (termination without cause)</li>
+          </ul>
+          <p>If we terminate your account without cause, we will issue a pro-rated refund for any unused portion of your current billing period.</p>
+
+          <h4>Effect of Termination</h4>
+          <p>Upon termination:</p>
+          <ul>
+            <li>Your access to the Services will end</li>
+            <li>Your website and hosted applications will be taken offline</li>
+            <li>Your data will be retained for 30 days for export purposes (see Section 9)</li>
+            <li>We will assist with reasonable transition needs, including pointing you to your data export and providing DNS records you may need to move to a new provider</li>
+          </ul>
+        </section>
+
+        <!-- 11. Limitation of Liability -->
+        <section id="liability" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">11.</span> Limitation of Liability</h2>
+
+          <h4>Cap on Liability</h4>
+          <p>To the maximum extent permitted by law, Motive Hosting's total cumulative liability to you for all claims arising out of or relating to these Terms or the Services will not exceed the total fees you paid to Motive Hosting during the 12 months immediately preceding the event giving rise to the claim.</p>
+
+          <h4>Exclusion of Consequential Damages</h4>
+          <p>To the maximum extent permitted by law, Motive Hosting will not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to: loss of profits, revenue, data, business opportunities, or goodwill, regardless of whether we were advised of the possibility of such damages.</p>
+
+          <div class="legal-callout">
+            <p><strong>Plain English:</strong> If something goes wrong with our service, the most we can be held responsible for is what you have paid us over the past year. We are not responsible for downstream business losses like lost sales, missed opportunities, or damage to your reputation. This is standard in hosting agreements and reflects the reality that hosting fees are a small fraction of the value a business generates from its online presence.</p>
+          </div>
+
+          <h4>No Warranty</h4>
+          <p>The Services are provided "as is" and "as available." To the maximum extent permitted by law, Motive Hosting disclaims all warranties, express or implied, including but not limited to implied warranties of merchantability, fitness for a particular purpose, title, and non-infringement. We do not warrant that the Services will be uninterrupted, error-free, or completely secure.</p>
+
+          <h4>Exceptions</h4>
+          <p>Nothing in this section limits our liability for: (a) death or personal injury caused by our negligence; (b) fraud or fraudulent misrepresentation; or (c) any liability that cannot be excluded or limited by applicable law.</p>
+        </section>
+
+        <!-- 12. Indemnification -->
+        <section id="indemnification" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">12.</span> Indemnification</h2>
+          <p>You agree to indemnify, defend, and hold harmless Motive Hosting, its officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, and expenses (including reasonable attorneys' fees) arising out of or relating to:</p>
+          <ul>
+            <li>Your Client Content, including any claims that your content infringes the intellectual property rights of a third party</li>
+            <li>Your violation of these Terms or the Acceptable Use Policy</li>
+            <li>Your violation of any applicable law or regulation</li>
+            <li>Any dispute between you and your End Users</li>
+            <li>Your failure to provide required notices or obtain required consents regarding data collection on your website</li>
+          </ul>
+          <p>We will notify you promptly of any claim and cooperate with you in the defense. You will not settle any claim without our prior written consent if the settlement imposes obligations on us.</p>
+        </section>
+
+        <!-- 13. Dispute Resolution -->
+        <section id="disputes" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">13.</span> Dispute Resolution</h2>
+
+          <h4>Informal Resolution</h4>
+          <p>Before initiating any formal dispute resolution process, you agree to first contact us at <a href="mailto:hello@motive.host">hello@motive.host</a> and attempt to resolve the dispute informally. We will make a good-faith effort to address your concerns within 30 days.</p>
+
+          <h4>Binding Arbitration</h4>
+          <p>If we cannot resolve a dispute informally within 30 days, either party may elect to resolve the dispute through binding arbitration administered by the American Arbitration Association ("AAA") under its Commercial Arbitration Rules. The arbitration will be conducted by a single arbitrator in Baldwin County, Alabama. The arbitrator's decision will be final and binding and may be entered as a judgment in any court of competent jurisdiction.</p>
+
+          <h4>Exceptions to Arbitration</h4>
+          <p>Either party may bring a claim in small claims court if the claim qualifies. Either party may seek injunctive or other equitable relief in a court of competent jurisdiction to prevent the actual or threatened infringement, misappropriation, or violation of a party's intellectual property rights or confidential information.</p>
+
+          <h4>Class Action Waiver</h4>
+          <p>You agree that any dispute resolution proceedings will be conducted only on an individual basis and not in a class, consolidated, or representative action. If this class action waiver is found to be unenforceable, then the entirety of this arbitration provision will be void.</p>
+
+          <h4>Governing Law & Venue</h4>
+          <p>These Terms are governed by the laws of the State of Alabama, without regard to its conflict-of-laws principles. For any claims not subject to arbitration, you agree to submit to the exclusive jurisdiction of the state and federal courts located in Baldwin County, Alabama.</p>
+        </section>
+
+        <!-- 14. Changes to Terms -->
+        <section id="changes" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">14.</span> Changes to Terms</h2>
+          <p>We may update these Terms from time to time. When we make changes:</p>
+          <ul>
+            <li>We will provide at least 30 days written notice by email before material changes take effect</li>
+            <li>We will update the "Last updated" date at the top of this page</li>
+            <li>We will post the revised Terms on our website</li>
+          </ul>
+          <p>If you do not agree to the revised Terms, you may cancel your account before the changes take effect. Continuing to use the Services after the effective date of revised Terms constitutes your acceptance of the changes.</p>
+          <p>Non-material changes (such as fixing typographical errors or clarifying language without changing meaning) may be made without advance notice.</p>
+        </section>
+
+        <!-- 15. General Provisions -->
+        <section id="general" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">15.</span> General Provisions</h2>
+
+          <h4>Entire Agreement</h4>
+          <p>These Terms, together with our <a href="privacy.html">Privacy Policy</a>, constitute the entire agreement between you and Motive Hosting regarding the Services and supersede all prior agreements, representations, and understandings.</p>
+
+          <h4>Severability</h4>
+          <p>If any provision of these Terms is found to be unenforceable or invalid by a court of competent jurisdiction, that provision will be modified to the minimum extent necessary to make it enforceable, or if it cannot be modified, it will be severed from these Terms. The remaining provisions will continue in full force and effect.</p>
+
+          <h4>Waiver</h4>
+          <p>Our failure to enforce any provision of these Terms does not constitute a waiver of that provision or our right to enforce it in the future.</p>
+
+          <h4>Assignment</h4>
+          <p>You may not assign or transfer your rights or obligations under these Terms without our prior written consent. We may assign these Terms in connection with a merger, acquisition, reorganization, or sale of all or substantially all of our assets, provided that the assignee agrees to be bound by these Terms.</p>
+
+          <h4>Force Majeure</h4>
+          <p>Neither party will be liable for any failure or delay in performing its obligations (other than payment obligations) due to circumstances beyond its reasonable control, including but not limited to: natural disasters, pandemics, acts of government, war, terrorism, widespread internet or power outages, or labor disputes.</p>
+
+          <h4>Notices</h4>
+          <p>We will send notices to you by email at the address associated with your account. You may send notices to us at <a href="mailto:hello@motive.host">hello@motive.host</a>. Notices are considered received when the email is sent (for notices from us) or when we confirm receipt (for notices from you).</p>
+
+          <h4>Relationship of the Parties</h4>
+          <p>Nothing in these Terms creates a partnership, joint venture, agency, or employment relationship between you and Motive Hosting. Neither party has the authority to bind the other or incur obligations on the other's behalf.</p>
+
+          <h4>Third-Party Beneficiaries</h4>
+          <p>These Terms do not create any third-party beneficiary rights.</p>
+
+          <h4>Contact</h4>
+          <p>If you have questions about these Terms, contact us:</p>
+          <p>
+            <strong>Motive AI, LLC</strong> d/b/a Motive Hosting<br>
+            Email: <a href="mailto:hello@motive.host">hello@motive.host</a><br>
+            Web: <a href="https://motive.host">motive.host</a>
+          </p>
+        </section>
+
+        <!-- Cross-links -->
+        <div class="legal-links">
+          <span class="legal-links__label">See also:</span>
+          <a href="privacy.html">Privacy Policy</a>
+          <a href="index.html">Back to Home</a>
+        </div>
+
+        <!-- Attorney Review Notice -->
+        <div class="legal-notice">
+          <p><strong>Notice:</strong> This document was drafted for informational and operational purposes and has not yet been reviewed by a licensed attorney. Motive AI, LLC recommends that these Terms of Service be reviewed by qualified legal counsel licensed in the State of Alabama before being published as a binding legal agreement.</p>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="footer__logo">
+        <img src="img/logo-nav.png" alt="Motive Hosting" height="36" width="52">
+      </div>
+      <p class="footer__text">Premier managed hosting for Gulf Coast businesses. A Motive AI company.</p>
+      <div class="footer__links">
+        <a href="index.html" class="footer__link">Home</a>
+        <a href="index.html#pricing" class="footer__link">Plans</a>
+        <a href="terms.html" class="footer__link">Terms</a>
+        <a href="privacy.html" class="footer__link">Privacy</a>
+        <a href="mailto:hello@motive.host" class="footer__link">Contact</a>
+      </div>
+      <p class="footer__copyright">&copy; 2026 Motive Hosting. A Motive AI company.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

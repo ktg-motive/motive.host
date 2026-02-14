@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "motive-hosting-memory": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "env": {
+        "MEMORY_FILE_PATH": "/Users/Kai/Dev/Active/motive.host/memory-bank/project-memory.json"
+      }
+    }
+  }
+}

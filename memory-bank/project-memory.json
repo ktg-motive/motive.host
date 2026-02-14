@@ -1,0 +1,161 @@
+{
+  "entities": [
+    {
+      "name": "Motive Hosting",
+      "entityType": "Project",
+      "observations": [
+        "Domain: motive.host (marketing), host.motiveai.ai (client portal)",
+        "White-label managed hosting service operated by Motive AI",
+        "Target market: Gulf Coast SMBs overpaying $300-400/month for basic hosting",
+        "Platform: xCloud White Label ($25/month) + Vultr High Frequency VPS ($12/month per client)",
+        "Server: mh-prod-atl-01 (155.138.192.127), Nginx, MySQL",
+        "Billing: Stripe Connect under MOTIVE DEVELOPMENT, INC.",
+        "Branding: Sunset Harbor nautical theme, flying M logo with horizon lines",
+        "Status: Pre-launch. Infrastructure configured. Marketing site not yet built."
+      ]
+    },
+    {
+      "name": "Motive Hosting Last Session",
+      "entityType": "SessionContext",
+      "observations": [
+        "Date: 2026-02-14",
+        "Created memory system (CLAUDE.md, context.md, knowledge graph seed, daily context)",
+        "Previous session (Feb 13): Configured xCloud plans (Harbor/Gulf/Horizon), connected Stripe, set up branding, designed logo, selected color palette, started SMTP/DNS configuration",
+        "DNS blocker: OpenSRS doesn't support CNAME records, blocking SendGrid DKIM. Cloudflare migration needed.",
+        "SMTP config: SendGrid via motive.host domain, xCloud fields known (smtp.sendgrid.net:587, TLS, apikey), blocked on DNS",
+        "xCloud landing page disabled — marketing handled by separate motive.host site",
+        "Next steps: Migrate DNS to Cloudflare, complete SendGrid domain auth, add SPF/DKIM/DMARC, finish xCloud SMTP config, build marketing site"
+      ]
+    },
+    {
+      "name": "Harbor Plan",
+      "entityType": "Feature",
+      "observations": [
+        "SKU: mh-harbor, Price: $99/month, Site limit: 1",
+        "Net revenue: $58.83/month (59% margin)",
+        "STATUS: Configured in xCloud (Feb 13, 2026)"
+      ]
+    },
+    {
+      "name": "Gulf Plan",
+      "entityType": "Feature",
+      "observations": [
+        "SKU: mh-gulf, Price: $179/month, Site limit: 3",
+        "Net revenue: $116.31/month (65% margin)",
+        "Includes Learning Editor newsletter (1 list, 500 subscribers)",
+        "STATUS: Configured in xCloud (Feb 13, 2026)"
+      ]
+    },
+    {
+      "name": "Horizon Plan",
+      "entityType": "Feature",
+      "observations": [
+        "SKU: mh-horizon, Price: $249/month, Site limit: 5",
+        "Net revenue: $166.53/month (67% margin)",
+        "Includes Learning Editor (3 lists, 2500 subs), AI features, annual strategy review",
+        "STATUS: Configured in xCloud (Feb 13, 2026)"
+      ]
+    },
+    {
+      "name": "DNS & Email Setup",
+      "entityType": "Feature",
+      "observations": [
+        "BLOCKER: OpenSRS DNS does not support CNAME records",
+        "Resolution: Migrate motive.host DNS to Cloudflare (free plan)",
+        "SPF record ready: v=spf1 include:sendgrid.net ~all",
+        "DKIM: Requires SendGrid domain auth for motive.host (generates 3 CNAMEs)",
+        "DMARC record ready: v=DMARC1; p=none; rua=mailto:dmarc@motive.host",
+        "xCloud SMTP fields: smtp.sendgrid.net, port 587, TLS, username 'apikey', password is SendGrid API key",
+        "Create dedicated SendGrid API key scoped to Mail Send only (don't reuse Learning Editor key)",
+        "STATUS: Blocked on Cloudflare DNS migration (Feb 14, 2026)"
+      ]
+    },
+    {
+      "name": "Marketing Site",
+      "entityType": "Feature",
+      "observations": [
+        "Domain: motive.host",
+        "Purpose: Public-facing landing page, pricing, plan comparison, signup funnel",
+        "Separate from client portal (host.motiveai.ai)",
+        "STATUS: Not started (Feb 14, 2026)"
+      ]
+    },
+    {
+      "name": "Kai Gray",
+      "entityType": "Person",
+      "observations": [
+        "CEO and Co-Founder of Motive AI and Motive ESG",
+        "Founder and Executive Director of LA-AI (501c3)",
+        "Based in Fairhope, Alabama",
+        "Technical background: Python, React",
+        "Prefers casual, action-oriented communication"
+      ]
+    },
+    {
+      "name": "Keith Glines",
+      "entityType": "Person",
+      "observations": [
+        "Executive Director of Hatch Fairhope",
+        "Early Learning Editor adopter",
+        "Potential referral partner for Motive Hosting"
+      ]
+    },
+    {
+      "name": "Wills",
+      "entityType": "Person",
+      "observations": [
+        "Friend of Kai, small business owner in town",
+        "Currently paying ~$60/month to Hummingbird Ideas for hosting + GoDaddy for email/domain",
+        "Needs newsletter capability (not yet set up, will be additional cost)",
+        "Strong candidate for Gulf plan ($179/month)"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "from": "Motive Hosting Last Session",
+      "to": "Motive Hosting",
+      "relationType": "documents"
+    },
+    {
+      "from": "Motive Hosting",
+      "to": "Harbor Plan",
+      "relationType": "contains"
+    },
+    {
+      "from": "Motive Hosting",
+      "to": "Gulf Plan",
+      "relationType": "contains"
+    },
+    {
+      "from": "Motive Hosting",
+      "to": "Horizon Plan",
+      "relationType": "contains"
+    },
+    {
+      "from": "Motive Hosting",
+      "to": "DNS & Email Setup",
+      "relationType": "contains"
+    },
+    {
+      "from": "Motive Hosting",
+      "to": "Marketing Site",
+      "relationType": "contains"
+    },
+    {
+      "from": "Kai Gray",
+      "to": "Motive Hosting",
+      "relationType": "founded"
+    },
+    {
+      "from": "Keith Glines",
+      "to": "Motive Hosting",
+      "relationType": "potential-partner"
+    },
+    {
+      "from": "Wills",
+      "to": "Motive Hosting",
+      "relationType": "prospective-client"
+    }
+  ]
+}

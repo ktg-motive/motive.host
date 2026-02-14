@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - Motive Hosting</title>
+  <meta name="description" content="Privacy Policy for Motive Hosting. Learn how we collect, use, and protect your personal information and your clients' data.">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Privacy Policy - Motive Hosting">
+  <meta property="og:description" content="Privacy Policy for Motive Hosting managed hosting services.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://motive.host/privacy">
+  <meta property="og:site_name" content="Motive Hosting">
+
+  <!-- Preload Fonts -->
+  <link rel="preload" href="fonts/playfair-display-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/inter-500.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/JetBrainsMono-Medium.woff2" as="font" type="font/woff2" crossorigin>
+
+  <style>
+    /* FONTS */
+    @font-face {
+      font-family: 'Playfair Display';
+      font-style: normal;
+      font-weight: 600;
+      font-display: swap;
+      src: url('fonts/playfair-display-latin.woff2') format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: 'Playfair Display';
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: url('fonts/playfair-display-latin.woff2') format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('fonts/inter-400.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url('fonts/inter-500.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 600;
+      font-display: swap;
+      src: url('fonts/inter-600.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'JetBrains Mono';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url('fonts/JetBrainsMono-Medium.woff2') format('woff2');
+    }
+
+    /* RESET & BASE */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --deep-navy: #1F2329;
+      --navy: #23272E;
+      --gold: #D4AF37;
+      --gold-hover: #C4A030;
+      --slate: #8892A0;
+      --muted-white: #E8ECF1;
+      --off-white: #272B31;
+      --font-heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+      --max-width: 1200px;
+      --gutter: 64px;
+      --nav-height: 72px;
+    }
+
+    html { scroll-behavior: smooth; scroll-padding-top: 88px; }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--muted-white);
+      background: var(--off-white);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    img { max-width: 100%; height: auto; display: block; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+    ul, ol { list-style: none; }
+
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+    :focus:not(:focus-visible) { outline: none; }
+
+    /* NAVIGATION */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      height: var(--nav-height);
+      background: var(--deep-navy);
+      border-bottom: 1px solid rgba(136, 146, 160, 0.1);
+    }
+    .nav__inner {
+      max-width: var(--max-width); margin: 0 auto; padding: 0 var(--gutter);
+      height: 100%; display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav__logo { display: flex; align-items: center; }
+    .nav__logo img { height: 36px; width: auto; }
+    .nav__links { display: flex; align-items: center; gap: 32px; }
+    .nav__link {
+      font-family: var(--font-mono); font-size: 13px; font-weight: 500;
+      letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted-white);
+      transition: color 150ms ease; padding: 4px 0;
+    }
+    .nav__link:hover { color: var(--gold); }
+
+    .nav__hamburger {
+      display: none; width: 44px; height: 44px;
+      align-items: center; justify-content: center; color: var(--muted-white);
+    }
+    .nav__hamburger svg { width: 22px; height: 22px; }
+
+    /* LEGAL PAGE LAYOUT */
+    .legal-hero {
+      background: var(--deep-navy);
+      padding: 120px 0 56px;
+      margin-top: var(--nav-height);
+      text-align: center;
+      position: relative;
+    }
+    .legal-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(136, 146, 160, 0.05) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+    .legal-hero__inner {
+      max-width: 840px; margin: 0 auto; padding: 0 var(--gutter);
+      position: relative; z-index: 1;
+    }
+    .legal-hero__overline {
+      font-family: var(--font-mono); font-size: 13px; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--slate);
+      margin-bottom: 16px;
+    }
+    .legal-hero__title {
+      font-family: var(--font-heading); font-size: 48px; font-weight: 700;
+      line-height: 1.12; letter-spacing: -0.025em; color: var(--muted-white);
+      margin-bottom: 16px;
+    }
+    .legal-hero__meta {
+      font-family: var(--font-mono); font-size: 13px; font-weight: 500;
+      color: var(--slate); letter-spacing: 0.04em;
+    }
+
+    /* LEGAL CONTENT */
+    .legal-content {
+      background: var(--off-white);
+      padding: 64px 0 96px;
+    }
+    .legal-content__inner {
+      max-width: 800px; margin: 0 auto; padding: 0 var(--gutter);
+    }
+
+    /* TABLE OF CONTENTS */
+    .legal-toc {
+      background: #2C3038;
+      border: 1px solid rgba(136, 146, 160, 0.1);
+      border-radius: 4px;
+      padding: 32px;
+      margin-bottom: 56px;
+    }
+    .legal-toc__title {
+      font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted-white);
+      margin-bottom: 20px; padding-bottom: 16px;
+      border-bottom: 1px solid rgba(136, 146, 160, 0.12);
+    }
+    .legal-toc__list {
+      columns: 2; column-gap: 32px;
+    }
+    .legal-toc__item {
+      font-size: 14px; line-height: 1.5; margin-bottom: 10px;
+      break-inside: avoid;
+    }
+    .legal-toc__link {
+      color: var(--slate); transition: color 150ms ease;
+    }
+    .legal-toc__link:hover { color: var(--gold); }
+    .legal-toc__number {
+      font-family: var(--font-mono); font-size: 12px; color: var(--gold);
+      margin-right: 8px;
+    }
+
+    /* LEGAL SECTIONS */
+    .legal-section {
+      margin-bottom: 48px;
+      padding-top: 8px;
+    }
+    .legal-section__title {
+      font-family: var(--font-heading); font-size: 24px; font-weight: 600;
+      line-height: 1.25; color: var(--muted-white); margin-bottom: 20px;
+      padding-bottom: 12px; border-bottom: 1px solid rgba(136, 146, 160, 0.1);
+    }
+    .legal-section__number {
+      font-family: var(--font-mono); font-size: 14px; font-weight: 500;
+      color: var(--gold); margin-right: 10px;
+    }
+    .legal-section h4 {
+      font-family: var(--font-body); font-size: 17px; font-weight: 600;
+      color: var(--muted-white); margin: 24px 0 12px;
+    }
+    .legal-section p {
+      font-size: 15px; line-height: 1.7; color: var(--slate); margin-bottom: 16px;
+    }
+    .legal-section ul, .legal-section ol {
+      margin: 12px 0 16px 0; padding-left: 0;
+    }
+    .legal-section li {
+      font-size: 15px; line-height: 1.7; color: var(--slate);
+      margin-bottom: 8px; padding-left: 20px; position: relative;
+    }
+    .legal-section ul li::before {
+      content: '';
+      position: absolute; left: 0; top: 10px;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--gold);
+    }
+    .legal-section ol {
+      counter-reset: legal-list;
+    }
+    .legal-section ol li {
+      counter-increment: legal-list;
+    }
+    .legal-section ol li::before {
+      content: counter(legal-list) ".";
+      position: absolute; left: 0; top: 0;
+      font-family: var(--font-mono); font-size: 13px; font-weight: 500;
+      color: var(--gold);
+    }
+    .legal-section strong {
+      color: var(--muted-white); font-weight: 600;
+    }
+    .legal-section a {
+      color: var(--gold); text-decoration: underline;
+      text-decoration-color: rgba(212, 175, 55, 0.3);
+      transition: text-decoration-color 150ms ease;
+    }
+    .legal-section a:hover {
+      text-decoration-color: var(--gold);
+    }
+
+    /* CALLOUT BOX */
+    .legal-callout {
+      background: rgba(212, 175, 55, 0.06);
+      border-left: 3px solid var(--gold);
+      padding: 20px 24px;
+      margin: 20px 0 24px;
+      border-radius: 0 4px 4px 0;
+    }
+    .legal-callout p {
+      font-size: 14px; line-height: 1.65; color: var(--slate); margin-bottom: 0;
+    }
+
+    /* TABLE */
+    .legal-table {
+      width: 100%; border-collapse: collapse; margin: 16px 0 24px;
+    }
+    .legal-table th, .legal-table td {
+      text-align: left; padding: 12px 16px; font-size: 14px;
+      border-bottom: 1px solid rgba(136, 146, 160, 0.1);
+    }
+    .legal-table th {
+      font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--muted-white); background: rgba(136, 146, 160, 0.06);
+    }
+    .legal-table td { color: var(--slate); }
+
+    /* LEGAL LINKS NAV */
+    .legal-links {
+      display: flex; align-items: center; gap: 24px;
+      padding: 32px 0; margin-top: 48px;
+      border-top: 1px solid rgba(136, 146, 160, 0.1);
+    }
+    .legal-links__label {
+      font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--slate);
+    }
+    .legal-links a {
+      font-size: 14px; color: var(--gold);
+      transition: opacity 150ms ease;
+    }
+    .legal-links a:hover { opacity: 0.8; }
+
+    /* ATTORNEY NOTICE */
+    .legal-notice {
+      background: #2C3038;
+      border: 1px solid rgba(136, 146, 160, 0.1);
+      border-radius: 4px;
+      padding: 24px 28px;
+      margin-top: 48px;
+    }
+    .legal-notice p {
+      font-size: 13px; line-height: 1.6; color: var(--slate); margin: 0;
+    }
+    .legal-notice strong { color: var(--muted-white); }
+
+    /* FOOTER */
+    .footer {
+      background: var(--deep-navy); padding: 56px 0 36px;
+      border-top: 1px solid rgba(136, 146, 160, 0.1);
+    }
+    .footer__inner {
+      max-width: var(--max-width); margin: 0 auto; padding: 0 var(--gutter);
+      text-align: center;
+    }
+    .footer__logo { display: flex; justify-content: center; margin-bottom: 16px; }
+    .footer__logo img { height: 36px; width: auto; }
+    .footer__text {
+      font-size: 14px; line-height: 1.5; color: var(--slate); margin-bottom: 20px;
+    }
+    .footer__links {
+      display: flex; justify-content: center; gap: 24px; margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .footer__link {
+      font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+      letter-spacing: 0.06em; text-transform: uppercase; color: var(--slate);
+      transition: color 150ms ease;
+    }
+    .footer__link:hover { color: var(--gold); }
+    .footer__copyright {
+      font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+      letter-spacing: 0.04em; color: rgba(136, 146, 160, 0.5);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      :root { --gutter: 24px; --nav-height: 60px; }
+      .nav__links { display: none; }
+      .nav__hamburger { display: flex; }
+      .nav__logo img { height: 30px; }
+      .legal-hero { padding: 88px 0 40px; }
+      .legal-hero__title { font-size: 32px; }
+      .legal-toc__list { columns: 1; }
+      .legal-content { padding: 48px 0 72px; }
+      .legal-section__title { font-size: 20px; }
+      .legal-table { font-size: 13px; }
+      .legal-table th, .legal-table td { padding: 10px 12px; }
+      .legal-links { flex-direction: column; gap: 12px; }
+    }
+
+    @media (max-width: 480px) {
+      .legal-hero__title { font-size: 28px; }
+      .legal-toc { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav__inner">
+      <a href="index.html" class="nav__logo" aria-label="Motive Hosting home">
+        <img src="img/logo-nav.png" alt="Motive Hosting" height="36" width="52">
+      </a>
+      <div class="nav__links">
+        <a href="index.html" class="nav__link">Home</a>
+        <a href="index.html#pricing" class="nav__link">Plans</a>
+        <a href="index.html#features" class="nav__link">Features</a>
+        <a href="index.html#faq" class="nav__link">FAQ</a>
+      </div>
+      <button class="nav__hamburger" aria-label="Open menu" onclick="window.location.href='index.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <main>
+    <!-- Hero -->
+    <section class="legal-hero">
+      <div class="legal-hero__inner">
+        <p class="legal-hero__overline">Legal</p>
+        <h1 class="legal-hero__title">Privacy Policy</h1>
+        <p class="legal-hero__meta">Last updated: February 14, 2026</p>
+      </div>
+    </section>
+
+    <!-- Content -->
+    <div class="legal-content">
+      <div class="legal-content__inner">
+
+        <!-- Table of Contents -->
+        <nav class="legal-toc" aria-label="Table of contents">
+          <p class="legal-toc__title">Table of Contents</p>
+          <ol class="legal-toc__list">
+            <li class="legal-toc__item"><a href="#who-we-are" class="legal-toc__link"><span class="legal-toc__number">1</span>Who We Are</a></li>
+            <li class="legal-toc__item"><a href="#what-we-collect" class="legal-toc__link"><span class="legal-toc__number">2</span>What Data We Collect</a></li>
+            <li class="legal-toc__item"><a href="#how-we-collect" class="legal-toc__link"><span class="legal-toc__number">3</span>How We Collect It</a></li>
+            <li class="legal-toc__item"><a href="#why-we-collect" class="legal-toc__link"><span class="legal-toc__number">4</span>Why We Collect It</a></li>
+            <li class="legal-toc__item"><a href="#how-we-use" class="legal-toc__link"><span class="legal-toc__number">5</span>How We Use It</a></li>
+            <li class="legal-toc__item"><a href="#who-we-share" class="legal-toc__link"><span class="legal-toc__number">6</span>Who We Share It With</a></li>
+            <li class="legal-toc__item"><a href="#where-stored" class="legal-toc__link"><span class="legal-toc__number">7</span>Where Data Is Stored</a></li>
+            <li class="legal-toc__item"><a href="#how-long" class="legal-toc__link"><span class="legal-toc__number">8</span>How Long We Keep It</a></li>
+            <li class="legal-toc__item"><a href="#your-rights" class="legal-toc__link"><span class="legal-toc__number">9</span>Your Rights</a></li>
+            <li class="legal-toc__item"><a href="#cookies" class="legal-toc__link"><span class="legal-toc__number">10</span>Cookies & Tracking</a></li>
+            <li class="legal-toc__item"><a href="#children" class="legal-toc__link"><span class="legal-toc__number">11</span>Children's Privacy</a></li>
+            <li class="legal-toc__item"><a href="#security" class="legal-toc__link"><span class="legal-toc__number">12</span>Data Security</a></li>
+            <li class="legal-toc__item"><a href="#breach" class="legal-toc__link"><span class="legal-toc__number">13</span>Data Breach Notification</a></li>
+            <li class="legal-toc__item"><a href="#international" class="legal-toc__link"><span class="legal-toc__number">14</span>International Transfers</a></li>
+            <li class="legal-toc__item"><a href="#changes" class="legal-toc__link"><span class="legal-toc__number">15</span>Changes to This Policy</a></li>
+            <li class="legal-toc__item"><a href="#contact" class="legal-toc__link"><span class="legal-toc__number">16</span>Contact Information</a></li>
+          </ol>
+        </nav>
+
+        <!-- Intro -->
+        <div class="legal-section">
+          <p>This Privacy Policy explains how <!-- NOTE: The contracting entity may change based on entity structuring decisions. Currently using Motive AI, LLC. --> <strong>Motive AI, LLC</strong>, an Alabama limited liability company doing business as Motive Hosting ("Motive Hosting," "we," "us," or "our"), collects, uses, and protects personal information when you use our website at motive.host, our client portal at host.motiveai.ai, and our managed hosting services (collectively, the "Services").</p>
+          <p>We wrote this policy in plain language so you can actually understand it. If something is unclear, email us at <a href="mailto:hello@motive.host">hello@motive.host</a> and we will explain it.</p>
+        </div>
+
+        <!-- 1. Who We Are -->
+        <section id="who-we-are" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">1.</span> Who We Are</h2>
+          <p>Motive Hosting is a managed hosting service operated by Motive AI, LLC. We provide website hosting, business email, security, backups, and related services to small and mid-sized businesses, primarily in the Gulf Coast region of the United States.</p>
+
+          <div class="legal-callout">
+            <p><strong>Important distinction:</strong> Motive Hosting plays two different roles depending on whose data we are talking about. For our clients' account data (your name, email, payment info), we are the <strong>data controller</strong> -- we decide what to collect and why. For data that visitors submit through our clients' websites (contact forms, orders, etc.), we are a <strong>data processor</strong> -- we store and transmit that data on our clients' behalf, but our clients decide what to collect and how to use it.</p>
+          </div>
+        </section>
+
+        <!-- 2. What Data We Collect -->
+        <section id="what-we-collect" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">2.</span> What Data We Collect</h2>
+
+          <h4>Client Account Data (We are the controller)</h4>
+          <p>When you sign up for and use our Services, we collect:</p>
+          <ul>
+            <li><strong>Identity information:</strong> Your name, business name, and job title</li>
+            <li><strong>Contact information:</strong> Email address, phone number, and mailing address</li>
+            <li><strong>Billing information:</strong> Payment method details (processed by Stripe -- we do not see or store your full card number)</li>
+            <li><strong>Account credentials:</strong> Username and password (passwords are stored in hashed form -- we cannot read them)</li>
+            <li><strong>Service usage data:</strong> Support requests, plan selections, feature usage, and communication preferences</li>
+            <li><strong>Technical data:</strong> IP address, browser type, and device information when you access the Client Portal</li>
+          </ul>
+          <p>We do not collect Social Security numbers, government-issued identification numbers, or biometric data.</p>
+
+          <h4>Website Visitor Data (We are the processor)</h4>
+          <p>When visitors interact with websites hosted on our platform, the hosted website may collect data from those visitors. This data is determined and controlled by our client (the website owner), not by Motive Hosting. Examples may include:</p>
+          <ul>
+            <li>Contact form submissions (names, email addresses, messages)</li>
+            <li>E-commerce transaction data</li>
+            <li>Newsletter subscriber information</li>
+            <li>Website analytics data</li>
+          </ul>
+          <p>We process this data only as necessary to provide hosting services. We do not access, analyze, or use this data for our own purposes.</p>
+
+          <h4>Marketing Website Data</h4>
+          <p>When you visit our marketing website at motive.host (before becoming a client), we collect minimal data:</p>
+          <ul>
+            <li>Standard web server logs (IP address, pages visited, browser type, referring URL)</li>
+            <li>Any information you voluntarily provide through contact forms</li>
+          </ul>
+        </section>
+
+        <!-- 3. How We Collect It -->
+        <section id="how-we-collect" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">3.</span> How We Collect It</h2>
+          <p>We collect information through three methods:</p>
+          <ul>
+            <li><strong>Directly from you:</strong> When you create an account, purchase a plan, submit a support request, or contact us by email</li>
+            <li><strong>Automatically:</strong> When you access our website or Client Portal, our servers record standard technical information (IP address, browser type, pages visited)</li>
+            <li><strong>From third parties:</strong> Our payment processor (Stripe) provides us with limited transaction information such as the last four digits of your card, the card brand, and whether the payment succeeded or failed. We do not receive your full card number from Stripe.</li>
+          </ul>
+        </section>
+
+        <!-- 4. Why We Collect It -->
+        <section id="why-we-collect" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">4.</span> Why We Collect It</h2>
+          <p>We collect personal information for the following purposes, and only for these purposes:</p>
+          <ul>
+            <li><strong>To provide our Services:</strong> We need your account and billing information to set up and maintain your hosting, email, and related services</li>
+            <li><strong>To communicate with you:</strong> We use your contact information to send service notifications, respond to support requests, and provide account updates</li>
+            <li><strong>To process payments:</strong> We share billing information with Stripe to charge your payment method</li>
+            <li><strong>To maintain security:</strong> We use technical data to detect and prevent unauthorized access, abuse, and fraud</li>
+            <li><strong>To improve our Services:</strong> We analyze aggregate, non-identifying usage patterns to improve our platform</li>
+            <li><strong>To comply with legal obligations:</strong> We retain certain records as required by tax, accounting, and other legal requirements</li>
+          </ul>
+          <p>We do not sell your personal information. We do not use your personal information for advertising. We do not build behavioral profiles for targeted marketing.</p>
+        </section>
+
+        <!-- 5. How We Use It -->
+        <section id="how-we-use" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">5.</span> How We Use It</h2>
+          <p>Here is a specific breakdown of how we use each type of information:</p>
+          <table class="legal-table">
+            <thead>
+              <tr>
+                <th>Data Type</th>
+                <th>How We Use It</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Name & business name</td>
+                <td>Account identification, support correspondence, invoicing</td>
+              </tr>
+              <tr>
+                <td>Email address</td>
+                <td>Account login, service notifications, support communication, billing receipts</td>
+              </tr>
+              <tr>
+                <td>Phone number</td>
+                <td>Emergency contact for critical service issues (we will not call you for marketing)</td>
+              </tr>
+              <tr>
+                <td>Payment information</td>
+                <td>Monthly billing via Stripe (we do not store card numbers)</td>
+              </tr>
+              <tr>
+                <td>IP address & technical data</td>
+                <td>Security monitoring, abuse prevention, server logs</td>
+              </tr>
+              <tr>
+                <td>Support requests</td>
+                <td>Resolving your issues, improving our documentation and processes</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- 6. Who We Share It With -->
+        <section id="who-we-share" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">6.</span> Who We Share It With</h2>
+          <p>We share your information only with the service providers ("subprocessors") necessary to deliver our Services. We do not sell, rent, or trade your personal information to third parties.</p>
+
+          <h4>Subprocessors</h4>
+          <table class="legal-table">
+            <thead>
+              <tr>
+                <th>Provider</th>
+                <th>Purpose</th>
+                <th>Data Shared</th>
+                <th>Location</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Vultr</strong></td>
+                <td>VPS infrastructure (servers that host your website)</td>
+                <td>Website files, databases, server logs</td>
+                <td>Atlanta, GA, USA</td>
+              </tr>
+              <tr>
+                <td><strong>xCloud</strong></td>
+                <td>Hosting management platform</td>
+                <td>Server configuration, site deployment data</td>
+                <td>USA</td>
+              </tr>
+              <tr>
+                <td><strong>Stripe</strong></td>
+                <td>Payment processing</td>
+                <td>Billing name, email, payment method details</td>
+                <td>USA</td>
+              </tr>
+              <tr>
+                <td><strong>SendGrid</strong> (Twilio)</td>
+                <td>Transactional and newsletter email delivery</td>
+                <td>Recipient email addresses, email content</td>
+                <td>USA</td>
+              </tr>
+              <tr>
+                <td><strong>OpenSRS</strong> (Tucows)</td>
+                <td>Domain name registration</td>
+                <td>Domain registrant contact information (as required by ICANN)</td>
+                <td>Toronto, Canada</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>Each of these subprocessors is bound by their own privacy policies and data protection agreements. We select subprocessors that maintain appropriate security standards.</p>
+
+          <h4>Other Disclosures</h4>
+          <p>We may also disclose your information when:</p>
+          <ul>
+            <li><strong>Required by law:</strong> In response to a valid subpoena, court order, or government request</li>
+            <li><strong>To protect rights and safety:</strong> When we believe disclosure is necessary to protect the rights, property, or safety of Motive Hosting, our clients, or the public</li>
+            <li><strong>Business transfer:</strong> In connection with a merger, acquisition, or sale of assets, in which case we will notify you before your information is transferred and becomes subject to a different privacy policy</li>
+          </ul>
+        </section>
+
+        <!-- 7. Where Data Is Stored -->
+        <section id="where-stored" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">7.</span> Where Data Is Stored</h2>
+          <p>Your data is stored in the United States. Specifically:</p>
+          <ul>
+            <li><strong>Hosted websites and databases:</strong> Vultr data center in Atlanta, Georgia, USA</li>
+            <li><strong>Client account data:</strong> xCloud platform servers in the USA</li>
+            <li><strong>Payment data:</strong> Stripe's PCI-DSS compliant infrastructure in the USA</li>
+            <li><strong>Email data:</strong> SendGrid's infrastructure in the USA</li>
+            <li><strong>Domain registration data:</strong> OpenSRS/Tucows in Toronto, Canada</li>
+          </ul>
+          <p>All data is stored within the United States and Canada. We do not transfer your data to other countries unless a subprocessor listed above does so in the ordinary course of their operations, in which case their privacy policies apply to that transfer.</p>
+        </section>
+
+        <!-- 8. How Long We Keep It -->
+        <section id="how-long" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">8.</span> How Long We Keep It</h2>
+          <p>We keep your data only as long as we need it for the purpose it was collected:</p>
+          <table class="legal-table">
+            <thead>
+              <tr>
+                <th>Data Type</th>
+                <th>Retention Period</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Active account data</td>
+                <td>For the duration of your account</td>
+              </tr>
+              <tr>
+                <td>Website content & backups after termination</td>
+                <td>30 days after account termination, then permanently deleted</td>
+              </tr>
+              <tr>
+                <td>Billing and transaction records</td>
+                <td>7 years after the transaction (required by tax law)</td>
+              </tr>
+              <tr>
+                <td>Support correspondence</td>
+                <td>2 years after account termination</td>
+              </tr>
+              <tr>
+                <td>Server access logs</td>
+                <td>90 days (rolling)</td>
+              </tr>
+              <tr>
+                <td>Marketing website server logs</td>
+                <td>30 days (rolling)</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>When data reaches the end of its retention period, we delete it from our active systems. Backups containing expired data are overwritten through our normal backup rotation schedule.</p>
+        </section>
+
+        <!-- 9. Your Rights -->
+        <section id="your-rights" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">9.</span> Your Rights</h2>
+          <p>Depending on where you are located, you may have certain rights regarding your personal information. We honor the following rights for all clients, regardless of location:</p>
+
+          <h4>Right to Know</h4>
+          <p>You can ask us what personal information we have collected about you, the categories of sources from which it was collected, and the purpose for collecting it. We will provide this information free of charge.</p>
+
+          <h4>Right to Access</h4>
+          <p>You can request a copy of the personal information we hold about you in a portable, commonly used format.</p>
+
+          <h4>Right to Delete</h4>
+          <p>You can request that we delete your personal information. We will comply, except where we are required to retain data by law (such as billing records for tax purposes) or where the data is necessary to complete an ongoing transaction.</p>
+
+          <h4>Right to Correct</h4>
+          <p>You can request that we correct inaccurate personal information. You can also update most of your account information directly through the Client Portal.</p>
+
+          <h4>Right to Opt Out of Sale</h4>
+          <p>We do not sell your personal information. There is nothing to opt out of. If this ever changes, we will update this policy and provide a clear opt-out mechanism.</p>
+
+          <h4>Right to Non-Discrimination</h4>
+          <p>We will not discriminate against you for exercising any of your privacy rights. Exercising your rights will not affect the quality or pricing of our Services.</p>
+
+          <h4>California Residents (CCPA/CPRA)</h4>
+          <p>If you are a California resident, you have additional rights under the California Consumer Privacy Act (CCPA) as amended by the California Privacy Rights Act (CPRA). These include:</p>
+          <ul>
+            <li>The right to know what personal information we have collected, sold, or disclosed in the past 12 months</li>
+            <li>The right to opt out of the sale or sharing of personal information (we do not sell or share your data, so this right is already satisfied)</li>
+            <li>The right to limit the use of sensitive personal information (we do not collect sensitive personal information as defined by the CPRA)</li>
+            <li>The right to request deletion of your personal information</li>
+          </ul>
+          <p>To exercise any of these rights, contact us at <a href="mailto:hello@motive.host">hello@motive.host</a>. We will verify your identity before processing your request and respond within 45 days.</p>
+
+          <h4>Exercising Your Rights</h4>
+          <p>To exercise any privacy right, send an email to <a href="mailto:hello@motive.host">hello@motive.host</a> with the subject line "Privacy Request." Please describe what you are requesting, and we will respond within 30 days (45 days for CCPA requests). We may need to verify your identity before fulfilling your request.</p>
+        </section>
+
+        <!-- 10. Cookies & Tracking -->
+        <section id="cookies" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">10.</span> Cookies & Tracking</h2>
+
+          <h4>Our Marketing Website (motive.host)</h4>
+          <p>Our marketing website at motive.host uses minimal tracking. We do not use third-party advertising trackers, social media pixels, or behavioral analytics tools on our marketing site.</p>
+          <p>We may use:</p>
+          <ul>
+            <li><strong>Essential cookies:</strong> For basic website functionality (such as remembering if you dismissed a notification)</li>
+            <li><strong>Analytics:</strong> We may use privacy-respecting analytics to understand overall site traffic patterns (page views, referral sources). We do not track individual user behavior across sessions.</li>
+          </ul>
+
+          <h4>Our Client Portal (host.motiveai.ai)</h4>
+          <p>The Client Portal uses cookies necessary for:</p>
+          <ul>
+            <li><strong>Authentication:</strong> Keeping you logged in during your session</li>
+            <li><strong>Security:</strong> Preventing cross-site request forgery (CSRF) and other security threats</li>
+            <li><strong>Preferences:</strong> Remembering your display settings and preferences</li>
+          </ul>
+          <p>These are functional cookies necessary for the portal to work. There are no advertising or tracking cookies in the Client Portal.</p>
+
+          <h4>Client Websites</h4>
+          <p>Websites hosted on our platform may use their own cookies and tracking technologies, as configured by the website owner (our client). Motive Hosting does not control what cookies or trackers our clients place on their own websites. If you have questions about cookies on a website hosted by us, please contact the website owner directly.</p>
+
+          <h4>Do Not Track</h4>
+          <p>We honor "Do Not Track" browser signals. When we detect a DNT signal, we disable any non-essential tracking on our own properties.</p>
+        </section>
+
+        <!-- 11. Children's Privacy -->
+        <section id="children" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">11.</span> Children's Privacy</h2>
+          <p>Our Services are designed for businesses and are not directed at children under the age of 13 (or under the age of 16 in certain jurisdictions). We do not knowingly collect personal information from children.</p>
+          <p>If you believe that a child has provided personal information to us, please contact us at <a href="mailto:hello@motive.host">hello@motive.host</a>. We will promptly investigate and delete any such information from our systems.</p>
+          <p>If you are a client hosting a website that collects information from children, you are responsible for complying with the Children's Online Privacy Protection Act (COPPA) and other applicable laws. Motive Hosting will cooperate with you in fulfilling those obligations.</p>
+        </section>
+
+        <!-- 12. Data Security -->
+        <section id="security" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">12.</span> Data Security</h2>
+          <p>We take the security of your data seriously and implement a range of technical and organizational measures to protect it:</p>
+          <ul>
+            <li><strong>Encryption in transit:</strong> All data transmitted between your browser and our services is encrypted using TLS (HTTPS). All client websites hosted on our platform include free SSL certificates.</li>
+            <li><strong>Encryption at rest:</strong> Sensitive data stored on our servers is encrypted at rest.</li>
+            <li><strong>Access controls:</strong> Access to client data is restricted to authorized personnel on a need-to-know basis.</li>
+            <li><strong>Payment security:</strong> We never see or store your full credit card number. All payment processing is handled by Stripe, which is PCI-DSS Level 1 certified.</li>
+            <li><strong>Infrastructure security:</strong> Our hosting infrastructure (Vultr) maintains SOC 2 compliance and physical security at their data centers.</li>
+            <li><strong>Monitoring:</strong> We monitor our systems 24/7 for unauthorized access attempts and unusual activity.</li>
+            <li><strong>Automated backups:</strong> Regular automated backups protect against data loss (frequency depends on your Plan).</li>
+            <li><strong>Password security:</strong> All passwords are stored using industry-standard hashing algorithms. We cannot read your password.</li>
+          </ul>
+          <p>No system is 100% secure. While we implement commercially reasonable safeguards, we cannot guarantee absolute security. We encourage you to use strong, unique passwords for your account and to enable any additional security features available in the Client Portal.</p>
+        </section>
+
+        <!-- 13. Data Breach Notification -->
+        <section id="breach" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">13.</span> Data Breach Notification</h2>
+          <p>In the event of a data breach that compromises your personal information, we will:</p>
+          <ol>
+            <li><strong>Investigate immediately:</strong> Assess the scope, cause, and impact of the breach</li>
+            <li><strong>Contain the breach:</strong> Take immediate steps to stop the unauthorized access and prevent further exposure</li>
+            <li><strong>Notify affected individuals:</strong> Contact you by email as soon as reasonably practicable, and no later than required by applicable law</li>
+            <li><strong>Notify regulators:</strong> Report the breach to the Alabama Attorney General and any other required regulatory bodies as mandated by the Alabama Data Breach Notification Act (Ala. Code 8-38-1 et seq.) and other applicable laws</li>
+            <li><strong>Provide details:</strong> Our notification will include: a description of the breach, the types of information involved, the steps we are taking to address it, and what you can do to protect yourself</li>
+          </ol>
+
+          <div class="legal-callout">
+            <p><strong>Alabama law specifics:</strong> Under the Alabama Data Breach Notification Act, we are required to notify affected individuals within 45 days of determining that a breach has occurred. We aim to notify you well within that timeframe.</p>
+          </div>
+
+          <p>If you are a client and a breach affects data on your hosted website (data for which you are the controller), we will notify you promptly so that you can fulfill your own notification obligations to your users.</p>
+        </section>
+
+        <!-- 14. International Transfers -->
+        <section id="international" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">14.</span> International Transfers</h2>
+          <p>Motive Hosting is based in the United States, and our primary infrastructure is located in Atlanta, Georgia. Our Services are designed for businesses operating in the United States, particularly the Gulf Coast region.</p>
+          <p>Your data is primarily stored and processed in the United States. One subprocessor (OpenSRS/Tucows, for domain registration) is based in Canada. Canada has been recognized by many international bodies as providing adequate data protection.</p>
+          <p>If you are accessing our Services from outside the United States, please be aware that your data will be transferred to and processed in the United States, where data protection laws may differ from those in your country. By using our Services, you consent to this transfer.</p>
+          <p>We do not currently target or offer services to individuals in the European Union. If this changes, we will update this policy to address GDPR requirements and implement appropriate transfer mechanisms.</p>
+        </section>
+
+        <!-- 15. Changes to This Policy -->
+        <section id="changes" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">15.</span> Changes to This Policy</h2>
+          <p>We may update this Privacy Policy from time to time. When we make changes:</p>
+          <ul>
+            <li>We will update the "Last updated" date at the top of this page</li>
+            <li>For material changes that affect how we collect, use, or share your data, we will notify you by email at least 30 days before the changes take effect</li>
+            <li>We will post the revised policy on our website</li>
+          </ul>
+          <p>We encourage you to review this policy periodically. Your continued use of the Services after changes take effect constitutes acceptance of the revised policy.</p>
+        </section>
+
+        <!-- 16. Contact Information -->
+        <section id="contact" class="legal-section">
+          <h2 class="legal-section__title"><span class="legal-section__number">16.</span> Contact Information</h2>
+          <p>If you have questions, concerns, or requests related to this Privacy Policy or our data practices, contact us:</p>
+          <p>
+            <strong>Motive AI, LLC</strong> d/b/a Motive Hosting<br>
+            Email: <a href="mailto:hello@motive.host">hello@motive.host</a><br>
+            Web: <a href="https://motive.host">motive.host</a>
+          </p>
+          <p>For privacy-specific requests, use the subject line "Privacy Request" so we can route your inquiry appropriately. We will respond to all privacy inquiries within 30 days.</p>
+        </section>
+
+        <!-- Cross-links -->
+        <div class="legal-links">
+          <span class="legal-links__label">See also:</span>
+          <a href="terms.html">Terms of Service</a>
+          <a href="index.html">Back to Home</a>
+        </div>
+
+        <!-- Attorney Review Notice -->
+        <div class="legal-notice">
+          <p><strong>Notice:</strong> This document was drafted for informational and operational purposes and has not yet been reviewed by a licensed attorney. Motive AI, LLC recommends that this Privacy Policy be reviewed by qualified legal counsel licensed in the State of Alabama before being published as a binding legal document. Particular attention should be given to CCPA/CPRA compliance, the Alabama Data Breach Notification Act, and the controller/processor distinctions described herein.</p>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer__inner">
+      <div class="footer__logo">
+        <img src="img/logo-nav.png" alt="Motive Hosting" height="36" width="52">
+      </div>
+      <p class="footer__text">Premier managed hosting for Gulf Coast businesses. A Motive AI company.</p>
+      <div class="footer__links">
+        <a href="index.html" class="footer__link">Home</a>
+        <a href="index.html#pricing" class="footer__link">Plans</a>
+        <a href="terms.html" class="footer__link">Terms</a>
+        <a href="privacy.html" class="footer__link">Privacy</a>
+        <a href="mailto:hello@motive.host" class="footer__link">Contact</a>
+      </div>
+      <p class="footer__copyright">&copy; 2026 Motive Hosting. A Motive AI company.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

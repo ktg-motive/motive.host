@@ -1,0 +1,2139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Motive Hosting — Premier Managed Hosting for Gulf Coast Businesses</title>
+  <meta name="description" content="Motive Hosting is the premier managed hosting service for Gulf Coast businesses. Website hosting, business email, security, backups, and more — all handled by experts.">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Motive Hosting — Premier Managed Hosting for Gulf Coast Businesses">
+  <meta property="og:description" content="Your website, email, security, and backups — managed by experts who know the Gulf Coast. Plans from $99/month.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://motive.host">
+  <meta property="og:site_name" content="Motive Hosting">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Motive Hosting — Premier Managed Hosting for Gulf Coast Businesses">
+  <meta name="twitter:description" content="Your website, email, security, and backups — managed by experts who know the Gulf Coast.">
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Motive Hosting",
+    "description": "Premier managed hosting service for Gulf Coast businesses.",
+    "url": "https://motive.host",
+    "areaServed": {
+      "@type": "GeoCircle",
+      "geoMidpoint": {
+        "@type": "GeoCoordinates",
+        "latitude": 30.6954,
+        "longitude": -88.0399
+      },
+      "geoRadius": "200 mi"
+    },
+    "parentOrganization": {
+      "@type": "Organization",
+      "name": "Motive AI",
+      "url": "https://motiveai.ai"
+    }
+  }
+  </script>
+
+  <!-- Preload Fonts -->
+  <link rel="preload" href="fonts/playfair-display-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/inter-500.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/JetBrainsMono-Medium.woff2" as="font" type="font/woff2" crossorigin>
+
+  <style>
+    /* =============================================
+       FONTS
+       ============================================= */
+    @font-face {
+      font-family: 'Playfair Display';
+      font-style: normal;
+      font-weight: 600;
+      font-display: swap;
+      src: url('fonts/playfair-display-latin.woff2') format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    @font-face {
+      font-family: 'Playfair Display';
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: url('fonts/playfair-display-latin.woff2') format('woff2');
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('fonts/inter-400.woff2') format('woff2');
+    }
+
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url('fonts/inter-500.woff2') format('woff2');
+    }
+
+    @font-face {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 600;
+      font-display: swap;
+      src: url('fonts/inter-600.woff2') format('woff2');
+    }
+
+    @font-face {
+      font-family: 'JetBrains Mono';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url('fonts/JetBrainsMono-Medium.woff2') format('woff2');
+    }
+
+    /* =============================================
+       RESET & BASE
+       ============================================= */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --deep-navy: #1F2329;
+      --navy: #23272E;
+      --gold: #D4AF37;
+      --gold-hover: #C4A030;
+      --gold-active: #B49229;
+      --slate: #8892A0;
+      --muted-white: #E8ECF1;
+      --off-white: #272B31;
+      --font-heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+      --max-width: 1200px;
+      --gutter: 64px;
+      --nav-height: 72px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 88px;
+    }
+
+    body {
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--muted-white);
+      background: var(--off-white);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    img { max-width: 100%; height: auto; display: block; }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+    ul { list-style: none; }
+
+    /* Skip to content */
+    .skip-link {
+      position: absolute;
+      top: -100%;
+      left: 16px;
+      z-index: 10000;
+      padding: 12px 24px;
+      background: var(--gold);
+      color: var(--deep-navy);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 0 0 4px 4px;
+      transition: top 200ms;
+    }
+
+    .skip-link:focus {
+      top: 0;
+    }
+
+    /* Focus visible */
+    :focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
+    }
+
+    :focus:not(:focus-visible) {
+      outline: none;
+    }
+
+    /* =============================================
+       UTILITY
+       ============================================= */
+    .container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding-left: var(--gutter);
+      padding-right: var(--gutter);
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* =============================================
+       BUTTONS
+       ============================================= */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.2;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border-radius: 4px;
+      min-width: 160px;
+      transition: background-color 180ms ease, transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .btn--large {
+      padding: 14px 32px;
+    }
+
+    .btn--medium {
+      padding: 10px 24px;
+    }
+
+    .btn--primary {
+      background: var(--gold);
+      color: var(--deep-navy);
+    }
+
+    .btn--primary:hover {
+      background: var(--gold-hover);
+      box-shadow: 0 2px 16px rgba(212, 175, 55, 0.3);
+    }
+
+    .btn--primary:active {
+      background: var(--gold-active);
+      transform: scale(0.98);
+    }
+
+    .btn--outline {
+      background: transparent;
+      color: var(--gold);
+      border: 1px solid var(--gold);
+    }
+
+    .btn--outline:hover {
+      background: rgba(212, 175, 55, 0.08);
+      box-shadow: 0 2px 16px rgba(212, 175, 55, 0.15);
+    }
+
+    .btn--outline:active {
+      transform: scale(0.98);
+    }
+
+    .btn--outline-dark {
+      background: transparent;
+      color: var(--deep-navy);
+      border: 1px solid var(--deep-navy);
+    }
+
+    .btn--outline-dark:hover {
+      background: rgba(31, 35, 41, 0.06);
+    }
+
+    .btn--outline-dark:active {
+      transform: scale(0.98);
+    }
+
+    .btn--full {
+      width: 100%;
+    }
+
+    /* =============================================
+       TECHNICAL BACKGROUND PATTERNS
+       ============================================= */
+    .bg-grid {
+      position: relative;
+    }
+
+    .bg-grid::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(136, 146, 160, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(136, 146, 160, 0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+
+    .bg-dots {
+      position: relative;
+    }
+
+    .bg-dots::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(136, 146, 160, 0.07) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+
+    /* =============================================
+       STATUS INDICATOR
+       ============================================= */
+    .status-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      margin-right: 8px;
+      vertical-align: middle;
+      position: relative;
+    }
+
+    .status-dot::after {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      background: var(--gold);
+      opacity: 0;
+      animation: pulse-ring 3s ease-out infinite;
+    }
+
+    @keyframes pulse-ring {
+      0% { opacity: 0.4; transform: scale(0.8); }
+      70% { opacity: 0; transform: scale(2.2); }
+      100% { opacity: 0; transform: scale(2.2); }
+    }
+
+    /* =============================================
+       NAVIGATION
+       ============================================= */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      height: var(--nav-height);
+      background: var(--deep-navy);
+      border-bottom: 1px solid rgba(136, 146, 160, 0.1);
+      transition: background-color 250ms ease, backdrop-filter 250ms ease;
+    }
+
+    .nav--scrolled {
+      background: rgba(31, 35, 41, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+
+    .nav__inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 var(--gutter);
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav__logo {
+      display: flex;
+      align-items: center;
+    }
+
+    .nav__logo img {
+      height: 36px;
+      width: auto;
+    }
+
+    .nav__links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav__link {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted-white);
+      transition: color 150ms ease;
+      padding: 4px 0;
+    }
+
+    .nav__link:hover {
+      color: var(--gold);
+    }
+
+    .nav__cta {
+      margin-left: 8px;
+    }
+
+    .nav__hamburger {
+      display: none;
+      width: 44px;
+      height: 44px;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted-white);
+    }
+
+    .nav__hamburger svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    /* Mobile menu overlay */
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 999;
+      background: rgba(31, 35, 41, 0.98);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: opacity 250ms ease, transform 250ms ease;
+    }
+
+    .mobile-menu--open {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .mobile-menu__link {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted-white);
+      text-align: center;
+    }
+
+    .mobile-menu__link:hover {
+      color: var(--gold);
+    }
+
+    .mobile-menu__cta {
+      margin-top: 16px;
+      width: 260px;
+    }
+
+    .mobile-menu__close {
+      position: absolute;
+      top: 14px;
+      right: 20px;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted-white);
+    }
+
+    .mobile-menu__close svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    /* =============================================
+       HERO
+       ============================================= */
+    .hero {
+      background: var(--deep-navy);
+      padding: 152px 0 112px;
+      margin-top: var(--nav-height);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(136, 146, 160, 0.05) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+
+    /* Subtle radial glow behind hero content */
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 500px;
+      background: radial-gradient(ellipse, rgba(212, 175, 55, 0.04) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero__inner {
+      max-width: 840px;
+      margin: 0 auto;
+      padding: 0 var(--gutter);
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero__overline {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--slate);
+      margin-bottom: 24px;
+    }
+
+    .hero__title {
+      font-family: var(--font-heading);
+      font-size: 64px;
+      font-weight: 700;
+      line-height: 1.08;
+      letter-spacing: -0.025em;
+      color: var(--muted-white);
+      margin-bottom: 24px;
+    }
+
+    .hero__subtitle {
+      font-size: 18px;
+      font-weight: 400;
+      line-height: 1.65;
+      color: var(--slate);
+      margin-bottom: 40px;
+      max-width: 580px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero__cta-group {
+      margin-bottom: 32px;
+    }
+
+    .hero__status {
+      display: inline-flex;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: var(--slate);
+      text-transform: uppercase;
+    }
+
+    .hero__caption {
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+      color: rgba(136, 146, 160, 0.7);
+      margin-top: 16px;
+    }
+
+    /* =============================================
+       VALUE PROPOSITIONS
+       ============================================= */
+    .value {
+      background: var(--off-white);
+      padding: 96px 0;
+      border-top: 1px solid rgba(136, 146, 160, 0.08);
+    }
+
+    .value__header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .value__label {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--slate);
+      margin-bottom: 16px;
+    }
+
+    .value__title {
+      font-family: var(--font-heading);
+      font-size: 40px;
+      font-weight: 600;
+      line-height: 1.15;
+      letter-spacing: -0.015em;
+      color: var(--muted-white);
+    }
+
+    .value__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+
+    .value__card {
+      background: #2C3038;
+      border: 1px solid rgba(136, 146, 160, 0.1);
+      border-radius: 4px;
+      padding: 40px 32px;
+    }
+
+    .value__icon {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 24px;
+      color: var(--gold);
+    }
+
+    .value__icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .value__card-title {
+      font-family: var(--font-body);
+      font-size: 18px;
+      font-weight: 600;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+      color: var(--muted-white);
+      margin-bottom: 12px;
+    }
+
+    .value__card-text {
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--slate);
+    }
+
+    /* =============================================
+       PRICING
+       ============================================= */
+    .pricing {
+      background: var(--deep-navy);
+      padding: 96px 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pricing::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(136, 146, 160, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(136, 146, 160, 0.035) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+    }
+
+    .pricing__header {
+      text-align: center;
+      margin-bottom: 64px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .pricing__label {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--slate);
+      margin-bottom: 16px;
+    }
+
+    .pricing__title {
+      font-family: var(--font-heading);
+      font-size: 40px;
+      font-weight: 600;
+      line-height: 1.15;
+      letter-spacing: -0.015em;
+      color: var(--muted-white);
+      margin-bottom: 16px;
+    }
+
+    .pricing__subtitle {
+      font-size: 17px;
+      line-height: 1.6;
+      color: var(--slate);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .pricing__grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      align-items: start;
+      position: relative;
+      z-index: 1;
+    }
+
+    .pricing-card {
+      background: var(--navy);
+      border: 1px solid rgba(136, 146, 160, 0.12);
+      border-radius: 4px;
+      padding: 40px 32px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pricing-card--popular {
+      background: var(--navy);
+      border: 1px solid var(--gold);
+      box-shadow: 0 0 40px rgba(212, 175, 55, 0.1);
+    }
+
+    .pricing-card__badge {
+      position: absolute;
+      top: -13px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--gold);
+      color: var(--deep-navy);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 5px 16px;
+      border-radius: 2px;
+      white-space: nowrap;
+    }
+
+    .pricing-card__name {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--slate);
+      margin-bottom: 16px;
+    }
+
+    .pricing-card__price {
+      display: flex;
+      align-items: baseline;
+      margin-bottom: 4px;
+    }
+
+    .pricing-card__amount {
+      font-family: var(--font-mono);
+      font-size: 48px;
+      font-weight: 500;
+      color: var(--muted-white);
+      line-height: 1;
+    }
+
+    .pricing-card__period {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--slate);
+      margin-left: 4px;
+    }
+
+    .pricing-card__billing {
+      font-size: 13px;
+      font-weight: 400;
+      color: rgba(136, 146, 160, 0.6);
+      margin-bottom: 28px;
+    }
+
+    .pricing-card__cta {
+      margin-bottom: 32px;
+    }
+
+    .pricing-card__specs {
+      flex: 1;
+    }
+
+    .pricing-card__spec {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(136, 146, 160, 0.08);
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .pricing-card__spec:first-child {
+      border-top: 1px solid rgba(136, 146, 160, 0.08);
+    }
+
+    .pricing-card__spec-label {
+      color: rgba(232, 236, 241, 0.7);
+    }
+
+    .pricing-card__spec-value {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted-white);
+      text-align: right;
+    }
+
+    .pricing-card__divider {
+      height: 1px;
+      background: rgba(136, 146, 160, 0.1);
+      margin: 20px 0 16px;
+    }
+
+    .pricing-card__features-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--slate);
+      margin-bottom: 12px;
+    }
+
+    .pricing-card__feature {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      line-height: 1.5;
+      color: rgba(232, 236, 241, 0.75);
+      margin-bottom: 10px;
+    }
+
+    .pricing-card__check {
+      flex-shrink: 0;
+      width: 14px;
+      height: 14px;
+      color: var(--gold);
+      margin-top: 2px;
+    }
+
+    /* =============================================
+       FEATURES
+       ============================================= */
+    .features {
+      background: var(--off-white);
+      padding: 96px 0;
+      border-top: 1px solid rgba(136, 146, 160, 0.08);
+    }
+
+    .features__header {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .features__label {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--slate);
+      margin-bottom: 16px;
+    }
+
+    .features__title {
+      font-family: var(--font-heading);
+      font-size: 40px;
+      font-weight: 600;
+      line-height: 1.15;
+      letter-spacing: -0.015em;
+      color: var(--muted-white);
+    }
+
+    .features__grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 48px;
+    }
+
+    .features__category {
+      background: #2C3038;
+      border: 1px solid rgba(136, 146, 160, 0.1);
+      border-radius: 4px;
+      padding: 32px;
+    }
+
+    .features__category-title {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted-white);
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(136, 146, 160, 0.12);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .features__category-icon {
+      width: 18px;
+      height: 18px;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .features__list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .features__item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--slate);
+    }
+
+    .features__check {
+      flex-shrink: 0;
+      width: 16px;
+      height: 16px;
+      color: var(--gold);
+      margin-top: 2px;
+    }
+
+    .features__tier-note {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: var(--slate);
+      background: rgba(136, 146, 160, 0.1);
+      padding: 1px 6px;
+      border-radius: 2px;
+      margin-left: 4px;
+      white-space: nowrap;
+    }
+
+    /* =============================================
+       FAQ
+       ============================================= */
+    .faq {
+      background: var(--deep-navy);
+      padding: 96px 0;
+      position: relative;
+    }
+
+    .faq::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(136, 146, 160, 0.04) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+
+    .faq__header {
+      text-align: center;
+      margin-bottom: 56px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .faq__label {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--slate);
+      margin-bottom: 16px;
+    }
+
+    .faq__title {
+      font-family: var(--font-heading);
+      font-size: 40px;
+      font-weight: 600;
+      line-height: 1.15;
+      letter-spacing: -0.015em;
+      color: var(--muted-white);
+    }
+
+    .faq__list {
+      max-width: 800px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid rgba(136, 146, 160, 0.1);
+      transition: background-color 150ms ease;
+    }
+
+    .faq-item:first-child {
+      border-top: 1px solid rgba(136, 146, 160, 0.1);
+    }
+
+    .faq-item:hover {
+      background: var(--navy);
+    }
+
+    .faq-item--open {
+      background: var(--navy);
+    }
+
+    .faq-item__trigger {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 0;
+      font-family: var(--font-body);
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--muted-white);
+      text-align: left;
+      cursor: pointer;
+      min-height: 44px;
+      gap: 24px;
+    }
+
+    .faq-item__chevron {
+      flex-shrink: 0;
+      width: 14px;
+      height: 14px;
+      color: var(--slate);
+      transition: transform 250ms ease, color 250ms ease;
+    }
+
+    .faq-item--open .faq-item__chevron {
+      transform: rotate(180deg);
+      color: var(--gold);
+    }
+
+    .faq-item__content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 300ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .faq-item--open .faq-item__content {
+      max-height: 400px;
+    }
+
+    .faq-item__answer {
+      padding: 0 0 24px;
+      font-size: 15px;
+      line-height: 1.65;
+      color: var(--slate);
+      max-width: 680px;
+    }
+
+    /* =============================================
+       FINAL CTA
+       ============================================= */
+    .final-cta {
+      background: var(--off-white);
+      padding: 96px 0;
+      text-align: center;
+      border-top: 1px solid rgba(136, 146, 160, 0.08);
+    }
+
+    .final-cta__inner {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 var(--gutter);
+    }
+
+    .final-cta__label {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--slate);
+      margin-bottom: 16px;
+    }
+
+    .final-cta__title {
+      font-family: var(--font-heading);
+      font-size: 40px;
+      font-weight: 600;
+      line-height: 1.15;
+      letter-spacing: -0.015em;
+      color: var(--muted-white);
+      margin-bottom: 20px;
+    }
+
+    .final-cta__text {
+      font-size: 17px;
+      line-height: 1.6;
+      color: var(--slate);
+      margin-bottom: 36px;
+      max-width: 520px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .final-cta__caption {
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+      color: rgba(136, 146, 160, 0.8);
+      margin-top: 16px;
+    }
+
+    /* =============================================
+       FOOTER
+       ============================================= */
+    .footer {
+      background: var(--deep-navy);
+      padding: 56px 0 36px;
+      border-top: 1px solid rgba(136, 146, 160, 0.1);
+    }
+
+    .footer__grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 48px;
+      padding-bottom: 36px;
+      border-bottom: 1px solid rgba(136, 146, 160, 0.08);
+    }
+
+    .footer__brand-text {
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--slate);
+      margin-top: 16px;
+      max-width: 280px;
+    }
+
+    .footer__heading {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted-white);
+      margin-bottom: 20px;
+    }
+
+    .footer__link {
+      display: block;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--slate);
+      margin-bottom: 10px;
+      transition: color 150ms ease;
+    }
+
+    .footer__link:hover {
+      color: var(--gold);
+    }
+
+    .footer__link--gold {
+      color: var(--gold);
+    }
+
+    .footer__bottom {
+      text-align: center;
+      padding-top: 28px;
+    }
+
+    .footer__copyright {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: rgba(136, 146, 160, 0.5);
+    }
+
+    .footer__logo img {
+      height: 36px;
+      width: auto;
+    }
+
+    /* =============================================
+       SCROLL ANIMATIONS
+       ============================================= */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1), transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reveal--visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal--delay-1 { transition-delay: 80ms; }
+    .reveal--delay-2 { transition-delay: 160ms; }
+    .reveal--delay-3 { transition-delay: 240ms; }
+    .reveal--delay-4 { transition-delay: 320ms; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal {
+        transform: none;
+        transition: opacity 250ms ease;
+      }
+
+      .reveal--delay-1,
+      .reveal--delay-2,
+      .reveal--delay-3,
+      .reveal--delay-4 {
+        transition-delay: 0ms;
+      }
+
+      html {
+        scroll-behavior: auto;
+      }
+
+      .faq-item__content {
+        transition: none;
+      }
+
+      .faq-item__chevron {
+        transition: none;
+      }
+
+      .btn {
+        transition: none;
+      }
+
+      .btn:hover {
+        transform: none;
+      }
+
+      .nav {
+        transition: none;
+      }
+
+      .status-dot::after {
+        animation: none;
+      }
+    }
+
+    /* =============================================
+       RESPONSIVE -- TABLET
+       ============================================= */
+    @media (max-width: 1024px) {
+      :root {
+        --gutter: 40px;
+      }
+
+      .hero {
+        padding: 120px 0 88px;
+      }
+
+      .hero__title {
+        font-size: 48px;
+      }
+
+      .value { padding: 80px 0; }
+      .pricing { padding: 80px 0; }
+      .features { padding: 80px 0; }
+      .faq { padding: 80px 0; }
+      .final-cta { padding: 80px 0; }
+
+      .pricing__grid {
+        gap: 16px;
+      }
+
+      .pricing-card {
+        padding: 32px 24px;
+      }
+
+      .features__grid {
+        gap: 32px;
+      }
+
+      .features__category {
+        padding: 28px;
+      }
+    }
+
+    /* =============================================
+       RESPONSIVE -- MOBILE
+       ============================================= */
+    @media (max-width: 768px) {
+      :root {
+        --gutter: 24px;
+        --nav-height: 60px;
+      }
+
+      .nav__links {
+        display: none;
+      }
+
+      .nav__hamburger {
+        display: flex;
+      }
+
+      .nav__logo img {
+        height: 30px;
+      }
+
+      .hero {
+        padding: 88px 0 72px;
+      }
+
+      .hero__title {
+        font-size: 40px;
+      }
+
+      .hero__subtitle {
+        font-size: 16px;
+      }
+
+      .value { padding: 64px 0; }
+      .value__header { margin-bottom: 40px; }
+      .value__title { font-size: 32px; }
+
+      .value__grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .value__card {
+        padding: 32px 24px;
+      }
+
+      .pricing { padding: 64px 0; }
+      .pricing__header { margin-bottom: 40px; }
+      .pricing__title { font-size: 32px; }
+
+      .pricing__grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        max-width: 440px;
+        margin: 0 auto;
+      }
+
+      .pricing-card {
+        padding: 32px 24px;
+      }
+
+      .features { padding: 64px 0; }
+      .features__header { margin-bottom: 40px; }
+      .features__title { font-size: 32px; }
+
+      .features__grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .features__category {
+        padding: 24px;
+      }
+
+      .faq { padding: 64px 0; }
+      .faq__title { font-size: 32px; }
+
+      .faq-item__trigger {
+        padding: 20px 0;
+        font-size: 15px;
+      }
+
+      .faq-item__answer {
+        padding: 0 0 20px;
+        font-size: 14px;
+      }
+
+      .final-cta { padding: 64px 0; }
+      .final-cta__title { font-size: 32px; }
+      .final-cta__text { font-size: 16px; }
+
+      .footer__grid {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 32px;
+      }
+
+      .footer__brand-text {
+        max-width: none;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .footer__logo {
+        display: flex;
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero__title {
+        font-size: 32px;
+      }
+
+      .hero__overline {
+        font-size: 11px;
+      }
+
+      .pricing-card__amount {
+        font-size: 40px;
+      }
+
+      .value__title,
+      .pricing__title,
+      .features__title,
+      .faq__title,
+      .final-cta__title {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Skip to content -->
+  <a href="#main" class="skip-link">Skip to main content</a>
+
+  <!-- Navigation -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav__inner">
+      <a href="/" class="nav__logo" aria-label="Motive Hosting home">
+        <img src="img/logo-nav.png" alt="Motive Hosting" height="36" width="52">
+      </a>
+      <div class="nav__links">
+        <a href="#pricing" class="nav__link">Plans</a>
+        <a href="#features" class="nav__link">Features</a>
+        <a href="#faq" class="nav__link">FAQ</a>
+        <a href="https://host.motiveai.ai" class="btn btn--primary btn--medium nav__cta" target="_blank" rel="noopener noreferrer">Get Started</a>
+      </div>
+      <button class="nav__hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="mobile-menu" role="dialog" aria-label="Mobile navigation" aria-modal="true">
+    <button class="mobile-menu__close" aria-label="Close menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+    <a href="#pricing" class="mobile-menu__link">Plans</a>
+    <a href="#features" class="mobile-menu__link">Features</a>
+    <a href="#faq" class="mobile-menu__link">FAQ</a>
+    <a href="https://host.motiveai.ai" class="btn btn--primary btn--large mobile-menu__cta" target="_blank" rel="noopener noreferrer">Get Started</a>
+  </div>
+
+  <main id="main">
+    <!-- Hero -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero__inner">
+        <p class="hero__overline reveal">Managed Hosting for the Gulf Coast</p>
+        <h1 id="hero-title" class="hero__title reveal reveal--delay-1">When Experts Handle Your Hosting, You Handle Your Business</h1>
+        <p class="hero__subtitle reveal reveal--delay-2">Professional web hosting, email, and security for Gulf Coast businesses that want their online presence managed right.</p>
+        <div class="hero__cta-group reveal reveal--delay-3">
+          <a href="#pricing" class="btn btn--primary btn--large">See Plans</a>
+          <p class="hero__caption">No contracts. No setup fees. Cancel anytime.</p>
+        </div>
+        <div class="hero__status reveal reveal--delay-4">
+          <span class="status-dot" aria-hidden="true"></span>
+          Systems Monitored 24/7
+        </div>
+      </div>
+    </section>
+
+    <!-- Value Propositions -->
+    <section class="value" aria-labelledby="value-title">
+      <div class="container">
+        <div class="value__header">
+          <p class="value__label reveal">Why Motive Hosting</p>
+          <h2 id="value-title" class="value__title reveal reveal--delay-1">What Your Business Gets</h2>
+        </div>
+        <div class="value__grid">
+          <!-- Pillar 1: Expert Management -->
+          <div class="value__card reveal reveal--delay-1">
+            <div class="value__icon">
+              <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="6" y="10" width="36" height="28" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M6 18h36" stroke="currentColor" stroke-width="1.5"/>
+                <circle cx="12" cy="14" r="1.5" fill="currentColor"/>
+                <circle cx="17" cy="14" r="1.5" fill="currentColor"/>
+                <circle cx="22" cy="14" r="1.5" fill="currentColor"/>
+                <path d="M16 28l4-4 3 3 5-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h3 class="value__card-title">Managed by Real Experts</h3>
+            <p class="value__card-text">A real team behind every site we host. We monitor, update, and optimize your web presence so you never have to think about it.</p>
+          </div>
+          <!-- Pillar 2: All-in-One -->
+          <div class="value__card reveal reveal--delay-2">
+            <div class="value__icon">
+              <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="6" y="6" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                <rect x="26" y="6" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                <rect x="6" y="26" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                <rect x="26" y="26" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M22 14h4M14 22v4M34 22v4M22 34h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <h3 class="value__card-title">Everything Under One Roof</h3>
+            <p class="value__card-text">Hosting, email, backups, security, and newsletters. One provider, one bill, one team that knows your entire setup.</p>
+          </div>
+          <!-- Pillar 3: Modern Infrastructure -->
+          <div class="value__card reveal reveal--delay-3">
+            <div class="value__icon">
+              <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M24 6l18 10v16L24 42 6 32V16L24 6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                <path d="M24 6v36M6 16l18 10 18-10" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" opacity="0.3"/>
+                <circle cx="24" cy="24" r="5" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+            </div>
+            <h3 class="value__card-title">Built for Modern Businesses</h3>
+            <p class="value__card-text">Whether your site runs on WordPress or a modern web application, we handle it. Most local providers cannot say the same.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing -->
+    <section id="pricing" class="pricing" aria-labelledby="pricing-title">
+      <div class="container">
+        <div class="pricing__header">
+          <p class="pricing__label reveal">Pricing</p>
+          <h2 id="pricing-title" class="pricing__title reveal reveal--delay-1">Transparent Pricing, Complete Service</h2>
+          <p class="pricing__subtitle reveal reveal--delay-2">Every plan includes full management. No hidden fees, no surprise charges, no fine print.</p>
+        </div>
+        <div class="pricing__grid">
+          <!-- Harbor -->
+          <div class="pricing-card reveal reveal--delay-1">
+            <h3 class="pricing-card__name">Harbor</h3>
+            <div class="pricing-card__price">
+              <span class="pricing-card__amount">$99</span>
+              <span class="pricing-card__period">/mo</span>
+            </div>
+            <p class="pricing-card__billing">Billed monthly</p>
+            <div class="pricing-card__cta">
+              <a href="https://host.motiveai.ai" class="btn btn--outline btn--large btn--full" target="_blank" rel="noopener noreferrer">Get Started</a>
+            </div>
+            <div class="pricing-card__specs">
+              <div class="pricing-card__spec">
+                <span class="pricing-card__spec-label">Sites</span>
+                <span class="pricing-card__spec-value">1 WordPress</span>
+              </div>
+              <div class="pricing-card__spec">
+                <span class="pricing-card__spec-label">Storage</span>
+                <span class="pricing-card__spec-value">10 GB</span>
+              </div>
+              <div class="pricing-card__spec">
+                <span class="pricing-card__spec-label">Email Accounts</span>
+                <span class="pricing-card__spec-value">5</span>
+              </div>
+              <div class="pricing-card__spec">
+                <span class="pricing-card__spec-label">SSL</span>
+                <span class="pricing-card__spec-value">Included</span>
+              </div>
+              <div class="pricing-card__spec">
+                <span class="pricing-card__spec-label">Backups</span>
+                <span class="pricing-card__spec-value">Weekly</span>
+              </div>
+              <div class="pricing-card__spec">
+                <span class="pricing-card__spec-label">Monitoring</span>
+                <span class="pricing-card__spec-value">24/7</span>
+              </div>
+              <div class="pricing-card__spec">
+                <span class="pricing-card__spec-label">Support</span>
+                <span class="pricing-card__spec-value">Email</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gulf (Popular) -->
+          <div class="pricing-card pricing-card--popular reveal reveal--delay-2">
+            <span class="pricing-card__badge">Popular</span>
+            <h3 class="pricing-card__name">Gulf</h3>
+            <div class="pricing-card__price">
+              <span class="pricing-card__amount">$179</span>
+              <span class="pricing-card__period">/mo</span>
+            </div>
+            <p class="pricing-card__billing">Billed monthly</p>
+            <div class="pricing-card__cta">
+              <a href="https://host.motiveai.ai" class="btn btn--primary btn--large btn--full" target="_blank" rel="noopener noreferrer">Get Started</a>
+            </div>
+            <div class="pricing-card__specs">
+              <div class="pricing-card__spec">
+                <span class="pricing-card__spec-label">Sites</span>
+                <span class="pricing-card__spec-value">3 (WP + Apps)</span>
+              </div>
+              <div class="pricing-card__spec">
+                <span class="pricing-card__spec-label">Storage</span>
+                <span class="pricing-card__spec-value">25 GB</span>
+              </div>
+              <div class="pricing-card__spec">
+                <span class="pricing-card__spec-label">Email Accounts</span>
+                <span class="pricing-card__spec-value">10</span>
+              </div>
+              <div class="pricing-card__spec">
+                <span class="pricing-card__spec-label">SSL + CDN</span>
+                <span class="pricing-card__spec-value">Included</span>
+              </div>
+              <div class="pricing-card__spec">
+                <span class="pricing-card__spec-label">Backups</span>
+                <span class="pricing-card__spec-value">Daily</span>
+              </div>
+              <div class="pricing-card__spec">
+                <span class="pricing-card__spec-label">Newsletter</span>
+                <span class="pricing-card__spec-value">500 subs</span>
+              </div>
+              <div class="pricing-card__spec">
+                <span class="pricing-card__spec-label">Security Updates</span>
+                <span class="pricing-card__spec-value">Monthly</span>
+              </div>
+              <div class="pricing-card__spec">
+                <span class="pricing-card__spec-label">Health Reports</span>
+                <span class="pricing-card__spec-value">Quarterly</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Horizon -->
+          <div class="pricing-card reveal reveal--delay-3">
+            <h3 class="pricing-card__name">Horizon</h3>
+            <div class="pricing-card__price">
+              <span class="pricing-card__amount">$249</span>
+              <span class="pricing-card__period">/mo</span>
+            </div>
+            <p class="pricing-card__billing">Billed monthly</p>
+            <div class="pricing-card__cta">
+              <a href="https://host.motiveai.ai" class="btn btn--outline btn--large btn--full" target="_blank" rel="noopener noreferrer">Get Started</a>
+            </div>
+            <div class="pricing-card__specs">
+              <div class="pricing-card__spec">
+                <span class="pricing-card__spec-label">Sites</span>
+                <span class="pricing-card__spec-value">5 (WP + Apps)</span>
+              </div>
+              <div class="pricing-card__spec">
+                <span class="pricing-card__spec-label">Storage</span>
+                <span class="pricing-card__spec-value">50 GB</span>
+              </div>
+              <div class="pricing-card__spec">
+                <span class="pricing-card__spec-label">Email Accounts</span>
+                <span class="pricing-card__spec-value">25</span>
+              </div>
+              <div class="pricing-card__spec">
+                <span class="pricing-card__spec-label">SSL + CDN</span>
+                <span class="pricing-card__spec-value">Included</span>
+              </div>
+              <div class="pricing-card__spec">
+                <span class="pricing-card__spec-label">AI SEO Insights</span>
+                <span class="pricing-card__spec-value">Included</span>
+              </div>
+              <div class="pricing-card__spec">
+                <span class="pricing-card__spec-label">AI Alerts</span>
+                <span class="pricing-card__spec-value">Included</span>
+              </div>
+              <div class="pricing-card__spec">
+                <span class="pricing-card__spec-label">Analytics</span>
+                <span class="pricing-card__spec-value">Monthly</span>
+              </div>
+              <div class="pricing-card__spec">
+                <span class="pricing-card__spec-label">Support</span>
+                <span class="pricing-card__spec-value">Priority</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Detail -->
+    <section id="features" class="features" aria-labelledby="features-title">
+      <div class="container">
+        <div class="features__header">
+          <p class="features__label reveal">Capabilities</p>
+          <h2 id="features-title" class="features__title reveal reveal--delay-1">Everything That Comes With Your Plan</h2>
+        </div>
+        <div class="features__grid">
+          <!-- Website Hosting -->
+          <div class="features__category reveal">
+            <h3 class="features__category-title">
+              <svg class="features__category-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              Website Hosting
+            </h3>
+            <ul class="features__list">
+              <li class="features__item">
+                <svg class="features__check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5 6.5-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Managed WordPress hosting on every plan
+              </li>
+              <li class="features__item">
+                <svg class="features__check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5 6.5-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>Node.js and React application hosting <span class="features__tier-note">Gulf+</span></span>
+              </li>
+              <li class="features__item">
+                <svg class="features__check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5 6.5-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                SSL certificate included on all sites
+              </li>
+              <li class="features__item">
+                <svg class="features__check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5 6.5-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>CDN for faster page loads <span class="features__tier-note">Gulf+</span></span>
+              </li>
+              <li class="features__item">
+                <svg class="features__check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5 6.5-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                99.9% uptime commitment
+              </li>
+            </ul>
+          </div>
+
+          <!-- Security & Backups -->
+          <div class="features__category reveal reveal--delay-1">
+            <h3 class="features__category-title">
+              <svg class="features__category-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Security & Backups
+            </h3>
+            <ul class="features__list">
+              <li class="features__item">
+                <svg class="features__check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5 6.5-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Automated backups (weekly or daily by plan)
+              </li>
+              <li class="features__item">
+                <svg class="features__check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5 6.5-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Malware scanning and removal
+              </li>
+              <li class="features__item">
+                <svg class="features__check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5 6.5-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>Monthly security updates <span class="features__tier-note">Gulf+</span></span>
+              </li>
+              <li class="features__item">
+                <svg class="features__check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5 6.5-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                SSL certificates on every site
+              </li>
+            </ul>
+          </div>
+
+          <!-- Business Email -->
+          <div class="features__category reveal reveal--delay-2">
+            <h3 class="features__category-title">
+              <svg class="features__category-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              Business Email
+            </h3>
+            <ul class="features__list">
+              <li class="features__item">
+                <svg class="features__check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5 6.5-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Professional email on your domain
+              </li>
+              <li class="features__item">
+                <svg class="features__check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5 6.5-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                5 to 25 accounts depending on plan
+              </li>
+              <li class="features__item">
+                <svg class="features__check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5 6.5-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Setup and management handled for you
+              </li>
+            </ul>
+          </div>
+
+          <!-- Newsletter Platform -->
+          <div class="features__category reveal reveal--delay-3">
+            <h3 class="features__category-title">
+              <svg class="features__category-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M4 8h16M4 12h16M4 16h10"/></svg>
+              Newsletter Platform
+            </h3>
+            <ul class="features__list">
+              <li class="features__item">
+                <svg class="features__check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5 6.5-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>Built-in newsletter sending <span class="features__tier-note">Gulf+</span></span>
+              </li>
+              <li class="features__item">
+                <svg class="features__check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5 6.5-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Subscriber management up to 500 contacts
+              </li>
+              <li class="features__item">
+                <svg class="features__check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5 6.5-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Send newsletters from your own domain
+              </li>
+            </ul>
+          </div>
+
+          <!-- Monitoring & Insights -->
+          <div class="features__category reveal reveal--delay-4">
+            <h3 class="features__category-title">
+              <svg class="features__category-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              Monitoring & Insights
+            </h3>
+            <ul class="features__list">
+              <li class="features__item">
+                <svg class="features__check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5 6.5-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                24/7 uptime monitoring on every plan
+              </li>
+              <li class="features__item">
+                <svg class="features__check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5 6.5-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>Quarterly site health reports <span class="features__tier-note">Gulf+</span></span>
+              </li>
+              <li class="features__item">
+                <svg class="features__check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5 6.5-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>AI-powered insights and alerts <span class="features__tier-note">Horizon</span></span>
+              </li>
+              <li class="features__item">
+                <svg class="features__check" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.5 3.5 6.5-8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>Monthly analytics reports <span class="features__tier-note">Horizon</span></span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="faq" aria-labelledby="faq-title">
+      <div class="container">
+        <div class="faq__header">
+          <p class="faq__label reveal">FAQ</p>
+          <h2 id="faq-title" class="faq__title reveal reveal--delay-1">Common Questions</h2>
+        </div>
+        <div class="faq__list" role="list">
+          <!-- FAQ 1 -->
+          <div class="faq-item reveal" role="listitem">
+            <button class="faq-item__trigger" aria-expanded="false">
+              <span>What does "managed hosting" actually mean?</span>
+              <svg class="faq-item__chevron" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="faq-item__content" role="region">
+              <div class="faq-item__answer">
+                <p>It means we handle everything that keeps your website running. Server maintenance, software updates, security patches, performance monitoring, backups -- all of it. You focus on your business. We make sure your online presence works perfectly without you lifting a finger.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ 2 -->
+          <div class="faq-item reveal reveal--delay-1" role="listitem">
+            <button class="faq-item__trigger" aria-expanded="false">
+              <span>How do I move my existing website to Motive Hosting?</span>
+              <svg class="faq-item__chevron" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="faq-item__content" role="region">
+              <div class="faq-item__answer">
+                <p>We handle the migration for you. Once you sign up, our team will coordinate the move of your site, email, and DNS records. We work during low-traffic hours and test everything before making the switch live. Most businesses experience zero downtime during the transition.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ 3 -->
+          <div class="faq-item reveal reveal--delay-1" role="listitem">
+            <button class="faq-item__trigger" aria-expanded="false">
+              <span>What kind of support do I get?</span>
+              <svg class="faq-item__chevron" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="faq-item__content" role="region">
+              <div class="faq-item__answer">
+                <p>Every plan includes email support from our team, not a chatbot or an overseas call center. Gulf and Horizon customers get faster response times, and Horizon includes priority support for critical issues. When something goes wrong, you talk to the people who actually manage your site.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ 4 -->
+          <div class="faq-item reveal reveal--delay-2" role="listitem">
+            <button class="faq-item__trigger" aria-expanded="false">
+              <span>Can I host something other than WordPress?</span>
+              <svg class="faq-item__chevron" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="faq-item__content" role="region">
+              <div class="faq-item__answer">
+                <p>Yes. Our Gulf and Horizon plans support modern web applications built with Node.js and React, in addition to WordPress. Most local hosting providers only handle WordPress. If your business has outgrown a basic WordPress site or you have a custom web application, we can host it.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ 5 -->
+          <div class="faq-item reveal reveal--delay-2" role="listitem">
+            <button class="faq-item__trigger" aria-expanded="false">
+              <span>What is included in the newsletter platform?</span>
+              <svg class="faq-item__chevron" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="faq-item__content" role="region">
+              <div class="faq-item__answer">
+                <p>Gulf and Horizon plans include a built-in newsletter tool. You can manage one subscriber list with up to 500 contacts and send email newsletters directly from your own domain. It is ideal for keeping your customers updated with news, promotions, or announcements without paying for a separate email marketing service.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ 6 -->
+          <div class="faq-item reveal reveal--delay-3" role="listitem">
+            <button class="faq-item__trigger" aria-expanded="false">
+              <span>Is there a contract or can I cancel anytime?</span>
+              <svg class="faq-item__chevron" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="faq-item__content" role="region">
+              <div class="faq-item__answer">
+                <p>No long-term contracts. All plans are billed monthly, and you can cancel at any time. If you decide to leave, we will help you transition to your new provider so nothing breaks in the process.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ 7 -->
+          <div class="faq-item reveal reveal--delay-3" role="listitem">
+            <button class="faq-item__trigger" aria-expanded="false">
+              <span>What happens if my site goes down?</span>
+              <svg class="faq-item__chevron" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="faq-item__content" role="region">
+              <div class="faq-item__answer">
+                <p>Our monitoring systems detect downtime within minutes. When an issue is detected, our team is alerted immediately and begins working on a fix. In most cases, we resolve issues before you even notice. You will also receive a notification so you always know what is happening with your site.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ 8 -->
+          <div class="faq-item reveal reveal--delay-4" role="listitem">
+            <button class="faq-item__trigger" aria-expanded="false">
+              <span>Can I upgrade my plan later?</span>
+              <svg class="faq-item__chevron" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="faq-item__content" role="region">
+              <div class="faq-item__answer">
+                <p>Absolutely. You can upgrade from Harbor to Gulf or from Gulf to Horizon at any time. Your new features activate immediately, and we prorate the billing for the remainder of your current cycle. Growing businesses move up all the time.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="final-cta" aria-labelledby="final-cta-title">
+      <div class="final-cta__inner">
+        <p class="final-cta__label reveal">Get Started</p>
+        <h2 id="final-cta-title" class="final-cta__title reveal reveal--delay-1">Your Web Presence, Handled</h2>
+        <p class="final-cta__text reveal reveal--delay-2">Join Gulf Coast businesses that trust Motive Hosting to keep their websites fast, secure, and running without interruption.</p>
+        <div class="reveal reveal--delay-3">
+          <a href="https://host.motiveai.ai" class="btn btn--primary btn--large" target="_blank" rel="noopener noreferrer">Get Started</a>
+          <p class="final-cta__caption">No contracts. No setup fees. Cancel anytime.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer__grid">
+        <div>
+          <div class="footer__logo">
+            <img src="img/logo-nav.png" alt="Motive Hosting" height="36" width="52">
+          </div>
+          <p class="footer__brand-text">Premier managed hosting for Gulf Coast businesses. A Motive AI company.</p>
+        </div>
+        <div>
+          <p class="footer__heading">Quick Links</p>
+          <a href="#pricing" class="footer__link">Plans</a>
+          <a href="#features" class="footer__link">Features</a>
+          <a href="#faq" class="footer__link">FAQ</a>
+          <a href="https://host.motiveai.ai" class="footer__link footer__link--gold" target="_blank" rel="noopener noreferrer">Client Portal</a>
+        </div>
+        <div>
+          <p class="footer__heading">Legal</p>
+          <a href="privacy.html" class="footer__link">Privacy Policy</a>
+          <a href="terms.html" class="footer__link">Terms of Service</a>
+          <a href="mailto:hello@motive.host" class="footer__link footer__link--gold">hello@motive.host</a>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p class="footer__copyright">&copy; 2026 Motive Hosting. A Motive AI company.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // =============================================
+    // NAVIGATION -- Scroll behavior
+    // =============================================
+    (function() {
+      var nav = document.querySelector('.nav');
+      var ticking = false;
+
+      function updateNav() {
+        if (window.scrollY > 40) {
+          nav.classList.add('nav--scrolled');
+        } else {
+          nav.classList.remove('nav--scrolled');
+        }
+        ticking = false;
+      }
+
+      window.addEventListener('scroll', function() {
+        if (!ticking) {
+          requestAnimationFrame(updateNav);
+          ticking = true;
+        }
+      }, { passive: true });
+    })();
+
+    // =============================================
+    // MOBILE MENU
+    // =============================================
+    (function() {
+      var hamburger = document.querySelector('.nav__hamburger');
+      var mobileMenu = document.getElementById('mobile-menu');
+      var closeBtn = document.querySelector('.mobile-menu__close');
+      var menuLinks = mobileMenu.querySelectorAll('.mobile-menu__link');
+
+      function openMenu() {
+        mobileMenu.style.display = 'flex';
+        mobileMenu.offsetHeight;
+        mobileMenu.classList.add('mobile-menu--open');
+        hamburger.setAttribute('aria-expanded', 'true');
+        document.body.style.overflow = 'hidden';
+        closeBtn.focus();
+      }
+
+      function closeMenu() {
+        mobileMenu.classList.remove('mobile-menu--open');
+        hamburger.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+        setTimeout(function() {
+          if (!mobileMenu.classList.contains('mobile-menu--open')) {
+            mobileMenu.style.display = 'none';
+          }
+        }, 250);
+        hamburger.focus();
+      }
+
+      hamburger.addEventListener('click', openMenu);
+      closeBtn.addEventListener('click', closeMenu);
+
+      menuLinks.forEach(function(link) {
+        link.addEventListener('click', closeMenu);
+      });
+
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && mobileMenu.classList.contains('mobile-menu--open')) {
+          closeMenu();
+        }
+      });
+
+      mobileMenu.addEventListener('keydown', function(e) {
+        if (e.key !== 'Tab') return;
+
+        var focusable = mobileMenu.querySelectorAll('button, a[href]');
+        var first = focusable[0];
+        var last = focusable[focusable.length - 1];
+
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
+      });
+    })();
+
+    // =============================================
+    // FAQ ACCORDION
+    // =============================================
+    (function() {
+      var items = document.querySelectorAll('.faq-item');
+
+      items.forEach(function(item) {
+        var trigger = item.querySelector('.faq-item__trigger');
+
+        trigger.addEventListener('click', function() {
+          var isOpen = item.classList.contains('faq-item--open');
+
+          items.forEach(function(otherItem) {
+            otherItem.classList.remove('faq-item--open');
+            otherItem.querySelector('.faq-item__trigger').setAttribute('aria-expanded', 'false');
+          });
+
+          if (!isOpen) {
+            item.classList.add('faq-item--open');
+            trigger.setAttribute('aria-expanded', 'true');
+          }
+        });
+      });
+    })();
+
+    // =============================================
+    // SCROLL REVEAL ANIMATIONS
+    // =============================================
+    (function() {
+      var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var elements = document.querySelectorAll('.reveal');
+
+      if (prefersReduced) {
+        elements.forEach(function(el) {
+          el.classList.add('reveal--visible');
+        });
+        return;
+      }
+
+      if ('IntersectionObserver' in window) {
+        var observer = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('reveal--visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, {
+          threshold: 0.1,
+          rootMargin: '0px 0px -40px 0px'
+        });
+
+        elements.forEach(function(el) {
+          observer.observe(el);
+        });
+      } else {
+        elements.forEach(function(el) {
+          el.classList.add('reveal--visible');
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
