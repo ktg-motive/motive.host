@@ -1,5 +1,11 @@
 # macOS
 .DS_Store
 
-# Claude Code local settings
-.claude/settings.local.json
+# Claude Code
+.claude/
+
+# Project docs (local only)
+Docs/
+
+# Memory bank (local only)
+memory-bank/
