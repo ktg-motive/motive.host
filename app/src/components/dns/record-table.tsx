@@ -44,8 +44,8 @@ export default function RecordTable({ records, onEdit, onDelete, filterType }: R
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border">
-      <table className="w-full">
+    <div className="overflow-x-auto rounded-xl border border-border">
+      <table className="w-full min-w-[640px]">
         <thead>
           <tr className="border-b border-border bg-card-content">
             <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate">Type</th>

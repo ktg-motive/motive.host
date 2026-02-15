@@ -2,19 +2,19 @@
 
 ## Project Identity
 
-Motive Hosting is a white-label managed hosting service operated by Motive AI, targeting Gulf Coast SMBs who are overpaying ($300-400/month) for basic hosting. Built on xCloud White Label + Vultr. Branded under the "Sunset Harbor" nautical theme.
+Motive Hosting is a managed hosting service operated by Motive AI, targeting Gulf Coast SMBs who are overpaying ($300-400/month) for basic hosting. Built on RunCloud (server management) + Vultr (VPS). Premium dark theme with gold accents.
 
 - **Owner:** Kai Gray (CEO, Motive AI / Motive ESG / LA-AI)
 - **Marketing site:** motive.host
-- **Client portal:** my.motive.host
+- **Client portal:** my.motive.host (legacy xCloud — evaluating migration)
 - **Customer hub:** domains.motive.host
-- **Status:** Pre-launch — infrastructure configured, marketing site live
+- **Status:** Pre-launch — infrastructure on RunCloud, both sites live
 
 ## Repo Structure (Monorepo)
 
 ```
 motive.host/
-├── site/                  # Marketing site (static HTML, deployed by xCloud)
+├── site/                  # Marketing site (static HTML, deployed by RunCloud)
 │   ├── index.html
 │   ├── privacy.html
 │   ├── terms.html
@@ -36,39 +36,52 @@ motive.host/
 ```
 
 ### Key Details
-- `site/` is deployed by xCloud push-to-deploy. Nginx root is `/var/www/motive.host/site`.
+- `site/` is deployed by RunCloud push-to-deploy. Public path is `/site`.
 - `app/` is the Next.js Customer Hub. Run `cd app && npm run dev` for local dev.
 - `app/.env.local` is a symlink to the root `.env.local` (Next.js reads from its own project root).
-- The monorepo was consolidated from two separate repos on Feb 15, 2026. The original app repo was at `/Users/Kai/Dev/Active/motive.host-app/`.
-- GitHub repo: `ktg-motive/motive.host` (private). Push to `main` triggers xCloud deploy.
+- GitHub repo: `ktg-motive/motive.host` (private). Push to `main` triggers auto-deploy via GitHub webhooks to RunCloud (both sites).
 
 ## Server Access
 
-### SSH to Production (Vultr mh-prod-atl-01)
+### SSH to Production (RunCloud — mh-rc-prod-atl-01)
+
+```bash
+ssh -i ~/.ssh/claude_mh_runcloud motive-host@144.202.27.86
+```
+
+| Field | Value |
+|-------|-------|
+| Server | mh-rc-prod-atl-01 (Vultr High Frequency) |
+| RunCloud name | mhrcprodatl01 (no hyphens — RunCloud doesn't support them) |
+| RunCloud server ID | 338634 |
+| IP | 144.202.27.86 |
+| SSH user | motive-host |
+| SSH key | `~/.ssh/claude_mh_runcloud` (ed25519) |
+| Home dir | /home/motive-host |
+| Webapps dir | /home/motive-host/webapps/ |
+| OS | Ubuntu 24.04 LTS |
+| Node.js | v22.22.0 |
+| PM2 | v6.0.14 |
+| Sudo | Available |
+
+### Legacy Server (xCloud — mh-prod-atl-01)
 
 ```bash
 ssh -i ~/.ssh/claude_motive_host motive@155.138.192.127
 ```
 
-| Field | Value |
-|-------|-------|
-| Server | mh-prod-atl-01 (Vultr High Frequency) |
-| IP | 155.138.192.127 |
-| SSH user | motive |
-| SSH key | `~/.ssh/claude_motive_host` (ed25519) |
-| Home dir | /home/motive |
-| Site path | /var/www/motive.host |
-| Nginx config | /etc/nginx/sites-available/motive.host |
-| OS | Ubuntu 24.04 LTS |
+Only hosts my.motive.host (xCloud portal). The `motive` user cannot sudo — root commands go through xCloud's UI.
 
-### Important Server Notes
-- The `motive` user cannot sudo. Root commands must go through xCloud's command interface.
-- `fail2ban` is active on sshd. If locked out, unban via xCloud root: `fail2ban-client set sshd unbanip <IP>`
-- To whitelist an IP from fail2ban: `fail2ban-client set sshd addignoreip <IP>`
-- xCloud manages the main Nginx config. Custom snippets go in `/etc/nginx/xcloud-conf/motive.host/server/`. However, duplicate directives (like `root`) will fail validation. Direct edits to the main config require root via xCloud.
-- The Nginx `root` directive was changed from `/var/www/motive.host` to `/var/www/motive.host/site` via `sed` as root (Feb 15, 2026). xCloud may overwrite this if the site config is regenerated.
-- `PubkeyAuthentication` was set to `no` by default in sshd_config. Changed to `yes` via root (Feb 15, 2026). xCloud may also overwrite this.
-- sshd LogLevel was set to DEBUG3 during troubleshooting. Needs to be reverted: `sed -i 's/^LogLevel DEBUG3/#LogLevel INFO/' /etc/ssh/sshd_config && systemctl restart sshd`
+### RunCloud Nginx Notes (customer-hub)
+
+- RunCloud uses `nginx-rc` at `/etc/nginx-rc/`
+- Managed config: `/etc/nginx-rc/conf.d/customer-hub.d/main.conf` — do not edit directly, but `try_files` was modified for Node.js support
+- Custom configs: `/etc/nginx-rc/extra.d/customer-hub.location.*.conf`
+- **Critical:** `try_files` in main.conf was changed from `/index.php` fallback to `@nextjs` named location. RunCloud may overwrite this on dashboard changes. Re-apply with:
+  ```bash
+  sudo sed -i 's|try_files $uri $uri/ /index.php$is_args$args;|try_files /dev/null @nextjs;|g' /etc/nginx-rc/conf.d/customer-hub.d/main.conf && sudo /usr/local/sbin/nginx-rc -t && sudo systemctl reload nginx-rc
+  ```
+- Static assets symlink: `webapps/customer-hub/_next/static` → `app/.next/static` (deploy script recreates this)
 
 ## Memory Architecture — START EVERY SESSION
 
@@ -120,4 +133,4 @@ mcp__memory__add_observations({
 - SKU format: `mh-{tier}` (e.g., mh-harbor, mh-gulf, mh-horizon)
 - Marketing (motive.host), portal (my.motive.host), and customer hub (domains.motive.host) are intentionally separated
 - All transactional email sends from motive.host domain via SendGrid
-- Color palette is "Sunset Harbor" — see context.md for hex values
+- Color palette — see context.md for hex values and typography

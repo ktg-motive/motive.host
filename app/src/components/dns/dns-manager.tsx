@@ -9,6 +9,7 @@ import QuickSetup from './quick-setup'
 import Dialog from '@/components/ui/dialog'
 import Button from '@/components/ui/button'
 import RecordTypeBadge from './record-type-badge'
+import { useToast } from '@/components/ui/toast'
 
 const MOTIVE_IP = '144.202.27.86'
 const FILTER_TYPES: Array<DnsRecordType | 'ALL'> = ['ALL', 'A', 'AAAA', 'CNAME', 'MX', 'TXT', 'SRV']
@@ -18,6 +19,7 @@ interface DnsManagerProps {
 }
 
 export default function DnsManager({ domain }: DnsManagerProps) {
+  const { toast } = useToast()
   const [records, setRecords] = useState<DnsRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -76,6 +78,7 @@ export default function DnsManager({ domain }: DnsManagerProps) {
       }
 
       await fetchRecords()
+      toast('DNS zone created')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create DNS zone')
     } finally {
@@ -111,7 +114,9 @@ export default function DnsManager({ domain }: DnsManagerProps) {
       const data = await checkResponse(res)
 
       setRecords(data.records ?? [])
+      setZoneVersion(data.version)
       setShowAddForm(false)
+      toast('DNS record added')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to add DNS record')
     } finally {
@@ -139,7 +144,9 @@ export default function DnsManager({ domain }: DnsManagerProps) {
       const data = await checkResponse(res)
 
       setRecords(data.records ?? [])
+      setZoneVersion(data.version)
       setEditingRecord(null)
+      toast('DNS record updated')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update DNS record')
     } finally {
@@ -165,7 +172,9 @@ export default function DnsManager({ domain }: DnsManagerProps) {
       }
 
       setRecords(data.records ?? [])
+      setZoneVersion(data.version)
       setDeletingRecord(null)
+      toast('DNS record deleted')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete DNS record')
     } finally {
@@ -217,6 +226,8 @@ export default function DnsManager({ domain }: DnsManagerProps) {
       const data = await checkResponse(res)
 
       setRecords(data.records ?? [])
+      setZoneVersion(data.version)
+      toast('Quick setup applied — DNS pointing to Motive Hosting')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to apply quick setup')
       throw err // Re-throw so QuickSetup dialog knows it failed

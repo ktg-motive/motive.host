@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import localFont from "next/font/local";
 import Nav from "@/components/nav";
+import Footer from "@/components/footer";
+import { ToastProvider } from "@/components/ui/toast";
 import "./globals.css";
 
 const inter = Inter({
@@ -45,8 +47,11 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${playfair.variable} ${jetbrainsMono.variable} font-sans antialiased`}
       >
-        <Nav />
-        <main>{children}</main>
+        <ToastProvider>
+          <Nav />
+          <main className="min-h-[calc(100vh-3.5rem-4rem)]">{children}</main>
+          <Footer />
+        </ToastProvider>
       </body>
     </html>
   );
