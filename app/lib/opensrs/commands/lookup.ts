@@ -21,13 +21,14 @@ export function createLookupCommands(client: OpenSRSClient) {
       const searchString = query.includes('.') ? query.split('.')[0] : query;
 
       const attributes: Record<string, unknown> = {
-        search_string: searchString,
+        searchstring: searchString,
         maximum: '10',
       };
 
-      if (tlds && tlds.length > 0) {
-        attributes.tlds = tlds;
-      }
+      const tldList = tlds && tlds.length > 0
+        ? tlds
+        : ['.com', '.net', '.org', '.io', '.co', '.biz', '.info'];
+      attributes.tlds = tldList;
 
       const response = await client.request<NameSuggestResponse>({
         action: 'NAME_SUGGEST',
@@ -58,11 +59,11 @@ export function createLookupCommands(client: OpenSRSClient) {
       return suggestions;
     },
 
-    async getDomainPrice(domain: string): Promise<{ domain: string; price: number }> {
+    async getDomainPrice(domain: string, period = 1, regType = 'new'): Promise<{ domain: string; price: number }> {
       const response = await client.request<{ price: string }>({
         action: 'GET_PRICE',
         object: 'DOMAIN',
-        attributes: { domain },
+        attributes: { domain, period: String(period), reg_type: regType },
       });
 
       return {
