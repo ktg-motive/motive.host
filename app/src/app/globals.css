@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-primary-bg: #1F2329;
+  --color-alt-bg: #272B31;
+  --color-card: #23272E;
+  --color-card-content: #2C3038;
+  --color-gold: #D4AF37;
+  --color-gold-hover: #E0C050;
+  --color-slate: #8892A0;
+  --color-muted-white: #E8ECF1;
+  --color-border: #353A42;
+
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-playfair);
+  --font-mono: var(--font-jetbrains);
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/JetBrainsMono-Regular.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/JetBrainsMono-Medium.woff2") format("woff2");
+}
+
+body {
+  background: var(--color-primary-bg);
+  color: var(--color-muted-white);
+}

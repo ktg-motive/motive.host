@@ -9,3 +9,23 @@ Docs/
 
 # Memory bank (local only)
 memory-bank/
+
+# Environment
+.env.local
+
+# Source assets (not deployed)
+motive_host_logo_image-gold.png
+
+# Next.js app (app/)
+app/node_modules/
+app/.next/
+app/out/
+app/build/
+app/coverage/
+app/.env.local
+app/.env*.local
+app/*.tsbuildinfo
+app/next-env.d.ts
+app/.vercel
+app/npm-debug.log*
+app/yarn-debug.log*
