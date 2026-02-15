@@ -133,6 +133,8 @@ export interface DnsRecordChange {
 
 export interface DnsUpdateOptions {
   dryRun?: boolean;
+  /** If provided, the update will fail if the zone has changed since this version was read. */
+  expectedVersion?: string;
 }
 
 export interface DnsUpdateResult {
@@ -146,6 +148,8 @@ export interface DnsUpdateResult {
 export interface DnsZoneResponse {
   records: DnsRecord[];
   nameservers: string[];
+  /** Hash of the zone contents for optimistic locking. */
+  version?: string;
 }
 
 // ─── Renewal ─────────────────────────────────────────────────────────────────

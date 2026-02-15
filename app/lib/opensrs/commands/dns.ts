@@ -1,3 +1,4 @@
+import { createHash } from 'crypto';
 import type { OpenSRSClient } from '../client';
 import type {
   DnsRecord,
@@ -7,6 +8,14 @@ import type {
   DnsUpdateResult,
   DnsZoneResponse,
 } from '../types';
+
+/** Compute a version hash from a sorted, stable JSON serialization of records. */
+function computeZoneVersion(records: DnsRecord[]): string {
+  const sorted = [...records].sort((a, b) =>
+    `${a.type}:${a.subdomain}`.localeCompare(`${b.type}:${b.subdomain}`)
+  );
+  return createHash('sha256').update(JSON.stringify(sorted)).digest('hex').slice(0, 16);
+}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -48,6 +57,7 @@ function parseZoneRecords(rawRecords: Record<string, unknown>): DnsRecord[] {
       if (entry.priority) record.priority = parseInt(entry.priority, 10);
       if (entry.weight) record.weight = parseInt(entry.weight, 10);
       if (entry.port) record.port = parseInt(entry.port, 10);
+      if (entry.ttl) record.ttl = parseInt(entry.ttl, 10);
 
       records.push(record);
     }
@@ -75,6 +85,7 @@ function formatZoneRecords(records: DnsRecord[]): Record<string, Record<string, 
     if (record.priority !== undefined) entry.priority = String(record.priority);
     if (record.weight !== undefined) entry.weight = String(record.weight);
     if (record.port !== undefined) entry.port = String(record.port);
+    if (record.ttl !== undefined) entry.ttl = String(record.ttl);
 
     grouped[typeKey][idx] = entry;
   }
@@ -104,9 +115,11 @@ export function createDnsCommands(client: OpenSRSClient) {
         attributes: { domain },
       });
 
+      const records = parseZoneRecords(response.attributes.records ?? {});
       return {
-        records: parseZoneRecords(response.attributes.records ?? {}),
+        records,
         nameservers: [],
+        version: computeZoneVersion(records),
       };
     },
 
@@ -142,6 +155,13 @@ export function createDnsCommands(client: OpenSRSClient) {
       // 1. Fetch existing records
       const zone = await this.getDnsZone(domain);
       let currentRecords = [...zone.records];
+
+      // Optimistic locking: if caller provided a version, verify it matches
+      if (options.expectedVersion && options.expectedVersion !== zone.version) {
+        throw new Error(
+          'DNS zone has been modified since you last loaded it. Please refresh and try again.'
+        );
+      }
 
       const added: DnsRecord[] = [];
       const removed: DnsRecord[] = [];
