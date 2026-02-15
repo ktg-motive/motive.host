@@ -6,8 +6,9 @@ Motive Hosting is a white-label managed hosting service operated by Motive AI, t
 
 - **Owner:** Kai Gray (CEO, Motive AI / Motive ESG / LA-AI)
 - **Marketing site:** motive.host
-- **Client portal:** host.motiveai.ai
-- **Status:** Pre-launch — infrastructure configured, marketing site not yet built
+- **Client portal:** my.motive.host
+- **Customer hub:** domains.motive.host
+- **Status:** Pre-launch — infrastructure configured, marketing site live
 
 ## Memory Architecture — START EVERY SESSION
 
@@ -51,11 +52,12 @@ mcp__motive-hosting-memory__add_observations({
 - Use humor where appropriate. Forward-thinking perspective.
 - Limit em dashes and emojis. Minimal bullet points in conversation.
 - Refer to the user as Kai.
+- Never give time estimates or temporal milestones (e.g., "~6 weeks", "Week 1-2"). Describe work in terms of phases, dependencies, and scope — not how long it might take.
 
 ## Project Conventions
 
 - Plan tier names are nautical: Captain, Harbor, Gulf, Horizon
 - SKU format: `mh-{tier}` (e.g., mh-harbor, mh-gulf, mh-horizon)
-- Marketing (motive.host) and portal (host.motiveai.ai) are intentionally separated
+- Marketing (motive.host), portal (my.motive.host), and customer hub (domains.motive.host) are intentionally separated
 - All transactional email sends from motive.host domain via SendGrid
 - Color palette is "Sunset Harbor" — see context.md for hex values
