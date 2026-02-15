@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import localFont from "next/font/local";
+import Nav from "@/components/nav";
 import "./globals.css";
 
 const inter = Inter({
@@ -44,7 +45,8 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${playfair.variable} ${jetbrainsMono.variable} font-sans antialiased`}
       >
-        {children}
+        <Nav />
+        <main>{children}</main>
       </body>
     </html>
   );

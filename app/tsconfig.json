@@ -19,7 +19,9 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@opensrs/*": ["./lib/opensrs/*"],
+      "@opensrs": ["./lib/opensrs"]
     }
   },
   "include": [
