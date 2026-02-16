@@ -143,6 +143,8 @@ export interface DnsUpdateResult {
   removed: DnsRecord[];
   updated: Array<{ from: DnsRecord; to: DnsRecord }>;
   finalRecords: DnsRecord[];
+  /** Version hash of the zone after the update, for optimistic locking. */
+  newVersion: string;
 }
 
 export interface DnsZoneResponse {

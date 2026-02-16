@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createOpenSRSClient } from '@opensrs'
 import { getCustomerPrice } from '@/lib/pricing'
 import { rateLimit, getClientIp } from '@/lib/rate-limit'
+import { validateDomainQuery } from '@/lib/domain-validation'
 
 const opensrs = createOpenSRSClient({
   apiKey: process.env.OPENSRS_API_KEY!,
@@ -30,7 +31,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing query' }, { status: 400 })
     }
 
-    const domain = query.includes('.') ? query.trim() : `${query.trim()}.com`
+    const validation = validateDomainQuery(query)
+    if (!validation.valid) {
+      return NextResponse.json({ error: validation.error }, { status: 400 })
+    }
+
+    const domain = validation.domain.includes('.') ? validation.domain : `${validation.domain}.com`
 
     // Run exact check and suggestions in parallel
     const [exactResult, suggestions] = await Promise.all([

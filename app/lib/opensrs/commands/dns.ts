@@ -26,7 +26,10 @@ function recordsMatch(a: DnsRecord, b: DnsRecord): boolean {
     a.ip_address === b.ip_address &&
     a.hostname === b.hostname &&
     a.text === b.text &&
-    a.priority === b.priority
+    a.priority === b.priority &&
+    a.weight === b.weight &&
+    a.port === b.port &&
+    a.ttl === b.ttl
   );
 }
 
@@ -208,6 +211,7 @@ export function createDnsCommands(client: OpenSRSClient) {
         removed,
         updated,
         finalRecords: currentRecords,
+        newVersion: computeZoneVersion(currentRecords),
       };
     },
 

@@ -130,6 +130,7 @@ export async function PUT(
     return NextResponse.json({
       applied: result.applied,
       records: result.finalRecords,
+      version: result.newVersion,
     })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'

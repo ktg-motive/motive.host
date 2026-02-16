@@ -26,6 +26,15 @@ export default async function DomainsPage() {
       .limit(5),
   ])
 
+  // Defensive: if auth user exists but customer row is missing (orphaned signup),
+  // auto-create the customer record so the user isn't stuck.
+  if (!customer) {
+    await supabase.from('customers').upsert(
+      { id: user.id, email: user.email ?? '', name: user.user_metadata?.name ?? '' },
+      { onConflict: 'id' }
+    )
+  }
+
   const domainList = domains ?? []
   const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000
 

@@ -78,6 +78,7 @@ export async function DELETE(
     return NextResponse.json({
       applied: result.applied,
       records: result.finalRecords,
+      version: result.newVersion,
     })
   } catch (error) {
     console.error('DNS delete error:', error)

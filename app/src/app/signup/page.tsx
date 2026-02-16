@@ -38,18 +38,22 @@ export default function SignupPage() {
 
     // Insert customer record (auth.uid() = customers.id)
     if (data.user) {
-      const { error: insertError } = await supabase
-        .from('customers')
-        .insert({
-          id: data.user.id,
-          email,
-          name,
-        })
+      try {
+        const { error: insertError } = await supabase
+          .from('customers')
+          .insert({
+            id: data.user.id,
+            email,
+            name,
+          })
 
-      if (insertError) {
-        setError(insertError.message)
-        setLoading(false)
-        return
+        if (insertError) {
+          // If the insert fails, the auth user still exists. The dashboard will
+          // auto-create the customer row on next load, so we can still proceed.
+          console.error('Customer record insert failed:', insertError.message)
+        }
+      } catch (err) {
+        console.error('Customer record insert threw:', err)
       }
     }
 

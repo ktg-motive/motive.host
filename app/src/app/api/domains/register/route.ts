@@ -5,6 +5,8 @@ import { createOpenSRSClient } from '@opensrs'
 import { stripe } from '@/lib/stripe'
 import { sendRegistrationConfirmation } from '@/lib/sendgrid'
 import { getCustomerPrice, priceToCents } from '@/lib/pricing'
+import { validateDomain } from '@/lib/domain-validation'
+import { rateLimit, getClientIp } from '@/lib/rate-limit'
 import type { DomainContact } from '@opensrs/types'
 
 const opensrs = createOpenSRSClient({
@@ -12,6 +14,24 @@ const opensrs = createOpenSRSClient({
   username: process.env.OPENSRS_RESELLER_USERNAME!,
   environment: (process.env.OPENSRS_ENVIRONMENT as 'test' | 'live') || 'test',
 })
+
+// Rate limits per IP per minute
+const RATE_WINDOW = 60_000
+const POST_LIMIT = 10   // PaymentIntent creation
+const PATCH_LIMIT = 5   // Test-mode confirm
+const PUT_LIMIT = 5     // Fulfillment
+
+function checkRateLimit(request: Request, action: string, limit: number) {
+  const ip = getClientIp(request)
+  const check = rateLimit(`register:${action}:${ip}`, limit, RATE_WINDOW)
+  if (!check.allowed) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please try again shortly.' },
+      { status: 429, headers: { 'Retry-After': String(check.retryAfter) } }
+    )
+  }
+  return null
+}
 
 const contactSchema = z.object({
   first_name: z.string().min(1),
@@ -27,8 +47,18 @@ const contactSchema = z.object({
   org_name: z.string().optional(),
 })
 
+const domainField = z.string().min(1).superRefine((val, ctx) => {
+  const result = validateDomain(val)
+  if (!result.valid) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: result.error })
+  }
+}).transform((val) => {
+  const result = validateDomain(val)
+  return result.valid ? result.domain : val
+})
+
 const intentSchema = z.object({
-  domain: z.string().min(1),
+  domain: domainField,
   period: z.number().int().min(1).max(10).default(1),
   contact: contactSchema,
   useForAll: z.boolean().default(true),
@@ -41,7 +71,7 @@ const intentSchema = z.object({
 
 const confirmSchema = z.object({
   paymentIntentId: z.string().min(1),
-  domain: z.string().min(1),
+  domain: domainField,
   period: z.number().int().min(1).max(10),
   contact: contactSchema,
   useForAll: z.boolean().default(true),
@@ -56,6 +86,9 @@ const confirmSchema = z.object({
 // PATCH confirms the PaymentIntent server-side (placeholder until Stripe Elements is wired up).
 // PUT verifies payment succeeded, then registers the domain.
 export async function POST(request: Request) {
+  const rateLimited = checkRateLimit(request, 'post', POST_LIMIT)
+  if (rateLimited) return rateLimited
+
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -114,6 +147,9 @@ const confirmPaymentSchema = z.object({
 })
 
 export async function PATCH(request: Request) {
+  const rateLimited = checkRateLimit(request, 'patch', PATCH_LIMIT)
+  if (rateLimited) return rateLimited
+
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -165,6 +201,9 @@ export async function PATCH(request: Request) {
 // PUT: called after payment confirmation succeeds.
 // Uses payment_fulfillments table for idempotency and replay protection.
 export async function PUT(request: Request) {
+  const rateLimited = checkRateLimit(request, 'put', PUT_LIMIT)
+  if (rateLimited) return rateLimited
+
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
