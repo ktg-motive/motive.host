@@ -88,11 +88,12 @@
       email: form.querySelector('[name="email"]').value.trim(),
       phone: form.querySelector('[name="phone"]').value.trim(),
       plan: form.querySelector('[name="plan"]').value,
-      message: form.querySelector('[name="message"]').value.trim()
+      message: form.querySelector('[name="message"]').value.trim(),
+      website: hp ? hp.value : ''
     };
 
     // POST to Supabase Edge Function
-    fetch('https://lyvgbrgqxlelafrzvqoj.supabase.co/functions/v1/contact-form', {
+    fetch('https://ajzsmdqehfbbdfgeqykp.supabase.co/functions/v1/contact-form', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
