@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Managed Node.js & React Hosting — Next.js, Express Support | Motive Hosting</title>
+  <meta name="description" content="Managed Node.js hosting with PM2 process management, Git deployment, and expert support. Host Next.js, Express, and React applications starting at $179/mo.">
+  <link rel="canonical" href="https://motive.host/nodejs-hosting.html">
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Managed Node.js & React Hosting | Motive Hosting">
+  <meta property="og:description" content="Managed Node.js hosting with PM2 process management, Git deployment, and expert support. Starting at $179/mo.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://motive.host/nodejs-hosting.html">
+  <meta property="og:site_name" content="Motive Hosting">
+  <meta property="og:image" content="https://motive.host/img/og-image.png">
+
+  <!-- Favicon -->
+  <link rel="icon" href="img/favicon.png" type="image/png">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+
+  <!-- Preload Fonts -->
+  <link rel="preload" href="fonts/playfair-display-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/inter-500.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/JetBrainsMono-Medium.woff2" as="font" type="font/woff2" crossorigin>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/content.css">
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Service",
+        "name": "Managed Node.js Hosting",
+        "provider": {
+          "@type": "LocalBusiness",
+          "name": "Motive Hosting",
+          "url": "https://motive.host"
+        },
+        "description": "Managed Node.js hosting with PM2 process management, Git deployment, and expert support for modern web applications.",
+        "areaServed": {
+          "@type": "GeoCircle",
+          "geoMidpoint": {
+            "@type": "GeoCoordinates",
+            "latitude": 30.6954,
+            "longitude": -88.0399
+          },
+          "geoRadius": "200"
+        },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "Node.js Hosting Plans",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "name": "Gulf",
+              "price": "179.00",
+              "priceCurrency": "USD",
+              "description": "Up to 5 apps, 25GB NVMe, PM2 management"
+            },
+            {
+              "@type": "Offer",
+              "name": "Horizon",
+              "price": "249.00",
+              "priceCurrency": "USD",
+              "description": "Up to 10 apps, 50GB NVMe, priority support"
+            }
+          ]
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to main content</a>
+
+  <!-- Navigation -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav__inner">
+      <a href="/" class="nav__logo" aria-label="Motive Hosting home">
+        <img src="img/logo-nav.png" alt="Motive Hosting" height="36" width="53">
+      </a>
+      <div class="nav__links">
+        <a href="wordpress-hosting.html" class="nav__link">WordPress</a>
+        <a href="nodejs-hosting.html" class="nav__link">Node.js</a>
+        <a href="index.html#pricing" class="nav__link">Plans</a>
+        <a href="contact.html" class="nav__link">Contact</a>
+        <a href="https://domains.motive.host" class="btn btn--primary btn--medium nav__cta" target="_blank" rel="noopener noreferrer">Get Started</a>
+      </div>
+      <button class="nav__hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="mobile-menu" role="dialog" aria-label="Mobile navigation" aria-modal="true">
+    <button class="mobile-menu__close" aria-label="Close menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+    <a href="index.html" class="mobile-menu__link">Home</a>
+    <a href="wordpress-hosting.html" class="mobile-menu__link">WordPress Hosting</a>
+    <a href="nodejs-hosting.html" class="mobile-menu__link">Node.js Hosting</a>
+    <a href="index.html#pricing" class="mobile-menu__link">Plans</a>
+    <a href="index.html#features" class="mobile-menu__link">Features</a>
+    <a href="index.html#faq" class="mobile-menu__link">FAQ</a>
+    <a href="contact.html" class="mobile-menu__link">Contact</a>
+    <a href="https://domains.motive.host" class="btn btn--primary btn--large mobile-menu__cta" target="_blank" rel="noopener noreferrer">Get Started</a>
+  </div>
+
+  <main id="main">
+
+    <!-- Content Hero -->
+    <section class="content-hero">
+      <div class="content-hero__inner">
+        <p class="content-hero__overline">Node.js Hosting</p>
+        <h1 class="content-hero__title">Node.js &amp; React Hosting for Modern Applications</h1>
+        <p class="content-hero__subtitle">Deploy and scale your Node.js, Next.js, and React applications with managed infrastructure, PM2 process management, and expert support.</p>
+        <a href="https://domains.motive.host?plan=gulf" class="btn btn--primary btn--large" target="_blank" rel="noopener noreferrer">Get Started</a>
+      </div>
+    </section>
+
+    <!-- Two-Column Layout -->
+    <section class="content-main">
+      <div class="content-main__inner">
+
+        <!-- PRIMARY CONTENT -->
+        <div class="content-primary">
+
+          <!-- Value Proposition Cards -->
+          <div class="content-section">
+            <h2 class="content-section__title">Built for Node.js Applications</h2>
+            <p>Our Node.js hosting is purpose-built for modern JavaScript applications. Every server includes PM2 process management, Git-based deployment, and the tooling your team already uses -- all managed by us so you can focus on building.</p>
+
+            <div class="feature-grid">
+              <!-- PM2 Process Management -->
+              <div class="feature-card">
+                <div class="feature-card__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5"/>
+                    <path d="M2 12l10 5 10-5"/>
+                  </svg>
+                </div>
+                <h3 class="feature-card__title">PM2 Process Management</h3>
+                <p class="feature-card__text">Auto-restart on crash, cluster mode for multi-core utilization, and zero-downtime reloads. Your applications stay online.</p>
+              </div>
+
+              <!-- Git-Based Deployment -->
+              <div class="feature-card">
+                <div class="feature-card__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="18" cy="18" r="3"/>
+                    <circle cx="6" cy="6" r="3"/>
+                    <path d="M13 6h3a2 2 0 012 2v7"/>
+                    <path d="M6 9v12"/>
+                  </svg>
+                </div>
+                <h3 class="feature-card__title">Git-Based Deployment</h3>
+                <p class="feature-card__text">Push to deploy from GitHub or any Git remote. Built-in rollback support so you can revert to any previous deployment in seconds.</p>
+              </div>
+
+              <!-- Environment Management -->
+              <div class="feature-card">
+                <div class="feature-card__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="16 18 22 12 16 6"/>
+                    <polyline points="8 6 2 12 8 18"/>
+                    <line x1="14" y1="4" x2="10" y2="20"/>
+                  </svg>
+                </div>
+                <h3 class="feature-card__title">Environment Management</h3>
+                <p class="feature-card__text">Secure environment variables, Node.js version control, and support for npm, yarn, and pnpm. Configure your runtime your way.</p>
+              </div>
+
+              <!-- SSL & Security -->
+              <div class="feature-card">
+                <div class="feature-card__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                    <path d="M7 11V7a5 5 0 0110 0v4"/>
+                    <circle cx="12" cy="16" r="1"/>
+                  </svg>
+                </div>
+                <h3 class="feature-card__title">SSL &amp; Security</h3>
+                <p class="feature-card__text">Free SSL certificates with auto-renewal, server-level firewall, and DDoS protection. Enterprise-grade security without the enterprise price.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Supported Tech Stack -->
+          <div class="content-section">
+            <h2 class="content-section__title">Supported Technologies</h2>
+            <p>We support the frameworks and tools modern teams rely on. If it runs on Node.js, it runs on Motive.</p>
+
+            <div class="tech-grid">
+              <div class="tech-grid__item">
+                <div class="tech-grid__icon">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.85c-.27 0-.55.07-.78.2L3.78 6.35C3.3 6.63 3 7.15 3 7.71v8.58c0 .56.3 1.08.78 1.36l7.44 4.3c.23.13.5.2.78.2s.55-.07.78-.2l7.44-4.3c.48-.28.78-.8.78-1.36V7.71c0-.56-.3-1.08-.78-1.36l-7.44-4.3c-.23-.13-.5-.2-.78-.2z"/></svg>
+                </div>
+                <p class="tech-grid__name">Node.js</p>
+              </div>
+              <div class="tech-grid__item">
+                <div class="tech-grid__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 19.5h20L12 2z"/><path d="M12 8v5"/><circle cx="12" cy="16" r=".5" fill="currentColor"/></svg>
+                </div>
+                <p class="tech-grid__name">Next.js</p>
+              </div>
+              <div class="tech-grid__item">
+                <div class="tech-grid__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                </div>
+                <p class="tech-grid__name">Express</p>
+              </div>
+              <div class="tech-grid__item">
+                <div class="tech-grid__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="4"/></svg>
+                </div>
+                <p class="tech-grid__name">React</p>
+              </div>
+              <div class="tech-grid__item">
+                <div class="tech-grid__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/><path d="M12 12L2 7"/><path d="M12 12l10-5"/><path d="M12 12v10"/></svg>
+                </div>
+                <p class="tech-grid__name">Nuxt.js</p>
+              </div>
+              <div class="tech-grid__item">
+                <div class="tech-grid__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                </div>
+                <p class="tech-grid__name">Fastify</p>
+              </div>
+              <div class="tech-grid__item">
+                <div class="tech-grid__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/><path d="M9 1v3"/><path d="M15 1v3"/><path d="M9 20v3"/><path d="M15 20v3"/><path d="M20 9h3"/><path d="M20 14h3"/><path d="M1 9h3"/><path d="M1 14h3"/></svg>
+                </div>
+                <p class="tech-grid__name">NestJS</p>
+              </div>
+              <div class="tech-grid__item">
+                <div class="tech-grid__icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M3 12h18"/><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
+                </div>
+                <p class="tech-grid__name">Strapi</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Deployment Features -->
+          <div class="content-section">
+            <h2 class="content-section__title">Deployment &amp; DevOps</h2>
+            <p>Every Node.js hosting plan includes the tools your development workflow depends on. No add-ons, no surprise charges.</p>
+
+            <div class="feature-list">
+              <div class="feature-list__item">Git push deployment</div>
+              <div class="feature-list__item">SSH access</div>
+              <div class="feature-list__item">PM2 ecosystem files</div>
+              <div class="feature-list__item">Custom Nginx configuration</div>
+              <div class="feature-list__item">Environment variables</div>
+              <div class="feature-list__item">Node.js version selection</div>
+              <div class="feature-list__item">npm / yarn / pnpm support</div>
+              <div class="feature-list__item">Log access &amp; monitoring</div>
+            </div>
+          </div>
+
+          <!-- Plan Comparison -->
+          <div class="content-section">
+            <h2 class="content-section__title">Node.js Hosting Plans</h2>
+            <p>Node.js hosting is available on our <strong>Gulf</strong> and <strong>Horizon</strong> plans. Both include full PM2 management, Git deployment, and managed infrastructure.</p>
+
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th>Feature</th>
+                  <th>Gulf</th>
+                  <th>Horizon</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Node.js Applications</td>
+                  <td>Up to 5</td>
+                  <td>Up to 10</td>
+                </tr>
+                <tr>
+                  <td>NVMe Storage</td>
+                  <td>25 GB</td>
+                  <td>50 GB</td>
+                </tr>
+                <tr>
+                  <td>Bandwidth</td>
+                  <td>2 TB</td>
+                  <td>4 TB</td>
+                </tr>
+                <tr>
+                  <td>Node.js Versions</td>
+                  <td>LTS (18, 20, 22)</td>
+                  <td>LTS + Current</td>
+                </tr>
+                <tr>
+                  <td>PM2 Clusters</td>
+                  <td>2 per app</td>
+                  <td>4 per app</td>
+                </tr>
+                <tr>
+                  <td>Git Repositories</td>
+                  <td>5</td>
+                  <td>10</td>
+                </tr>
+                <tr>
+                  <td>WordPress Sites</td>
+                  <td>Up to 5</td>
+                  <td>Up to 10</td>
+                </tr>
+                <tr>
+                  <td>SSL Certificates</td>
+                  <td class="table-check">Included</td>
+                  <td class="table-check">Included</td>
+                </tr>
+                <tr>
+                  <td>Daily Backups</td>
+                  <td class="table-check">Included</td>
+                  <td class="table-check">Included</td>
+                </tr>
+                <tr>
+                  <td>Support</td>
+                  <td>Business hours</td>
+                  <td>Priority support</td>
+                </tr>
+                <tr>
+                  <td>Price</td>
+                  <td><strong>$179/mo</strong></td>
+                  <td><strong>$249/mo</strong></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="cta-box">
+              <p class="cta-box__title">Not sure which plan fits?</p>
+              <p class="cta-box__text">Both plans include full Node.js support with PM2 management. Choose Gulf for smaller projects, or Horizon if you need more applications and priority support. <a href="contact.html">Contact us</a> and we'll help you decide.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- SIDEBAR -->
+        <aside class="content-sidebar">
+
+          <!-- Quick Facts -->
+          <div class="sidebar-card">
+            <h3 class="sidebar-card__title">Why Node.js with Motive?</h3>
+            <div class="sidebar-card__item">
+              <span class="sidebar-card__label">Node.js Version</span>
+              <span class="sidebar-card__value sidebar-card__value--gold">v22 LTS</span>
+            </div>
+            <div class="sidebar-card__item">
+              <span class="sidebar-card__label">Storage</span>
+              <span class="sidebar-card__value">NVMe SSD</span>
+            </div>
+            <div class="sidebar-card__item">
+              <span class="sidebar-card__label">Process Manager</span>
+              <span class="sidebar-card__value">PM2</span>
+            </div>
+            <div class="sidebar-card__item">
+              <span class="sidebar-card__label">Deployments</span>
+              <span class="sidebar-card__value">Zero-downtime</span>
+            </div>
+            <div class="sidebar-card__item">
+              <span class="sidebar-card__label">SSL</span>
+              <span class="sidebar-card__value sidebar-card__value--gold">Free</span>
+            </div>
+            <div class="sidebar-card__item">
+              <span class="sidebar-card__label">Starting at</span>
+              <span class="sidebar-card__value sidebar-card__value--gold">$179/mo</span>
+            </div>
+          </div>
+
+          <!-- Harbor Note -->
+          <div class="sidebar-card">
+            <h3 class="sidebar-card__title">WordPress Only?</h3>
+            <p class="sidebar-card__text">Looking for WordPress hosting without Node.js? Our <strong>Harbor plan ($99/mo)</strong> is perfect for a single WordPress site with managed hosting, daily backups, and business email.</p>
+            <a href="wordpress-hosting.html" class="btn btn--outline btn--medium sidebar-card__cta">View WordPress Hosting</a>
+          </div>
+
+          <!-- CTA -->
+          <div class="sidebar-card">
+            <h3 class="sidebar-card__title">Ready to Deploy?</h3>
+            <p class="sidebar-card__text">Get your Node.js application running on managed infrastructure with PM2, Git deployment, and expert support.</p>
+            <a href="https://domains.motive.host?plan=gulf" class="btn btn--primary btn--medium sidebar-card__cta" target="_blank" rel="noopener noreferrer">Get Started</a>
+          </div>
+
+        </aside>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer__grid">
+        <div>
+          <div class="footer__logo">
+            <img src="img/logo-nav.png" alt="Motive Hosting" height="36" width="53" loading="lazy">
+          </div>
+          <p class="footer__brand-text">Motive Hosting is premier managed hosting for businesses in Fairhope, Mobile, and across the Gulf Coast. A <a href="https://motiveai.ai" class="footer__link footer__link--gold" target="_blank" rel="noopener noreferrer">Motive AI</a> company.</p>
+          <p class="footer__brand-text" style="font-size: 12px; color: rgba(136, 146, 160, 0.5); margin-top: 8px;">Fairhope, Alabama</p>
+        </div>
+        <div>
+          <p class="footer__heading">Services</p>
+          <a href="wordpress-hosting.html" class="footer__link">WordPress Hosting</a>
+          <a href="nodejs-hosting.html" class="footer__link">Node.js Hosting</a>
+          <a href="domain-services.html" class="footer__link">Domain Services</a>
+          <a href="index.html#features" class="footer__link">Business Email</a>
+        </div>
+        <div>
+          <p class="footer__heading">Resources</p>
+          <a href="index.html#pricing" class="footer__link">Plans & Pricing</a>
+          <a href="index.html#features" class="footer__link">Features</a>
+          <a href="index.html#faq" class="footer__link">FAQ</a>
+          <a href="contact.html" class="footer__link">Contact Us</a>
+          <a href="https://my.motive.host" class="footer__link" target="_blank" rel="noopener noreferrer">Client Portal</a>
+        </div>
+        <div>
+          <p class="footer__heading">Legal</p>
+          <a href="privacy.html" class="footer__link">Privacy Policy</a>
+          <a href="terms.html" class="footer__link">Terms of Service</a>
+          <a href="mailto:hello@motive.host" class="footer__link footer__link--gold">hello@motive.host</a>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <p class="footer__copyright">&copy; 2026 Motive Hosting. A <a href="https://motiveai.ai" class="footer__link" target="_blank" rel="noopener noreferrer">Motive AI</a> company.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/nav.js"></script>
+</body>
+</html>

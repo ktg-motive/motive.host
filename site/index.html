@@ -22,7 +22,7 @@
   <meta property="og:title" content="Motive Hosting — Managed Web Hosting for Gulf Coast Businesses">
   <meta property="og:description" content="Managed website hosting for Gulf Coast businesses starting at $99/mo. WordPress & Node.js hosting, business email, daily backups, and local support from Fairhope, Alabama.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://motive.host">
+  <meta property="og:url" content="https://motive.host/">
   <meta property="og:site_name" content="Motive Hosting">
   <meta property="og:image" content="https://motive.host/img/og-image.png">
   <meta property="og:image:width" content="1200">
@@ -54,10 +54,42 @@
           "addressRegion": "AL",
           "addressCountry": "US"
         },
+        "sameAs": [],
+        "openingHours": ["Mo-Fr 09:00-17:00"],
         "areaServed": [
           {
             "@type": "State",
             "name": "Alabama"
+          },
+          {
+            "@type": "City",
+            "name": "Fairhope",
+            "containedInPlace": { "@type": "State", "name": "Alabama" }
+          },
+          {
+            "@type": "City",
+            "name": "Mobile",
+            "containedInPlace": { "@type": "State", "name": "Alabama" }
+          },
+          {
+            "@type": "City",
+            "name": "Daphne",
+            "containedInPlace": { "@type": "State", "name": "Alabama" }
+          },
+          {
+            "@type": "City",
+            "name": "Gulf Shores",
+            "containedInPlace": { "@type": "State", "name": "Alabama" }
+          },
+          {
+            "@type": "City",
+            "name": "Spanish Fort",
+            "containedInPlace": { "@type": "State", "name": "Alabama" }
+          },
+          {
+            "@type": "City",
+            "name": "Pensacola",
+            "containedInPlace": { "@type": "State", "name": "Florida" }
           },
           {
             "@type": "GeoCircle",
@@ -225,1531 +257,8 @@
   <link rel="preload" href="fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/JetBrainsMono-Medium.woff2" as="font" type="font/woff2" crossorigin>
 
-  <style>
-    /* =============================================
-       FONTS
-       ============================================= */
-    @font-face {
-      font-family: 'Playfair Display';
-      font-style: normal;
-      font-weight: 600;
-      font-display: swap;
-      src: url('fonts/playfair-display-latin.woff2') format('woff2');
-      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-    }
-
-    @font-face {
-      font-family: 'Playfair Display';
-      font-style: normal;
-      font-weight: 700;
-      font-display: swap;
-      src: url('fonts/playfair-display-latin.woff2') format('woff2');
-      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-    }
-
-    @font-face {
-      font-family: 'Inter';
-      font-style: normal;
-      font-weight: 400;
-      font-display: swap;
-      src: url('fonts/inter-400.woff2') format('woff2');
-    }
-
-    @font-face {
-      font-family: 'Inter';
-      font-style: normal;
-      font-weight: 500;
-      font-display: swap;
-      src: url('fonts/inter-500.woff2') format('woff2');
-    }
-
-    @font-face {
-      font-family: 'Inter';
-      font-style: normal;
-      font-weight: 600;
-      font-display: swap;
-      src: url('fonts/inter-600.woff2') format('woff2');
-    }
-
-    @font-face {
-      font-family: 'JetBrains Mono';
-      font-style: normal;
-      font-weight: 500;
-      font-display: swap;
-      src: url('fonts/JetBrainsMono-Medium.woff2') format('woff2');
-    }
-
-    /* =============================================
-       RESET & BASE
-       ============================================= */
-    *, *::before, *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    :root {
-      --deep-navy: #1F2329;
-      --navy: #23272E;
-      --gold: #D4AF37;
-      --gold-hover: #C4A030;
-      --gold-active: #B49229;
-      --slate: #8892A0;
-      --muted-white: #E8ECF1;
-      --off-white: #272B31;
-      --font-heading: 'Playfair Display', Georgia, 'Times New Roman', serif;
-      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
-      --max-width: 1200px;
-      --gutter: 64px;
-      --nav-height: 72px;
-    }
-
-    html {
-      scroll-behavior: smooth;
-      scroll-padding-top: 88px;
-    }
-
-    body {
-      font-family: var(--font-body);
-      font-size: 16px;
-      line-height: 1.6;
-      color: var(--muted-white);
-      background: var(--off-white);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    img { max-width: 100%; height: auto; display: block; }
-    a { color: inherit; text-decoration: none; }
-    button { cursor: pointer; border: none; background: none; font-family: inherit; }
-    ul { list-style: none; }
-
-    /* Skip to content */
-    .skip-link {
-      position: absolute;
-      top: -100%;
-      left: 16px;
-      z-index: 10000;
-      padding: 12px 24px;
-      background: var(--gold);
-      color: var(--deep-navy);
-      font-family: var(--font-mono);
-      font-size: 13px;
-      font-weight: 500;
-      border-radius: 0 0 4px 4px;
-      transition: top 200ms;
-    }
-
-    .skip-link:focus {
-      top: 0;
-    }
-
-    /* Focus visible */
-    :focus-visible {
-      outline: 2px solid var(--gold);
-      outline-offset: 2px;
-    }
-
-    :focus:not(:focus-visible) {
-      outline: none;
-    }
-
-    /* =============================================
-       UTILITY
-       ============================================= */
-    .container {
-      max-width: var(--max-width);
-      margin: 0 auto;
-      padding-left: var(--gutter);
-      padding-right: var(--gutter);
-    }
-
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-
-    /* =============================================
-       BUTTONS
-       ============================================= */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-mono);
-      font-size: 14px;
-      font-weight: 500;
-      line-height: 1.2;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      border-radius: 4px;
-      min-width: 160px;
-      transition: background-color 180ms ease, transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
-    }
-
-    .btn--large {
-      padding: 14px 32px;
-    }
-
-    .btn--medium {
-      padding: 10px 24px;
-    }
-
-    .btn--primary {
-      background: var(--gold);
-      color: var(--deep-navy);
-    }
-
-    .btn--primary:hover {
-      background: var(--gold-hover);
-      box-shadow: 0 2px 16px rgba(212, 175, 55, 0.3);
-    }
-
-    .btn--primary:active {
-      background: var(--gold-active);
-      transform: scale(0.98);
-    }
-
-    .btn--outline {
-      background: transparent;
-      color: var(--gold);
-      border: 1px solid var(--gold);
-    }
-
-    .btn--outline:hover {
-      background: rgba(212, 175, 55, 0.08);
-      box-shadow: 0 2px 16px rgba(212, 175, 55, 0.15);
-    }
-
-    .btn--outline:active {
-      transform: scale(0.98);
-    }
-
-    .btn--outline-dark {
-      background: transparent;
-      color: var(--deep-navy);
-      border: 1px solid var(--deep-navy);
-    }
-
-    .btn--outline-dark:hover {
-      background: rgba(31, 35, 41, 0.06);
-    }
-
-    .btn--outline-dark:active {
-      transform: scale(0.98);
-    }
-
-    .btn--full {
-      width: 100%;
-    }
-
-    /* =============================================
-       TECHNICAL BACKGROUND PATTERNS
-       ============================================= */
-    .bg-grid {
-      position: relative;
-    }
-
-    .bg-grid::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(136, 146, 160, 0.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(136, 146, 160, 0.04) 1px, transparent 1px);
-      background-size: 48px 48px;
-      pointer-events: none;
-    }
-
-    .bg-dots {
-      position: relative;
-    }
-
-    .bg-dots::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image: radial-gradient(circle, rgba(136, 146, 160, 0.07) 1px, transparent 1px);
-      background-size: 32px 32px;
-      pointer-events: none;
-    }
-
-    /* =============================================
-       STATUS INDICATOR
-       ============================================= */
-    .status-dot {
-      display: inline-block;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--gold);
-      margin-right: 8px;
-      vertical-align: middle;
-      position: relative;
-    }
-
-    .status-dot::after {
-      content: '';
-      position: absolute;
-      inset: -3px;
-      border-radius: 50%;
-      background: var(--gold);
-      opacity: 0;
-      animation: pulse-ring 3s ease-out infinite;
-    }
-
-    @keyframes pulse-ring {
-      0% { opacity: 0.4; transform: scale(0.8); }
-      70% { opacity: 0; transform: scale(2.2); }
-      100% { opacity: 0; transform: scale(2.2); }
-    }
-
-    /* =============================================
-       NAVIGATION
-       ============================================= */
-    .nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-      height: var(--nav-height);
-      background: var(--deep-navy);
-      border-bottom: 1px solid rgba(136, 146, 160, 0.1);
-      transition: background-color 250ms ease, backdrop-filter 250ms ease;
-    }
-
-    .nav--scrolled {
-      background: rgba(31, 35, 41, 0.92);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-    }
-
-    .nav__inner {
-      max-width: var(--max-width);
-      margin: 0 auto;
-      padding: 0 var(--gutter);
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .nav__logo {
-      display: flex;
-      align-items: center;
-    }
-
-    .nav__logo img {
-      height: 36px;
-      width: auto;
-    }
-
-    .nav__links {
-      display: flex;
-      align-items: center;
-      gap: 32px;
-    }
-
-    .nav__link {
-      font-family: var(--font-mono);
-      font-size: 13px;
-      font-weight: 500;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--muted-white);
-      transition: color 150ms ease;
-      padding: 4px 0;
-    }
-
-    .nav__link:hover {
-      color: var(--gold);
-    }
-
-    .nav__cta {
-      margin-left: 8px;
-    }
-
-    .nav__hamburger {
-      display: none;
-      width: 44px;
-      height: 44px;
-      align-items: center;
-      justify-content: center;
-      color: var(--muted-white);
-    }
-
-    .nav__hamburger svg {
-      width: 22px;
-      height: 22px;
-    }
-
-    /* Mobile menu overlay */
-    .mobile-menu {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 999;
-      background: rgba(31, 35, 41, 0.98);
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 28px;
-      opacity: 0;
-      transform: translateY(-10px);
-      transition: opacity 250ms ease, transform 250ms ease;
-    }
-
-    .mobile-menu--open {
-      display: flex;
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .mobile-menu__link {
-      font-family: var(--font-mono);
-      font-size: 16px;
-      font-weight: 500;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--muted-white);
-      text-align: center;
-    }
-
-    .mobile-menu__link:hover {
-      color: var(--gold);
-    }
-
-    .mobile-menu__cta {
-      margin-top: 16px;
-      width: 260px;
-    }
-
-    .mobile-menu__close {
-      position: absolute;
-      top: 14px;
-      right: 20px;
-      width: 44px;
-      height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--muted-white);
-    }
-
-    .mobile-menu__close svg {
-      width: 22px;
-      height: 22px;
-    }
-
-    /* =============================================
-       HERO
-       ============================================= */
-    .hero {
-      background: var(--deep-navy);
-      padding: 152px 0 112px;
-      margin-top: var(--nav-height);
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image: radial-gradient(circle, rgba(136, 146, 160, 0.05) 1px, transparent 1px);
-      background-size: 32px 32px;
-      pointer-events: none;
-    }
-
-    /* Subtle radial glow behind hero content */
-    .hero::after {
-      content: '';
-      position: absolute;
-      top: 30%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 800px;
-      height: 500px;
-      background: radial-gradient(ellipse, rgba(212, 175, 55, 0.04) 0%, transparent 70%);
-      pointer-events: none;
-    }
-
-    .hero__inner {
-      max-width: 840px;
-      margin: 0 auto;
-      padding: 0 var(--gutter);
-      position: relative;
-      z-index: 1;
-    }
-
-    .hero__overline {
-      font-family: var(--font-mono);
-      font-size: 13px;
-      font-weight: 500;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--slate);
-      margin-bottom: 24px;
-    }
-
-    .hero__title {
-      font-family: var(--font-heading);
-      font-size: 64px;
-      font-weight: 700;
-      line-height: 1.08;
-      letter-spacing: -0.025em;
-      color: var(--muted-white);
-      margin-bottom: 24px;
-    }
-
-    .hero__subtitle {
-      font-size: 18px;
-      font-weight: 400;
-      line-height: 1.65;
-      color: var(--slate);
-      margin-bottom: 40px;
-      max-width: 580px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .hero__cta-group {
-      margin-bottom: 32px;
-    }
-
-    .hero__status {
-      display: inline-flex;
-      align-items: center;
-      font-family: var(--font-mono);
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0.06em;
-      color: var(--slate);
-      text-transform: uppercase;
-    }
-
-    .hero__caption {
-      font-size: 13px;
-      font-weight: 400;
-      letter-spacing: 0.01em;
-      color: rgba(136, 146, 160, 0.7);
-      margin-top: 16px;
-    }
-
-    /* =============================================
-       VALUE PROPOSITIONS
-       ============================================= */
-    .value {
-      background: var(--off-white);
-      padding: 96px 0;
-      border-top: 1px solid rgba(136, 146, 160, 0.08);
-    }
-
-    .value__header {
-      text-align: center;
-      margin-bottom: 64px;
-    }
-
-    .value__label {
-      font-family: var(--font-mono);
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--slate);
-      margin-bottom: 16px;
-    }
-
-    .value__title {
-      font-family: var(--font-heading);
-      font-size: 40px;
-      font-weight: 600;
-      line-height: 1.15;
-      letter-spacing: -0.015em;
-      color: var(--muted-white);
-    }
-
-    .value__grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 32px;
-    }
-
-    .value__card {
-      background: #2C3038;
-      border: 1px solid rgba(136, 146, 160, 0.1);
-      border-radius: 4px;
-      padding: 40px 32px;
-    }
-
-    .value__icon {
-      width: 48px;
-      height: 48px;
-      margin-bottom: 24px;
-      color: var(--gold);
-    }
-
-    .value__icon svg {
-      width: 100%;
-      height: 100%;
-    }
-
-    .value__card-title {
-      font-family: var(--font-body);
-      font-size: 18px;
-      font-weight: 600;
-      line-height: 1.3;
-      letter-spacing: -0.01em;
-      color: var(--muted-white);
-      margin-bottom: 12px;
-    }
-
-    .value__card-text {
-      font-size: 15px;
-      line-height: 1.6;
-      color: var(--slate);
-    }
-
-    /* =============================================
-       PRICING
-       ============================================= */
-    .pricing {
-      background: var(--deep-navy);
-      padding: 96px 0;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .pricing::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image:
-        linear-gradient(rgba(136, 146, 160, 0.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(136, 146, 160, 0.035) 1px, transparent 1px);
-      background-size: 48px 48px;
-      pointer-events: none;
-    }
-
-    .pricing__header {
-      text-align: center;
-      margin-bottom: 64px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .pricing__label {
-      font-family: var(--font-mono);
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--slate);
-      margin-bottom: 16px;
-    }
-
-    .pricing__title {
-      font-family: var(--font-heading);
-      font-size: 40px;
-      font-weight: 600;
-      line-height: 1.15;
-      letter-spacing: -0.015em;
-      color: var(--muted-white);
-      margin-bottom: 16px;
-    }
-
-    .pricing__subtitle {
-      font-size: 17px;
-      line-height: 1.6;
-      color: var(--slate);
-      max-width: 520px;
-      margin: 0 auto;
-    }
-
-    .pricing__grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      align-items: start;
-      position: relative;
-      z-index: 1;
-    }
-
-    .pricing-card {
-      background: var(--navy);
-      border: 1px solid rgba(136, 146, 160, 0.12);
-      border-radius: 4px;
-      padding: 40px 32px;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .pricing-card--popular {
-      background: var(--navy);
-      border: 1px solid var(--gold);
-      box-shadow: 0 0 40px rgba(212, 175, 55, 0.1);
-    }
-
-    .pricing-card__badge {
-      position: absolute;
-      top: -13px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--gold);
-      color: var(--deep-navy);
-      font-family: var(--font-mono);
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 5px 16px;
-      border-radius: 2px;
-      white-space: nowrap;
-    }
-
-    .pricing-card__name {
-      font-family: var(--font-mono);
-      font-size: 14px;
-      font-weight: 500;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--slate);
-      margin-bottom: 16px;
-    }
-
-    .pricing-card__price {
-      display: flex;
-      align-items: baseline;
-      margin-bottom: 4px;
-    }
-
-    .pricing-card__amount {
-      font-family: var(--font-mono);
-      font-size: 48px;
-      font-weight: 500;
-      color: var(--muted-white);
-      line-height: 1;
-    }
-
-    .pricing-card__period {
-      font-family: var(--font-mono);
-      font-size: 14px;
-      color: var(--slate);
-      margin-left: 4px;
-    }
-
-    .pricing-card__billing {
-      font-size: 13px;
-      font-weight: 400;
-      color: rgba(136, 146, 160, 0.6);
-      margin-bottom: 28px;
-    }
-
-    .pricing-card__cta {
-      margin-bottom: 32px;
-    }
-
-    .pricing-card__specs {
-      flex: 1;
-    }
-
-    .pricing-card__spec {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(136, 146, 160, 0.08);
-      font-size: 14px;
-      line-height: 1.4;
-    }
-
-    .pricing-card__spec:first-child {
-      border-top: 1px solid rgba(136, 146, 160, 0.08);
-    }
-
-    .pricing-card__spec-label {
-      color: rgba(232, 236, 241, 0.7);
-    }
-
-    .pricing-card__spec-value {
-      font-family: var(--font-mono);
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--muted-white);
-      text-align: right;
-    }
-
-    .pricing-card__divider {
-      height: 1px;
-      background: rgba(136, 146, 160, 0.1);
-      margin: 20px 0 16px;
-    }
-
-    .pricing-card__features-label {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--slate);
-      margin-bottom: 12px;
-    }
-
-    .pricing-card__feature {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      font-size: 13px;
-      line-height: 1.5;
-      color: rgba(232, 236, 241, 0.75);
-      margin-bottom: 10px;
-    }
-
-    .pricing-card__check {
-      flex-shrink: 0;
-      width: 14px;
-      height: 14px;
-      color: var(--gold);
-      margin-top: 2px;
-    }
-
-    /* =============================================
-       FEATURES
-       ============================================= */
-    .features {
-      background: var(--off-white);
-      padding: 96px 0;
-      border-top: 1px solid rgba(136, 146, 160, 0.08);
-    }
-
-    .features__header {
-      text-align: center;
-      margin-bottom: 64px;
-    }
-
-    .features__label {
-      font-family: var(--font-mono);
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--slate);
-      margin-bottom: 16px;
-    }
-
-    .features__title {
-      font-family: var(--font-heading);
-      font-size: 40px;
-      font-weight: 600;
-      line-height: 1.15;
-      letter-spacing: -0.015em;
-      color: var(--muted-white);
-    }
-
-    .features__grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 48px;
-    }
-
-    .features__category {
-      background: #2C3038;
-      border: 1px solid rgba(136, 146, 160, 0.1);
-      border-radius: 4px;
-      padding: 32px;
-    }
-
-    .features__category-title {
-      font-family: var(--font-mono);
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted-white);
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid rgba(136, 146, 160, 0.12);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .features__category-icon {
-      width: 18px;
-      height: 18px;
-      color: var(--gold);
-      flex-shrink: 0;
-    }
-
-    .features__list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .features__item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      font-size: 14px;
-      line-height: 1.55;
-      color: var(--slate);
-    }
-
-    .features__check {
-      flex-shrink: 0;
-      width: 16px;
-      height: 16px;
-      color: var(--gold);
-      margin-top: 2px;
-    }
-
-    .features__tier-note {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.04em;
-      color: var(--slate);
-      background: rgba(136, 146, 160, 0.1);
-      padding: 1px 6px;
-      border-radius: 2px;
-      margin-left: 4px;
-      white-space: nowrap;
-    }
-
-    /* =============================================
-       FAQ
-       ============================================= */
-    .faq {
-      background: var(--deep-navy);
-      padding: 96px 0;
-      position: relative;
-    }
-
-    .faq::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image: radial-gradient(circle, rgba(136, 146, 160, 0.04) 1px, transparent 1px);
-      background-size: 32px 32px;
-      pointer-events: none;
-    }
-
-    .faq__header {
-      text-align: center;
-      margin-bottom: 56px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .faq__label {
-      font-family: var(--font-mono);
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--slate);
-      margin-bottom: 16px;
-    }
-
-    .faq__title {
-      font-family: var(--font-heading);
-      font-size: 40px;
-      font-weight: 600;
-      line-height: 1.15;
-      letter-spacing: -0.015em;
-      color: var(--muted-white);
-    }
-
-    .faq__list {
-      max-width: 800px;
-      margin: 0 auto;
-      position: relative;
-      z-index: 1;
-    }
-
-    .faq-item {
-      border-bottom: 1px solid rgba(136, 146, 160, 0.1);
-      transition: background-color 150ms ease;
-    }
-
-    .faq-item:first-child {
-      border-top: 1px solid rgba(136, 146, 160, 0.1);
-    }
-
-    .faq-item:hover {
-      background: var(--navy);
-    }
-
-    .faq-item--open {
-      background: var(--navy);
-    }
-
-    .faq-item__trigger {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 24px 0;
-      font-family: var(--font-body);
-      font-size: 16px;
-      font-weight: 500;
-      color: var(--muted-white);
-      text-align: left;
-      cursor: pointer;
-      min-height: 44px;
-      gap: 24px;
-    }
-
-    .faq-item__chevron {
-      flex-shrink: 0;
-      width: 14px;
-      height: 14px;
-      color: var(--slate);
-      transition: transform 250ms ease, color 250ms ease;
-    }
-
-    .faq-item--open .faq-item__chevron {
-      transform: rotate(180deg);
-      color: var(--gold);
-    }
-
-    .faq-item__content {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height 300ms cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .faq-item--open .faq-item__content {
-      max-height: 400px;
-    }
-
-    .faq-item__answer {
-      padding: 0 0 24px;
-      font-size: 15px;
-      line-height: 1.65;
-      color: var(--slate);
-      max-width: 680px;
-    }
-
-    /* =============================================
-       FINAL CTA
-       ============================================= */
-    .final-cta {
-      background: var(--off-white);
-      padding: 96px 0;
-      text-align: center;
-      border-top: 1px solid rgba(136, 146, 160, 0.08);
-    }
-
-    .final-cta__inner {
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 0 var(--gutter);
-    }
-
-    .final-cta__label {
-      font-family: var(--font-mono);
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--slate);
-      margin-bottom: 16px;
-    }
-
-    .final-cta__title {
-      font-family: var(--font-heading);
-      font-size: 40px;
-      font-weight: 600;
-      line-height: 1.15;
-      letter-spacing: -0.015em;
-      color: var(--muted-white);
-      margin-bottom: 20px;
-    }
-
-    .final-cta__text {
-      font-size: 17px;
-      line-height: 1.6;
-      color: var(--slate);
-      margin-bottom: 36px;
-      max-width: 520px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .final-cta__caption {
-      font-size: 13px;
-      font-weight: 400;
-      letter-spacing: 0.01em;
-      color: rgba(136, 146, 160, 0.8);
-      margin-top: 16px;
-    }
-
-    /* =============================================
-       FOOTER
-       ============================================= */
-    .footer {
-      background: var(--deep-navy);
-      padding: 56px 0 36px;
-      border-top: 1px solid rgba(136, 146, 160, 0.1);
-    }
-
-    .footer__grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr;
-      gap: 48px;
-      padding-bottom: 36px;
-      border-bottom: 1px solid rgba(136, 146, 160, 0.08);
-    }
-
-    .footer__brand-text {
-      font-size: 14px;
-      line-height: 1.5;
-      color: var(--slate);
-      margin-top: 16px;
-      max-width: 280px;
-    }
-
-    .footer__heading {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted-white);
-      margin-bottom: 20px;
-    }
-
-    .footer__link {
-      display: block;
-      font-size: 14px;
-      line-height: 1.5;
-      color: var(--slate);
-      margin-bottom: 10px;
-      transition: color 150ms ease;
-    }
-
-    .footer__link:hover {
-      color: var(--gold);
-    }
-
-    .footer__link--gold {
-      color: var(--gold);
-    }
-
-    .footer__bottom {
-      text-align: center;
-      padding-top: 28px;
-    }
-
-    .footer__copyright {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.04em;
-      color: rgba(136, 146, 160, 0.5);
-    }
-
-    .footer__logo img {
-      height: 36px;
-      width: auto;
-    }
-
-    /* =============================================
-       SCROLL ANIMATIONS
-       ============================================= */
-    .reveal {
-      opacity: 0;
-      transform: translateY(24px);
-      transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1), transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    .reveal--visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .reveal--delay-1 { transition-delay: 80ms; }
-    .reveal--delay-2 { transition-delay: 160ms; }
-    .reveal--delay-3 { transition-delay: 240ms; }
-    .reveal--delay-4 { transition-delay: 320ms; }
-
-    @media (prefers-reduced-motion: reduce) {
-      .reveal {
-        transform: none;
-        transition: opacity 250ms ease;
-      }
-
-      .reveal--delay-1,
-      .reveal--delay-2,
-      .reveal--delay-3,
-      .reveal--delay-4 {
-        transition-delay: 0ms;
-      }
-
-      html {
-        scroll-behavior: auto;
-      }
-
-      .faq-item__content {
-        transition: none;
-      }
-
-      .faq-item__chevron {
-        transition: none;
-      }
-
-      .btn {
-        transition: none;
-      }
-
-      .btn:hover {
-        transform: none;
-      }
-
-      .nav {
-        transition: none;
-      }
-
-      .status-dot::after {
-        animation: none;
-      }
-    }
-
-    /* =============================================
-       RESPONSIVE -- TABLET
-       ============================================= */
-    @media (max-width: 1024px) {
-      :root {
-        --gutter: 40px;
-      }
-
-      .hero {
-        padding: 120px 0 88px;
-      }
-
-      .hero__title {
-        font-size: 48px;
-      }
-
-      .value { padding: 80px 0; }
-      .pricing { padding: 80px 0; }
-      .features { padding: 80px 0; }
-      .faq { padding: 80px 0; }
-      .final-cta { padding: 80px 0; }
-
-      .pricing__grid {
-        gap: 16px;
-      }
-
-      .pricing-card {
-        padding: 32px 24px;
-      }
-
-      .features__grid {
-        gap: 32px;
-      }
-
-      .features__category {
-        padding: 28px;
-      }
-
-      .services { padding: 64px 0; }
-      .services__title { font-size: 32px; }
-    }
-
-    /* =============================================
-       RESPONSIVE -- MOBILE
-       ============================================= */
-    @media (max-width: 768px) {
-      :root {
-        --gutter: 24px;
-        --nav-height: 60px;
-      }
-
-      .nav__links {
-        display: none;
-      }
-
-      .nav__hamburger {
-        display: flex;
-      }
-
-      .nav__logo img {
-        height: 30px;
-      }
-
-      .hero {
-        padding: 88px 0 72px;
-      }
-
-      .hero__title {
-        font-size: 40px;
-      }
-
-      .hero__subtitle {
-        font-size: 16px;
-      }
-
-      .value { padding: 64px 0; }
-      .value__header { margin-bottom: 40px; }
-      .value__title { font-size: 32px; }
-
-      .value__grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
-
-      .value__card {
-        padding: 32px 24px;
-      }
-
-      .pricing { padding: 64px 0; }
-      .pricing__header { margin-bottom: 40px; }
-      .pricing__title { font-size: 32px; }
-
-      .pricing__grid {
-        grid-template-columns: 1fr;
-        gap: 24px;
-        max-width: 440px;
-        margin: 0 auto;
-      }
-
-      .pricing-card {
-        padding: 32px 24px;
-      }
-
-      .features { padding: 64px 0; }
-      .features__header { margin-bottom: 40px; }
-      .features__title { font-size: 32px; }
-
-      .features__grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
-
-      .features__category {
-        padding: 24px;
-      }
-
-      .faq { padding: 64px 0; }
-      .faq__title { font-size: 32px; }
-
-      .faq-item__trigger {
-        padding: 20px 0;
-        font-size: 15px;
-      }
-
-      .faq-item__answer {
-        padding: 0 0 20px;
-        font-size: 14px;
-      }
-
-      .final-cta { padding: 64px 0; }
-      .final-cta__title { font-size: 32px; }
-      .final-cta__text { font-size: 16px; }
-
-      .footer__grid {
-        grid-template-columns: 1fr;
-        text-align: center;
-        gap: 32px;
-      }
-
-      .footer__brand-text {
-        max-width: none;
-        margin-left: auto;
-        margin-right: auto;
-      }
-
-      .footer__logo {
-        display: flex;
-        justify-content: center;
-      }
-
-      .services { padding: 48px 0; }
-      .services__grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
-      .services__card {
-        padding: 32px 24px;
-      }
-      .services__title { font-size: 28px; }
-      .hero__brand { font-size: 16px; }
-    }
-
-    @media (max-width: 480px) {
-      .hero__title {
-        font-size: 32px;
-      }
-
-      .hero__overline {
-        font-size: 11px;
-      }
-
-      .pricing-card__amount {
-        font-size: 40px;
-      }
-
-      .value__title,
-      .pricing__title,
-      .features__title,
-      .faq__title,
-      .final-cta__title {
-        font-size: 28px;
-      }
-
-      .services__title { font-size: 24px; }
-    }
-
-    /* =============================================
-       HERO BRAND LOCKUP
-       ============================================= */
-    .hero__brand {
-      font-family: var(--font-heading);
-      font-weight: 700;
-      font-size: 20px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 8px;
-    }
-
-    /* =============================================
-       SECTION DIVIDERS
-       ============================================= */
-    .section-divider {
-      width: 100%;
-      max-width: 800px;
-      margin: 0 auto;
-      height: 1px;
-      background: linear-gradient(90deg,
-        transparent 0%,
-        var(--gold) 50%,
-        transparent 100%);
-      opacity: 0.3;
-    }
-
-    /* =============================================
-       SERVICES SECTION
-       ============================================= */
-    .services {
-      background: var(--off-white);
-      padding: 80px 0;
-      border-top: 1px solid rgba(136, 146, 160, 0.08);
-    }
-
-    .services__header {
-      text-align: center;
-      margin-bottom: 48px;
-    }
-
-    .services__label {
-      font-family: var(--font-mono);
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 16px;
-    }
-
-    .services__title {
-      font-family: var(--font-heading);
-      font-size: 40px;
-      font-weight: 600;
-      line-height: 1.15;
-      letter-spacing: -0.015em;
-      color: var(--muted-white);
-    }
-
-    .services__grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-    }
-
-    .services__card {
-      background: #2C3038;
-      border: 1px solid rgba(136, 146, 160, 0.1);
-      border-radius: 4px;
-      padding: 40px 32px;
-      transition: border-color 200ms ease, box-shadow 200ms ease;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .services__card:hover {
-      border-color: rgba(212, 175, 55, 0.3);
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
-    }
-
-    .services__icon {
-      width: 40px;
-      height: 40px;
-      color: var(--gold);
-      margin-bottom: 20px;
-    }
-
-    .services__icon svg {
-      width: 100%;
-      height: 100%;
-    }
-
-    .services__card-title {
-      font-family: var(--font-heading);
-      font-size: 22px;
-      font-weight: 600;
-      color: var(--muted-white);
-      margin-bottom: 10px;
-    }
-
-    .services__card-text {
-      font-size: 15px;
-      line-height: 1.6;
-      color: var(--slate);
-      flex-grow: 1;
-      margin-bottom: 20px;
-    }
-
-    .services__link-text {
-      font-family: var(--font-mono);
-      font-size: 13px;
-      font-weight: 500;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: var(--gold);
-      transition: color 150ms ease;
-    }
-
-    .services__card:hover .services__link-text {
-      color: var(--gold-hover);
-    }
-
-    .services__soon {
-      font-family: var(--font-mono);
-      font-size: 13px;
-      font-weight: 500;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: var(--slate);
-    }
-  </style>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/home.css">
 </head>
 <body>
   <!-- Skip to content -->
@@ -1762,11 +271,11 @@
         <img src="img/logo-nav.png" alt="Motive Hosting" height="36" width="53">
       </a>
       <div class="nav__links">
+        <a href="wordpress-hosting.html" class="nav__link">WordPress</a>
+        <a href="nodejs-hosting.html" class="nav__link">Node.js</a>
         <a href="#pricing" class="nav__link">Plans</a>
-        <a href="#features" class="nav__link">Features</a>
-        <a href="#faq" class="nav__link">FAQ</a>
-        <a href="https://domains.motive.host" class="nav__link" target="_blank" rel="noopener noreferrer">Domain Services</a>
-        <a href="https://my.motive.host" class="btn btn--primary btn--medium nav__cta" target="_blank" rel="noopener noreferrer">Get Started</a>
+        <a href="contact.html" class="nav__link">Contact</a>
+        <a href="https://domains.motive.host" class="btn btn--primary btn--medium nav__cta" target="_blank" rel="noopener noreferrer">Get Started</a>
       </div>
       <button class="nav__hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -1786,21 +295,23 @@
         <line x1="6" y1="6" x2="18" y2="18"/>
       </svg>
     </button>
+    <a href="wordpress-hosting.html" class="mobile-menu__link">WordPress Hosting</a>
+    <a href="nodejs-hosting.html" class="mobile-menu__link">Node.js Hosting</a>
     <a href="#pricing" class="mobile-menu__link">Plans</a>
     <a href="#features" class="mobile-menu__link">Features</a>
     <a href="#faq" class="mobile-menu__link">FAQ</a>
-    <a href="https://domains.motive.host" class="mobile-menu__link" target="_blank" rel="noopener noreferrer">Domain Services</a>
-    <a href="https://my.motive.host" class="btn btn--primary btn--large mobile-menu__cta" target="_blank" rel="noopener noreferrer">Get Started</a>
+    <a href="contact.html" class="mobile-menu__link">Contact</a>
+    <a href="https://domains.motive.host" class="btn btn--primary btn--large mobile-menu__cta" target="_blank" rel="noopener noreferrer">Get Started</a>
   </div>
 
   <main id="main">
     <!-- Hero -->
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero__inner">
-        <p class="hero__brand reveal">Motive Host</p>
+        <p class="hero__brand reveal">Motive Hosting</p>
         <p class="hero__overline reveal reveal--delay-1">Managed Hosting for the Gulf Coast</p>
         <h1 id="hero-title" class="hero__title reveal reveal--delay-2">When Experts Handle Your Hosting, You Handle Your Business</h1>
-        <p class="hero__subtitle reveal reveal--delay-3">Motive Host provides managed web hosting, business email, and security for Gulf Coast businesses that want their online presence handled right.</p>
+        <p class="hero__subtitle reveal reveal--delay-3">Motive Hosting provides managed web hosting, business email, and security for Gulf Coast businesses that want their online presence handled right.</p>
         <div class="hero__cta-group reveal reveal--delay-4">
           <a href="#pricing" class="btn btn--primary btn--large">See Plans</a>
           <p class="hero__caption">No contracts. No setup fees. Cancel anytime.</p>
@@ -1812,12 +323,47 @@
       </div>
     </section>
 
+    <!-- How It Works -->
+    <section class="how-it-works" aria-labelledby="how-it-works-title">
+      <div class="container">
+        <div class="how-it-works__header">
+          <p class="how-it-works__label reveal">How It Works</p>
+          <h2 id="how-it-works-title" class="how-it-works__title reveal reveal--delay-1">Get Started in Three Simple Steps</h2>
+          <p class="how-it-works__subtitle reveal reveal--delay-2">No complicated setup. No technical expertise required. We handle the heavy lifting so you can focus on your business.</p>
+        </div>
+        <div class="how-it-works__steps">
+          <div class="how-it-works__step reveal reveal--delay-1">
+            <div class="how-it-works__number">01</div>
+            <h3 class="how-it-works__step-title">Choose Your Plan</h3>
+            <p class="how-it-works__step-text">Select the managed hosting plan that fits your business. WordPress-only or full-stack -- every plan includes expert management, security, and support.</p>
+          </div>
+          <div class="how-it-works__connector" aria-hidden="true">
+            <svg viewBox="0 0 48 16" fill="none"><path d="M0 8h40M36 3l6 5-6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="how-it-works__step reveal reveal--delay-2">
+            <div class="how-it-works__number">02</div>
+            <h3 class="how-it-works__step-title">We Set Up Your Environment</h3>
+            <p class="how-it-works__step-text">Our team provisions your server, configures your domain, sets up email, and installs SSL. Everything is optimized before you see it.</p>
+          </div>
+          <div class="how-it-works__connector" aria-hidden="true">
+            <svg viewBox="0 0 48 16" fill="none"><path d="M0 8h40M36 3l6 5-6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="how-it-works__step reveal reveal--delay-3">
+            <div class="how-it-works__number">03</div>
+            <h3 class="how-it-works__step-title">You're Live with Full Support</h3>
+            <p class="how-it-works__step-text">Your site goes live on monitored, enterprise-grade infrastructure. We handle updates, backups, and security -- you handle your business.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Value Propositions -->
     <section class="value" aria-labelledby="value-title">
       <div class="container">
         <div class="value__header">
           <p class="value__label reveal">Why Motive Hosting</p>
-          <h2 id="value-title" class="value__title reveal reveal--delay-1">What Sets Premier Hosting Apart</h2>
+          <h2 id="value-title" class="value__title reveal reveal--delay-1">What Sets Premier Managed Hosting Apart</h2>
+          <p class="value__subtitle reveal reveal--delay-2">Dedicated experts, enterprise-grade infrastructure, and all-in-one service -- managed WordPress and Node.js hosting built for businesses that refuse to settle.</p>
         </div>
         <div class="value__grid">
           <!-- Pillar 1: Expert Management -->
@@ -1859,7 +405,7 @@
               </svg>
             </div>
             <h3 class="value__card-title">Infrastructure That Matches Your Ambition</h3>
-            <p class="value__card-text">WordPress, Node.js, React -- whatever your business runs on, we host and manage it on enterprise-grade infrastructure. Most local providers cannot offer this. Motive Host can.</p>
+            <p class="value__card-text">WordPress, Node.js, React -- whatever your business runs on, we host and manage it on enterprise-grade infrastructure. Most local providers cannot offer this. Motive Hosting can.</p>
           </div>
         </div>
       </div>
@@ -1906,8 +452,8 @@
       <div class="container">
         <div class="pricing__header">
           <p class="pricing__label reveal">Pricing</p>
-          <h2 id="pricing-title" class="pricing__title reveal reveal--delay-1">Transparent Pricing, Premier Service</h2>
-          <p class="pricing__subtitle reveal reveal--delay-2">Every Motive Host plan includes full management. No hidden fees, no surprise charges, no fine print.</p>
+          <h2 id="pricing-title" class="pricing__title reveal reveal--delay-1">Managed Hosting Plans & Pricing</h2>
+          <p class="pricing__subtitle reveal reveal--delay-2">Every Motive Hosting plan includes full management. No hidden fees, no surprise charges, no fine print.</p>
         </div>
         <div class="pricing__grid">
           <!-- Harbor -->
@@ -1919,7 +465,7 @@
             </div>
             <p class="pricing-card__billing">Billed monthly</p>
             <div class="pricing-card__cta">
-              <a href="https://my.motive.host" class="btn btn--outline btn--large btn--full" target="_blank" rel="noopener noreferrer">Get Started</a>
+              <a href="https://domains.motive.host?plan=harbor" class="btn btn--outline btn--large btn--full" target="_blank" rel="noopener noreferrer">Get Started</a>
             </div>
             <div class="pricing-card__specs">
               <div class="pricing-card__spec">
@@ -1963,7 +509,7 @@
             </div>
             <p class="pricing-card__billing">Billed monthly</p>
             <div class="pricing-card__cta">
-              <a href="https://my.motive.host" class="btn btn--primary btn--large btn--full" target="_blank" rel="noopener noreferrer">Get Started</a>
+              <a href="https://domains.motive.host?plan=gulf" class="btn btn--primary btn--large btn--full" target="_blank" rel="noopener noreferrer">Get Started</a>
             </div>
             <div class="pricing-card__specs">
               <div class="pricing-card__spec">
@@ -2010,7 +556,7 @@
             </div>
             <p class="pricing-card__billing">Billed monthly</p>
             <div class="pricing-card__cta">
-              <a href="https://my.motive.host" class="btn btn--outline btn--large btn--full" target="_blank" rel="noopener noreferrer">Get Started</a>
+              <a href="https://domains.motive.host?plan=horizon" class="btn btn--outline btn--large btn--full" target="_blank" rel="noopener noreferrer">Get Started</a>
             </div>
             <div class="pricing-card__specs">
               <div class="pricing-card__spec">
@@ -2056,7 +602,8 @@
       <div class="container">
         <div class="features__header">
           <p class="features__label reveal">Capabilities</p>
-          <h2 id="features-title" class="features__title reveal reveal--delay-1">The Full Scope of What We Manage for You</h2>
+          <h2 id="features-title" class="features__title reveal reveal--delay-1">Comprehensive WordPress & Web Hosting Management</h2>
+          <p class="features__subtitle reveal reveal--delay-2">From automated backups and security monitoring to business email and newsletter tools -- everything your web presence needs, fully managed.</p>
         </div>
         <div class="features__grid">
           <!-- Website Hosting -->
@@ -2193,7 +740,8 @@
       <div class="container">
         <div class="faq__header">
           <p class="faq__label reveal">FAQ</p>
-          <h2 id="faq-title" class="faq__title reveal reveal--delay-1">Common Questions</h2>
+          <h2 id="faq-title" class="faq__title reveal reveal--delay-1">Managed Hosting FAQ</h2>
+          <p class="faq__subtitle reveal reveal--delay-2">Answers to the most common questions about our managed WordPress hosting, Node.js hosting, and support services.</p>
         </div>
         <div class="faq__list" role="list">
           <!-- FAQ 1 -->
@@ -2217,7 +765,7 @@
             </button>
             <div class="faq-item__content" role="region">
               <div class="faq-item__answer">
-                <p>We handle the migration for you. Once you sign up with Motive Host, our team will coordinate the move of your site, email, and DNS records. We work during low-traffic hours and test everything before making the switch live. Most businesses experience zero downtime during the transition.</p>
+                <p>We handle the migration for you. Once you sign up with Motive Hosting, our team will coordinate the move of your site, email, and DNS records. We work during low-traffic hours and test everything before making the switch live. Most businesses experience zero downtime during the transition.</p>
               </div>
             </div>
           </div>
@@ -2310,7 +858,7 @@
         <h2 id="final-cta-title" class="final-cta__title reveal reveal--delay-1">Your Web Presence, Expertly Managed</h2>
         <p class="final-cta__text reveal reveal--delay-2">Gulf Coast businesses trust Motive Hosting for the kind of attentive, hands-on management that their web presence deserves. Fast sites, airtight security, and a team that is always watching.</p>
         <div class="reveal reveal--delay-3">
-          <a href="https://my.motive.host" class="btn btn--primary btn--large" target="_blank" rel="noopener noreferrer">Get Started</a>
+          <a href="contact.html" class="btn btn--primary btn--large">Contact Us</a>
           <p class="final-cta__caption">No contracts. No setup fees. Cancel anytime.</p>
         </div>
       </div>
@@ -2323,15 +871,16 @@
       <div class="footer__grid">
         <div>
           <div class="footer__logo">
-            <img src="img/logo-nav.png" alt="Motive Host" height="36" width="53" loading="lazy">
+            <img src="img/logo-nav.png" alt="Motive Hosting" height="36" width="53" loading="lazy">
           </div>
-          <p class="footer__brand-text">Motive Host is premier managed hosting for businesses in Fairhope, Mobile, and across the Gulf Coast. A <a href="https://motiveai.ai" class="footer__link footer__link--gold" target="_blank" rel="noopener noreferrer">Motive AI</a> company.</p>
+          <p class="footer__brand-text">Motive Hosting is premier managed hosting for businesses in Fairhope, Mobile, and across the Gulf Coast. A <a href="https://motiveai.ai" class="footer__link footer__link--gold" target="_blank" rel="noopener noreferrer">Motive AI</a> company.</p>
           <p class="footer__brand-text" style="font-size: 12px; color: rgba(136, 146, 160, 0.5); margin-top: 8px;">Fairhope, Alabama</p>
         </div>
         <div>
           <p class="footer__heading">Services</p>
-          <a href="#pricing" class="footer__link">Managed Hosting</a>
-          <a href="https://domains.motive.host" class="footer__link footer__link--gold" target="_blank" rel="noopener noreferrer">Domain Services</a>
+          <a href="wordpress-hosting.html" class="footer__link">WordPress Hosting</a>
+          <a href="nodejs-hosting.html" class="footer__link">Node.js Hosting</a>
+          <a href="domain-services.html" class="footer__link">Domain Services</a>
           <a href="#features" class="footer__link">Business Email</a>
         </div>
         <div>
@@ -2339,6 +888,7 @@
           <a href="#pricing" class="footer__link">Plans & Pricing</a>
           <a href="#features" class="footer__link">Features</a>
           <a href="#faq" class="footer__link">FAQ</a>
+          <a href="contact.html" class="footer__link">Contact Us</a>
           <a href="https://my.motive.host" class="footer__link" target="_blank" rel="noopener noreferrer">Client Portal</a>
         </div>
         <div>
@@ -2354,6 +904,7 @@
     </div>
   </footer>
 
+  <script src="js/nav.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>

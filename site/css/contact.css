@@ -1,0 +1,396 @@
+/* =============================================================================
+   CONTACT.CSS — Contact page styles
+   Requires main.css to be loaded first for variables and base styles.
+   ============================================================================= */
+
+/* =============================================
+   CONTACT HERO
+   ============================================= */
+.contact-hero {
+  background: var(--deep-navy);
+  padding: 120px 0 80px;
+  margin-top: var(--nav-height);
+  text-align: center;
+  position: relative;
+}
+
+.contact-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(136, 146, 160, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+}
+
+.contact-hero__inner {
+  max-width: 840px;
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+  position: relative;
+  z-index: 1;
+}
+
+.contact-hero__overline {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--slate);
+  margin-bottom: 16px;
+}
+
+.contact-hero__title {
+  font-family: var(--font-heading);
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  color: var(--muted-white);
+  margin-bottom: 16px;
+}
+
+.contact-hero__subtitle {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--slate);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* =============================================
+   CONTACT LAYOUT — Two-column
+   ============================================= */
+.contact-layout {
+  background: var(--off-white);
+  padding: 64px 0 96px;
+}
+
+.contact-layout__inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 48px;
+  align-items: start;
+}
+
+/* =============================================
+   CONTACT FORM
+   ============================================= */
+.contact-form {
+  background: #2C3038;
+  border: 1px solid rgba(136, 146, 160, 0.1);
+  border-radius: 4px;
+  padding: 40px;
+}
+
+.contact-form__title {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--muted-white);
+  margin-bottom: 8px;
+}
+
+.contact-form__description {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--slate);
+  margin-bottom: 32px;
+}
+
+.contact-form__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.contact-form__grid--full {
+  grid-template-columns: 1fr;
+}
+
+/* =============================================
+   FORM FIELD
+   ============================================= */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field--full {
+  grid-column: 1 / -1;
+}
+
+.form-field label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.form-field input,
+.form-field textarea,
+.form-field select {
+  background: var(--navy);
+  border: 1px solid rgba(136, 146, 160, 0.2);
+  border-radius: 4px;
+  padding: 12px 16px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--muted-white);
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+  width: 100%;
+}
+
+.form-field input::placeholder,
+.form-field textarea::placeholder {
+  color: rgba(136, 146, 160, 0.5);
+}
+
+.form-field input:focus,
+.form-field textarea:focus,
+.form-field select:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12);
+}
+
+.form-field textarea {
+  min-height: 160px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+/* Select — custom arrow */
+.form-field select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%238892A0' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 44px;
+  cursor: pointer;
+}
+
+.form-field select option {
+  background: var(--navy);
+  color: var(--muted-white);
+}
+
+/* =============================================
+   HONEYPOT — Hidden from real users
+   ============================================= */
+.form-field--hp {
+  display: none;
+}
+
+/* =============================================
+   FORM SUBMIT
+   ============================================= */
+.contact-form__submit {
+  margin-top: 28px;
+}
+
+/* =============================================
+   FORM MESSAGES
+   ============================================= */
+.form-success,
+.form-error {
+  display: none;
+  padding: 16px 20px;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-top: 20px;
+}
+
+.form-success--visible,
+.form-error--visible {
+  display: block;
+}
+
+.form-success {
+  background: rgba(52, 199, 89, 0.08);
+  border: 1px solid rgba(52, 199, 89, 0.2);
+  color: #6BE08B;
+}
+
+.form-error {
+  background: rgba(255, 69, 58, 0.08);
+  border: 1px solid rgba(255, 69, 58, 0.2);
+  color: #FF6B6B;
+}
+
+/* =============================================
+   CONTACT INFO PANEL
+   ============================================= */
+.contact-info {
+  background: #2C3038;
+  border: 1px solid rgba(136, 146, 160, 0.1);
+  border-radius: 4px;
+  padding: 40px;
+}
+
+.contact-info__title {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted-white);
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(136, 146, 160, 0.12);
+}
+
+.contact-info__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.contact-info__item:last-child {
+  margin-bottom: 0;
+}
+
+.contact-info__icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(212, 175, 55, 0.08);
+  border-radius: 4px;
+  color: var(--gold);
+}
+
+.contact-info__icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.contact-info__content {
+  flex: 1;
+}
+
+.contact-info__label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--slate);
+  margin-bottom: 4px;
+}
+
+.contact-info__value {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--muted-white);
+}
+
+.contact-info__value a {
+  color: var(--gold);
+  text-decoration: underline;
+  text-decoration-color: rgba(212, 175, 55, 0.3);
+  transition: text-decoration-color 150ms ease;
+}
+
+.contact-info__value a:hover {
+  text-decoration-color: var(--gold);
+}
+
+/* Divider within info panel */
+.contact-info__divider {
+  height: 1px;
+  background: rgba(136, 146, 160, 0.1);
+  margin: 28px 0;
+}
+
+/* Additional note at bottom of info panel */
+.contact-info__note {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--slate);
+  padding-top: 4px;
+}
+
+/* =============================================
+   RESPONSIVE — MOBILE (768px)
+   ============================================= */
+@media (max-width: 768px) {
+  .contact-hero {
+    padding: 88px 0 56px;
+  }
+
+  .contact-hero__title {
+    font-size: 32px;
+  }
+
+  .contact-hero__subtitle {
+    font-size: 16px;
+  }
+
+  .contact-layout {
+    padding: 48px 0 72px;
+  }
+
+  .contact-layout__inner {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .contact-form__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =============================================
+   RESPONSIVE — SMALL (480px)
+   ============================================= */
+@media (max-width: 480px) {
+  .contact-hero__title {
+    font-size: 28px;
+  }
+
+  .contact-form {
+    padding: 24px;
+  }
+
+  .contact-info {
+    padding: 24px;
+  }
+
+  .contact-form__title {
+    font-size: 20px;
+  }
+}
+
+/* =============================================
+   PREFERS REDUCED MOTION
+   ============================================= */
+/* FIELD ERROR STATES */
+.contact-form__input--error {
+  border-color: #e74c3c;
+}
+.contact-form__field-error {
+  font-size: 13px;
+  color: #e74c3c;
+  margin-top: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .form-field input,
+  .form-field textarea,
+  .form-field select {
+    transition: none;
+  }
+}
