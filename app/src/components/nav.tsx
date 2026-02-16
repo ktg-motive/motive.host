@@ -66,15 +66,26 @@ export default function Nav() {
           Search
         </Link>
         {user && (
-          <Link
-            href="/domains"
-            onClick={onNavigate}
-            className={`text-sm transition-colors hover:text-muted-white ${
-              pathname.startsWith('/domains') ? 'text-gold' : 'text-slate'
-            }`}
-          >
-            My Domains
-          </Link>
+          <>
+            <Link
+              href="/domains"
+              onClick={onNavigate}
+              className={`text-sm transition-colors hover:text-muted-white ${
+                pathname.startsWith('/domains') ? 'text-gold' : 'text-slate'
+              }`}
+            >
+              My Domains
+            </Link>
+            <Link
+              href="/email"
+              onClick={onNavigate}
+              className={`text-sm transition-colors hover:text-muted-white ${
+                pathname.startsWith('/email') ? 'text-gold' : 'text-slate'
+              }`}
+            >
+              Email
+            </Link>
+          </>
         )}
       </>
     )
@@ -117,6 +128,13 @@ export default function Nav() {
                     className="block px-3 py-2 text-sm text-slate transition-colors hover:bg-card-content hover:text-muted-white"
                   >
                     My Domains
+                  </Link>
+                  <Link
+                    href="/email"
+                    onClick={() => setDropdownOpen(false)}
+                    className="block px-3 py-2 text-sm text-slate transition-colors hover:bg-card-content hover:text-muted-white"
+                  >
+                    Email
                   </Link>
                   <Link
                     href="https://my.motive.host"
