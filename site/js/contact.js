@@ -9,6 +9,17 @@
   var successMsg = form.querySelector('.form-success');
   var errorMsg = form.querySelector('.form-error');
 
+  // Pre-select plan from URL query parameter (e.g. ?plan=gulf)
+  var params = new URLSearchParams(window.location.search);
+  var planParam = params.get('plan');
+  if (planParam) {
+    var planSelect = form.querySelector('[name="plan"]');
+    if (planSelect) {
+      var option = planSelect.querySelector('option[value="' + planParam + '"]');
+      if (option) planSelect.value = planParam;
+    }
+  }
+
   function validateEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
