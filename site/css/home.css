@@ -612,6 +612,100 @@
 }
 
 /* --------------------------------------------------------------------------
+   7b. PRICING ADDON — Email tier callout below hosting plans
+   -------------------------------------------------------------------------- */
+
+.pricing__addon {
+  max-width: 720px;
+  margin: 56px auto 0;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.pricing__addon-title {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--muted-white);
+  margin-bottom: 12px;
+}
+
+.pricing__addon-text {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--slate);
+  margin-bottom: 28px;
+}
+
+.pricing__addon-tiers {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.pricing__addon-tier {
+  background: var(--navy);
+  border: 1px solid rgba(136, 146, 160, 0.12);
+  border-radius: 4px;
+  padding: 24px 28px;
+  flex: 1;
+  max-width: 200px;
+  transition: border-color 200ms ease;
+}
+
+.pricing__addon-tier:hover {
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+.pricing__addon-name {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--slate);
+  margin-bottom: 8px;
+}
+
+.pricing__addon-price {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.pricing__addon-price span {
+  font-size: 14px;
+  color: var(--slate);
+}
+
+.pricing__addon-detail {
+  display: block;
+  font-size: 13px;
+  color: var(--slate);
+}
+
+.pricing__addon-link {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+  transition: color 150ms ease;
+}
+
+.pricing__addon-link:hover {
+  color: var(--gold-hover);
+}
+
+/* --------------------------------------------------------------------------
    8. FEATURES
    -------------------------------------------------------------------------- */
 
@@ -962,6 +1056,9 @@
   .how-it-works__steps { flex-direction: column; gap: 32px; align-items: center; }
   .how-it-works__step { padding: 0; max-width: 360px; }
   .how-it-works__connector { transform: rotate(90deg); margin: 0; }
+  .pricing__addon-tiers { flex-direction: column; align-items: center; }
+  .pricing__addon-tier { max-width: 280px; width: 100%; }
+  .pricing__addon-title { font-size: 22px; }
 }
 
 /* --------------------------------------------------------------------------
