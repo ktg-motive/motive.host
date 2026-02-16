@@ -261,7 +261,7 @@ export default function DnsManager({ domain }: DnsManagerProps) {
         </div>
         <h3 className="text-lg font-medium text-muted-white">No DNS Zone</h3>
         <p className="mt-2 text-sm text-slate">
-          A DNS zone hasn't been created for this domain yet. Create one to start managing DNS records.
+          A DNS zone hasn&apos;t been created for this domain yet. Create one to start managing DNS records.
         </p>
         <Button onClick={createZone} disabled={isSubmitting} className="mt-6">
           {isSubmitting ? 'Creating...' : 'Create DNS Zone'}

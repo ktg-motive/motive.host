@@ -162,7 +162,8 @@ export async function PATCH(request: Request) {
   }
 }
 
-// PUT: called after payment confirmation succeeds
+// PUT: called after payment confirmation succeeds.
+// Uses payment_fulfillments table for idempotency and replay protection.
 export async function PUT(request: Request) {
   try {
     const supabase = await createClient()
@@ -191,12 +192,10 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Payment has not been confirmed' }, { status: 402 })
     }
 
-    // Verify the PaymentIntent belongs to this user
     if (paymentIntent.metadata.user_id !== user.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
-    // Verify the PaymentIntent matches the requested domain and period
     if (paymentIntent.metadata.domain !== domain) {
       return NextResponse.json({ error: 'Payment domain mismatch' }, { status: 400 })
     }
@@ -204,7 +203,6 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Payment period mismatch' }, { status: 400 })
     }
 
-    // Verify the amount matches server-calculated pricing
     const priceResult = await opensrs.getDomainPrice(domain)
     const customerPrice = getCustomerPrice(priceResult.price)
     const expectedAmountCents = priceToCents(customerPrice) * period
@@ -212,7 +210,66 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Payment amount mismatch' }, { status: 400 })
     }
 
-    // 2. Build contacts
+    // 2. Check for existing fulfillment (replay protection)
+    const { data: existingFulfillment } = await supabase
+      .from('payment_fulfillments')
+      .select('id, status, opensrs_order_id')
+      .eq('stripe_payment_intent_id', paymentIntentId)
+      .single()
+
+    if (existingFulfillment) {
+      if (existingFulfillment.status === 'fulfilled') {
+        // Already completed — return success idempotently
+        return NextResponse.json({
+          success: true,
+          domain,
+          orderId: existingFulfillment.opensrs_order_id,
+        })
+      }
+      if (existingFulfillment.status === 'fulfilled_partial') {
+        // OpenSRS succeeded but DB persistence failed — don't mask as success
+        return NextResponse.json({
+          error: 'Domain was registered but record saving failed. Please contact support.',
+          orderId: existingFulfillment.opensrs_order_id,
+        }, { status: 500 })
+      }
+      if (existingFulfillment.status === 'pending') {
+        // Another request is in flight — reject to avoid race
+        return NextResponse.json({ error: 'Registration is already in progress' }, { status: 409 })
+      }
+      if (existingFulfillment.status === 'failed_refund_pending') {
+        // Registration failed and refund also failed — needs manual intervention
+        return NextResponse.json({
+          error: 'Registration failed and refund is still being processed. Please contact support.',
+        }, { status: 502 })
+      }
+      // status === 'failed_refunded'
+      return NextResponse.json({ error: 'This payment was already refunded due to a prior failure' }, { status: 410 })
+    }
+
+    // 3. Claim this fulfillment atomically (unique constraint on stripe_payment_intent_id
+    //    prevents concurrent duplicates)
+    const { error: claimError } = await supabase
+      .from('payment_fulfillments')
+      .insert({
+        stripe_payment_intent_id: paymentIntentId,
+        customer_id: user.id,
+        domain_name: domain,
+        period,
+        amount_cents: paymentIntent.amount,
+        status: 'pending',
+      })
+
+    if (claimError) {
+      // Unique constraint violation means another request beat us
+      if (claimError.code === '23505') {
+        return NextResponse.json({ error: 'Registration is already in progress' }, { status: 409 })
+      }
+      console.error('Failed to claim fulfillment:', claimError)
+      return NextResponse.json({ error: 'Registration failed' }, { status: 500 })
+    }
+
+    // 4. Build contacts
     const ownerContact: DomainContact = contact
     const contacts = {
       owner: ownerContact,
@@ -221,7 +278,7 @@ export async function PUT(request: Request) {
       billing: useForAll ? ownerContact : (billingContact ?? ownerContact),
     }
 
-    // 3. Register domain with OpenSRS
+    // 5. Register domain with OpenSRS
     let registrationResult
     try {
       registrationResult = await opensrs.registerDomain({
@@ -233,21 +290,37 @@ export async function PUT(request: Request) {
         handleNow: true,
       })
     } catch (opensrsError) {
-      // Refund the payment since OpenSRS registration failed
+      const errorMsg = opensrsError instanceof Error ? opensrsError.message : 'OpenSRS registration failed'
+      console.error('OpenSRS registration failed:', opensrsError)
+
+      // Attempt refund first, then update fulfillment with actual outcome
+      let refundSucceeded = false
       try {
         await stripe.refunds.create({ payment_intent: paymentIntentId })
+        refundSucceeded = true
       } catch (refundError) {
         console.error('Refund also failed — manual intervention needed:', refundError)
       }
-      console.error('OpenSRS registration failed:', opensrsError)
-      return NextResponse.json({ error: 'Domain registration failed. Payment has been refunded.' }, { status: 502 })
+
+      await supabase
+        .from('payment_fulfillments')
+        .update({
+          status: refundSucceeded ? 'failed_refunded' : 'failed_refund_pending',
+          error_message: errorMsg + (refundSucceeded ? '' : ' — refund also failed, needs manual intervention'),
+        })
+        .eq('stripe_payment_intent_id', paymentIntentId)
+
+      const userMessage = refundSucceeded
+        ? 'Domain registration failed. Payment has been refunded.'
+        : 'Domain registration failed. Refund is being processed — please contact support if not received.'
+      return NextResponse.json({ error: userMessage }, { status: 502 })
     }
 
-    // 4. Calculate expiration
+    // 6. Calculate expiration
     const expiresAt = new Date()
     expiresAt.setFullYear(expiresAt.getFullYear() + period)
 
-    // 5. Insert domain record — fail hard if this doesn't work
+    // 7. Insert domain record — fail hard if this doesn't work
     const { data: domainRecord, error: domainError } = await supabase
       .from('domains')
       .insert({
@@ -265,17 +338,28 @@ export async function PUT(request: Request) {
 
     if (domainError || !domainRecord) {
       console.error('Failed to insert domain record:', domainError)
+      // Mark as fulfilled_partial — OpenSRS succeeded but DB didn't.
+      // Retries will surface this as an error, not false success.
+      await supabase
+        .from('payment_fulfillments')
+        .update({
+          status: 'fulfilled_partial',
+          opensrs_order_id: registrationResult.id,
+          error_message: 'Domain registered at OpenSRS but DB insert failed — needs manual reconciliation',
+        })
+        .eq('stripe_payment_intent_id', paymentIntentId)
+
       return NextResponse.json({
         error: 'Domain was registered but we failed to save the record. Please contact support.',
         orderId: registrationResult.id,
       }, { status: 500 })
     }
 
-    // 6. Insert contacts
+    // 8. Insert contacts — check result
     const contactTypes = ['registrant', 'admin', 'tech', 'billing'] as const
     const contactData = [ownerContact, contacts.admin, contacts.tech, contacts.billing]
 
-    await supabase.from('domain_contacts').insert(
+    const { error: contactsError } = await supabase.from('domain_contacts').insert(
       contactTypes.map((type, i) => ({
         domain_id: domainRecord.id,
         contact_type: type,
@@ -283,8 +367,13 @@ export async function PUT(request: Request) {
       }))
     )
 
-    // 7. Insert transaction
-    await supabase.from('transactions').insert({
+    if (contactsError) {
+      console.error('Failed to insert domain contacts:', contactsError)
+      // Non-fatal: domain is registered, contacts can be re-synced
+    }
+
+    // 9. Insert transaction — check result
+    const { error: txError } = await supabase.from('transactions').insert({
       customer_id: user.id,
       domain_id: domainRecord.id,
       type: 'register',
@@ -294,7 +383,26 @@ export async function PUT(request: Request) {
       status: 'completed',
     })
 
-    // 8. Send confirmation email (non-blocking)
+    if (txError) {
+      console.error('Failed to insert transaction record:', txError)
+      // Non-fatal: domain is registered, transaction can be reconciled
+    }
+
+    // 10. Mark fulfillment as complete
+    const { error: fulfillError } = await supabase
+      .from('payment_fulfillments')
+      .update({
+        status: 'fulfilled',
+        opensrs_order_id: registrationResult.id,
+      })
+      .eq('stripe_payment_intent_id', paymentIntentId)
+
+    if (fulfillError) {
+      console.error('Failed to update fulfillment status to fulfilled:', fulfillError)
+      // Non-fatal: domain is registered and DB records exist, fulfillment status can be reconciled
+    }
+
+    // 11. Send confirmation email (non-blocking)
     try {
       await sendRegistrationConfirmation(user.email!, domain, expiresAt.toISOString())
     } catch (emailError) {

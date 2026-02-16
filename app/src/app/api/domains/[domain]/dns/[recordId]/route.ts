@@ -4,22 +4,6 @@ import { createClient } from '@/lib/supabase/server'
 import { getOpenSRSClient } from '@/lib/opensrs-client'
 import type { DnsRecord, DnsRecordChange } from '@opensrs/types'
 
-// The recordId is a composite key encoded as: type:subdomain:value
-// This is because OpenSRS DNS records don't have individual IDs --
-// the zone is always written as a complete set.
-function decodeRecordId(recordId: string): { type: string; subdomain: string; value: string } {
-  const decoded = decodeURIComponent(recordId)
-  const parts = decoded.split(':')
-  if (parts.length < 3) {
-    throw new Error('Invalid record identifier')
-  }
-  return {
-    type: parts[0],
-    subdomain: parts[1],
-    value: parts.slice(2).join(':'),
-  }
-}
-
 const deleteSchema = z.object({
   record: z.object({
     type: z.enum(['A', 'AAAA', 'CNAME', 'MX', 'TXT', 'SRV']),

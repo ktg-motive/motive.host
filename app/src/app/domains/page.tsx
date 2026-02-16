@@ -27,14 +27,16 @@ export default async function DomainsPage() {
   ])
 
   const domainList = domains ?? []
-  const now = Date.now()
-  const thirtyDays = 30 * 24 * 60 * 60 * 1000
+  const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000
 
   const totalDomains = domainList.length
+  // Server component — Date calls are stable (single render, no re-renders)
+  // eslint-disable-next-line react-hooks/purity
+  const now = Date.now()
   const expiringCount = domainList.filter((d) => {
     if (!d.expires_at) return false
     const diff = new Date(d.expires_at).getTime() - now
-    return diff > 0 && diff < thirtyDays
+    return diff > 0 && diff < thirtyDaysMs
   }).length
   const activeDomains = domainList.filter((d) => d.status === 'active').length
 
@@ -104,7 +106,7 @@ export default async function DomainsPage() {
           <div className="space-y-3">
             {domainList.map((domain) => {
               const expiresAt = domain.expires_at ? new Date(domain.expires_at) : null
-              const isExpiringSoon = expiresAt && expiresAt.getTime() - now < thirtyDays
+              const isExpiringSoon = expiresAt && expiresAt.getTime() - now < thirtyDaysMs
 
               return (
                 <Card key={domain.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">

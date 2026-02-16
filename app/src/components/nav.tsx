@@ -28,10 +28,10 @@ export default function Nav() {
     return () => subscription.unsubscribe()
   }, [])
 
-  // Close mobile menu on navigation
-  useEffect(() => {
+  function closeMenus() {
     setMobileOpen(false)
-  }, [pathname])
+    setDropdownOpen(false)
+  }
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -53,28 +53,32 @@ export default function Nav() {
     router.refresh()
   }
 
-  const navLinks = (
-    <>
-      <Link
-        href="/search"
-        className={`text-sm transition-colors hover:text-muted-white ${
-          pathname === '/search' ? 'text-gold' : 'text-slate'
-        }`}
-      >
-        Search
-      </Link>
-      {user && (
+  function navLinks(onNavigate?: () => void) {
+    return (
+      <>
         <Link
-          href="/domains"
+          href="/search"
+          onClick={onNavigate}
           className={`text-sm transition-colors hover:text-muted-white ${
-            pathname.startsWith('/domains') ? 'text-gold' : 'text-slate'
+            pathname === '/search' ? 'text-gold' : 'text-slate'
           }`}
         >
-          My Domains
+          Search
         </Link>
-      )}
-    </>
-  )
+        {user && (
+          <Link
+            href="/domains"
+            onClick={onNavigate}
+            className={`text-sm transition-colors hover:text-muted-white ${
+              pathname.startsWith('/domains') ? 'text-gold' : 'text-slate'
+            }`}
+          >
+            My Domains
+          </Link>
+        )}
+      </>
+    )
+  }
 
   return (
     <nav className="border-b border-border bg-card">
@@ -85,7 +89,7 @@ export default function Nav() {
             Motive Hosting
           </Link>
           <div className="hidden items-center gap-4 sm:flex">
-            {navLinks}
+            {navLinks()}
           </div>
         </div>
 
@@ -170,13 +174,13 @@ export default function Nav() {
       {mobileOpen && (
         <div className="border-t border-border bg-card px-4 pb-4 pt-2 sm:hidden">
           <div className="flex flex-col gap-3">
-            {navLinks}
+            {navLinks(closeMenus)}
             {user ? (
               <>
                 <div className="border-t border-border pt-3">
                   <p className="truncate text-xs text-slate">{user.email}</p>
                 </div>
-                <Link href="https://my.motive.host" className="text-sm text-slate transition-colors hover:text-muted-white">
+                <Link href="https://my.motive.host" onClick={closeMenus} className="text-sm text-slate transition-colors hover:text-muted-white">
                   Hosting Portal
                 </Link>
                 <button

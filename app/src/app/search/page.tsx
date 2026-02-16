@@ -36,6 +36,10 @@ function SearchForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: q.trim() }),
       })
+      if (!res.ok) {
+        setResults(null)
+        return
+      }
       const data = await res.json()
       setResults(data)
     } catch {

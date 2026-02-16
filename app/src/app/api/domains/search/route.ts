@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createOpenSRSClient } from '@opensrs'
 import { getCustomerPrice } from '@/lib/pricing'
+import { rateLimit, getClientIp } from '@/lib/rate-limit'
 
 const opensrs = createOpenSRSClient({
   apiKey: process.env.OPENSRS_API_KEY!,
@@ -8,8 +9,21 @@ const opensrs = createOpenSRSClient({
   environment: (process.env.OPENSRS_ENVIRONMENT as 'test' | 'live') || 'test',
 })
 
+// 20 searches per minute per IP
+const RATE_LIMIT = 20
+const RATE_WINDOW = 60_000
+
 export async function POST(request: Request) {
   try {
+    const ip = getClientIp(request)
+    const check = rateLimit(ip, RATE_LIMIT, RATE_WINDOW)
+    if (!check.allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again shortly.' },
+        { status: 429, headers: { 'Retry-After': String(check.retryAfter) } }
+      )
+    }
+
     const { query } = await request.json()
 
     if (!query || typeof query !== 'string') {

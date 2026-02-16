@@ -154,7 +154,7 @@ export function createDnsCommands(client: OpenSRSClient) {
     ): Promise<DnsUpdateResult> {
       // 1. Fetch existing records
       const zone = await this.getDnsZone(domain);
-      let currentRecords = [...zone.records];
+      const currentRecords = [...zone.records];
 
       // Optimistic locking: if caller provided a version, verify it matches
       if (options.expectedVersion && options.expectedVersion !== zone.version) {

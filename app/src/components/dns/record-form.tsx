@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import type { DnsRecord, DnsRecordType } from '@opensrs/types'
 import Button from '@/components/ui/button'
 import Input from '@/components/ui/input'
@@ -29,8 +29,8 @@ export default function RecordForm({ initialRecord, onSubmit, onCancel, isSubmit
 
   const isEdit = !!initialRecord
 
-  // Reset fields when type changes (only for new records)
-  useEffect(() => {
+  function handleTypeChange(newType: DnsRecordType) {
+    setType(newType)
     if (!isEdit) {
       setIpAddress('')
       setHostname('')
@@ -40,7 +40,7 @@ export default function RecordForm({ initialRecord, onSubmit, onCancel, isSubmit
       setPort('0')
       setErrors({})
     }
-  }, [type, isEdit])
+  }
 
   function validate(): boolean {
     const newErrors: Record<string, string> = {}
@@ -120,6 +120,9 @@ export default function RecordForm({ initialRecord, onSubmit, onCancel, isSubmit
       record.port = parseInt(port, 10)
     }
 
+    const parsedTtl = parseInt(ttl, 10)
+    record.ttl = isNaN(parsedTtl) || parsedTtl < 300 ? 3600 : parsedTtl
+
     onSubmit(record)
   }
 
@@ -129,7 +132,7 @@ export default function RecordForm({ initialRecord, onSubmit, onCancel, isSubmit
         id="record-type"
         label="Record Type"
         value={type}
-        onChange={(e) => setType(e.target.value as DnsRecordType)}
+        onChange={(e) => handleTypeChange(e.target.value as DnsRecordType)}
         disabled={isEdit}
       >
         {RECORD_TYPES.map((t) => (
