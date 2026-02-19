@@ -24,13 +24,10 @@ export async function GET(
     const decodedEmail = decodeURIComponent(email);
     const db = isAdmin(user.id) ? createAdminClient() : supabase;
 
-    const { data: mailbox } = await db
-      .from('email_mailboxes')
-      .select('*')
-      .eq('email_address', decodedEmail)
-      .eq('domain_name', decodedDomain)
-      .neq('status', 'deleted')
-      .single();
+    const { data: mailbox } = await (isAdmin(user.id)
+      ? db.from('email_mailboxes').select('*').eq('email_address', decodedEmail).eq('domain_name', decodedDomain).neq('status', 'deleted').single()
+      : db.from('email_mailboxes').select('*').eq('email_address', decodedEmail).eq('domain_name', decodedDomain).eq('customer_id', user.id).neq('status', 'deleted').single()
+    );
 
     if (!mailbox) {
       return NextResponse.json({ error: 'Mailbox not found' }, { status: 404 });

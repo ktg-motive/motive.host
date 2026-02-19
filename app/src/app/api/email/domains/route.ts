@@ -15,16 +15,16 @@ export async function GET() {
 
     const db = isAdmin(user.id) ? createAdminClient() : supabase;
 
-    const { data, error } = await db
-      .from('email_domains')
-      .select(`
-        id, domain_id, domain_name, opensrs_status,
-        mx_verified, spf_verified, dkim_verified, dmarc_verified,
-        mailbox_count, storage_used_bytes, storage_provisioned_bytes,
-        created_at
-      `)
-      .neq('opensrs_status', 'deleted')
-      .order('created_at', { ascending: false });
+    const selectFields = `
+      id, domain_id, domain_name, opensrs_status,
+      mx_verified, spf_verified, dkim_verified, dmarc_verified,
+      mailbox_count, storage_used_bytes, storage_provisioned_bytes,
+      created_at
+    `
+    const { data, error } = await (isAdmin(user.id)
+      ? db.from('email_domains').select(selectFields).neq('opensrs_status', 'deleted').order('created_at', { ascending: false })
+      : db.from('email_domains').select(selectFields).eq('customer_id', user.id).neq('opensrs_status', 'deleted').order('created_at', { ascending: false })
+    );
 
     if (error) {
       console.error('Error listing email domains:', error);

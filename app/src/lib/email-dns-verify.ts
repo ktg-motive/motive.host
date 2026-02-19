@@ -1,5 +1,7 @@
 import dns from 'dns/promises';
 
+const DOMAIN_RE = /^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
+
 interface DnsVerificationResult {
   mx: { verified: boolean; expected: string[]; actual: string[] };
   spf: { verified: boolean; expected: string; actual: string | null };
@@ -11,6 +13,10 @@ export async function verifyEmailDns(
   domain: string,
   expectedDkim?: { selector: string; record: string } | null
 ): Promise<DnsVerificationResult> {
+  if (!DOMAIN_RE.test(domain)) {
+    throw new Error(`Invalid domain name: ${domain}`);
+  }
+
   const result: DnsVerificationResult = {
     mx:    { verified: false, expected: ['mx1.emailsrvr.com', 'mx2.emailsrvr.com'], actual: [] },
     spf:   { verified: false, expected: 'include:emailsrvr.com', actual: null },

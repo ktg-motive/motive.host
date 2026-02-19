@@ -19,11 +19,10 @@ export async function GET(
     const decodedDomain = decodeURIComponent(domain);
     const db = isAdmin(user.id) ? createAdminClient() : supabase;
 
-    const { data: emailDomain, error } = await db
-      .from('email_domains')
-      .select('*')
-      .eq('domain_name', decodedDomain)
-      .single();
+    const { data: emailDomain, error } = await (isAdmin(user.id)
+      ? db.from('email_domains').select('*').eq('domain_name', decodedDomain).single()
+      : db.from('email_domains').select('*').eq('domain_name', decodedDomain).eq('customer_id', user.id).single()
+    );
 
     if (error || !emailDomain) {
       return NextResponse.json({ error: 'Email domain not found' }, { status: 404 });

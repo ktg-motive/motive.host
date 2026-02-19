@@ -2,19 +2,11 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { getOpenSRSClient } from '@/lib/opensrs-client'
+import { dnsRecordSchema } from '@/lib/dns-validation'
 import type { DnsRecord, DnsRecordChange } from '@opensrs/types'
 
 const deleteSchema = z.object({
-  record: z.object({
-    type: z.enum(['A', 'AAAA', 'CNAME', 'MX', 'TXT', 'SRV']),
-    subdomain: z.string(),
-    ip_address: z.string().optional(),
-    hostname: z.string().optional(),
-    text: z.string().optional(),
-    priority: z.number().optional(),
-    weight: z.number().optional(),
-    port: z.number().optional(),
-  }),
+  record: dnsRecordSchema,
 })
 
 // DELETE /api/domains/[domain]/dns/[recordId] -- delete specific record
