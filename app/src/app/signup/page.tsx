@@ -36,27 +36,7 @@ export default function SignupPage() {
       return
     }
 
-    // Insert customer record (auth.uid() = customers.id)
-    if (data.user) {
-      try {
-        const { error: insertError } = await supabase
-          .from('customers')
-          .insert({
-            id: data.user.id,
-            email,
-            name,
-          })
-
-        if (insertError) {
-          // If the insert fails, the auth user still exists. The dashboard will
-          // auto-create the customer row on next load, so we can still proceed.
-          console.error('Customer record insert failed:', insertError.message)
-        }
-      } catch (err) {
-        console.error('Customer record insert threw:', err)
-      }
-    }
-
+    // Customer row is auto-created by the handle_new_user DB trigger on auth.users insert.
     router.push('/domains')
     router.refresh()
   }
