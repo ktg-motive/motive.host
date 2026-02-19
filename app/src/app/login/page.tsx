@@ -95,12 +95,16 @@ function LoginForm() {
           Forgot your password?
         </Link>
       </p>
-      <p className="mt-2 text-center text-sm text-slate">
-        Don&apos;t have an account?{' '}
-        <Link href="/signup" className="text-gold hover:text-gold-hover">
-          Sign up
-        </Link>
-      </p>
+
+      <div className="mt-6 border-t border-border pt-6">
+        <p className="mb-3 text-center text-sm text-slate">Don&apos;t have an account?</p>
+        <a
+          href="https://motive.host/contact.html"
+          className="block w-full rounded-lg border-2 border-gold px-4 py-3 text-center font-medium text-gold transition-colors hover:bg-gold hover:text-primary-bg"
+        >
+          Get Started with Motive Hosting
+        </a>
+      </div>
     </div>
   )
 }
