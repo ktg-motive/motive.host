@@ -354,6 +354,15 @@ ul { list-style: none; }
   margin-left: 8px;
 }
 
+.nav__link--signin {
+  color: var(--slate);
+  margin-left: 8px;
+}
+
+.nav__link--signin:hover {
+  color: var(--gold);
+}
+
 .nav__hamburger {
   display: none;
   width: 44px;
