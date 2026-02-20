@@ -41,7 +41,7 @@ export async function sendRegistrationConfirmation(
           </p>
         </div>
         <p style="color: #4a5568; font-size: 14px; line-height: 1.6;">
-          Manage your domain at <a href="https://domains.motive.host/domains" style="color: #D4AF37;">domains.motive.host</a>
+          Manage your domain at <a href="https://my.motive.host/domains" style="color: #D4AF37;">my.motive.host</a>
         </p>
         <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 32px 0;">
         <p style="color: #a0aec0; font-size: 12px;">

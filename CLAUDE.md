@@ -6,8 +6,7 @@ Motive Hosting is a managed hosting service operated by Motive AI, targeting Gul
 
 - **Owner:** Kai Gray (CEO, Motive AI / Motive ESG / LA-AI)
 - **Marketing site:** motive.host
-- **Client portal:** my.motive.host (legacy xCloud — evaluating migration)
-- **Customer hub:** domains.motive.host
+- **Customer hub:** my.motive.host
 - **Status:** Pre-launch — infrastructure on RunCloud, both sites live
 
 ## Repo Structure (Monorepo)
@@ -131,6 +130,6 @@ mcp__memory__add_observations({
 
 - Plan tier names are nautical: Captain, Harbor, Gulf, Horizon
 - SKU format: `mh-{tier}` (e.g., mh-harbor, mh-gulf, mh-horizon)
-- Marketing (motive.host), portal (my.motive.host), and customer hub (domains.motive.host) are intentionally separated
+- Marketing (motive.host), portal (my.motive.host), and customer hub (my.motive.host) are intentionally separated
 - All transactional email sends from motive.host domain via SendGrid
 - Color palette — see context.md for hex values and typography
