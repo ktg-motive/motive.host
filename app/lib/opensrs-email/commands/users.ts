@@ -23,24 +23,24 @@ export function createUserCommands(client: OMAClient) {
         forwardEmail?: string;
       } = {}
     ): Promise<void> {
-      const params: Record<string, unknown> = { user: email };
+      const attributes: Record<string, unknown> = {};
 
-      if (options.password !== undefined) params.password = options.password;
-      if (options.type !== undefined) params.type = options.type;
-      if (options.displayName !== undefined) params.display_name = options.displayName;
-      if (options.suspended !== undefined) params.suspended = options.suspended;
+      if (options.password !== undefined) attributes.password = options.password;
+      if (options.type !== undefined) attributes.type = options.type;
+      if (options.displayName !== undefined) attributes.display_name = options.displayName;
+      if (options.suspended !== undefined) attributes.suspended = options.suspended;
       if (options.passwordChangeRequired !== undefined) {
-        params.password_change_required = options.passwordChangeRequired;
+        attributes.password_change_required = options.passwordChangeRequired;
       }
-      if (options.forwardEmail !== undefined) params.forward_email = options.forwardEmail;
+      if (options.forwardEmail !== undefined) attributes.forward_email = options.forwardEmail;
 
       if (options.storageTier !== undefined) {
-        params.disk_space = STORAGE_TIERS[options.storageTier].mb;
+        attributes.disk_space = STORAGE_TIERS[options.storageTier].mb;
       } else if (options.diskSpaceMB !== undefined) {
-        params.disk_space = options.diskSpaceMB;
+        attributes.disk_space = options.diskSpaceMB;
       }
 
-      await client.request('change_user', params);
+      await client.request('change_user', { user: email, attributes });
     },
 
     async getUser(email: string): Promise<GetUserResponse> {
