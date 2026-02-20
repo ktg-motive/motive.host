@@ -75,9 +75,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Email already enabled for this domain' }, { status: 409 });
     }
 
-    // Provision with OMA
+    // Provision with OMA — set dkimSelector so OMA generates a DKIM key pair
     const oma = getOMAClient();
-    await oma.changeDomain(domain.domain_name);
+    await oma.changeDomain(domain.domain_name, { dkimSelector: 'default' });
 
     // Get DKIM record from OMA
     const domainInfo = await oma.getDomain(domain.domain_name);
