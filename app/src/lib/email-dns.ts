@@ -33,7 +33,7 @@ export async function autoConfigureDns(
   const skipped: string[] = [];
   const errors: string[] = [];
 
-  // Check if we manage DNS (try fetching the zone)
+  // Check if we manage DNS; if not, try to create the zone automatically
   let zoneExists = true;
   try {
     await opensrs.getDnsZone(domain);
@@ -42,14 +42,20 @@ export async function autoConfigureDns(
   }
 
   if (!zoneExists) {
-    return {
-      success: false,
-      configured: [],
-      skipped: [],
-      errors: [],
-      externalDnsRequired: true,
-      requiredRecords: buildRequiredRecords(domain, domainInfo),
-    };
+    try {
+      await opensrs.createDnsZone(domain);
+      zoneExists = true;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      return {
+        success: false,
+        configured: [],
+        skipped: [],
+        errors: [`Failed to create DNS zone: ${msg}`],
+        externalDnsRequired: true,
+        requiredRecords: buildRequiredRecords(domain, domainInfo),
+      };
+    }
   }
 
   // DNS is managed by us — add records via read-modify-write
