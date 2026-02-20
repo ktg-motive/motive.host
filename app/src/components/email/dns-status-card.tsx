@@ -68,6 +68,11 @@ export default function DnsStatusCard(props: DnsStatusCardProps) {
           Some DNS records need attention. Click Verify to check.
         </p>
       )}
+      {!allGreen && (
+        <p className="mt-1 text-xs text-slate">
+          DNS changes can take a few minutes to propagate. If records are still red after 5 minutes, click Verify again.
+        </p>
+      )}
     </div>
   );
 }
