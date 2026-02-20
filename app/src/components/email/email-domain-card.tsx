@@ -39,8 +39,16 @@ export default function EmailDomainCard({ domain }: EmailDomainCardProps) {
         <h3 className="font-mono text-sm font-medium text-muted-white">
           {domain.domain_name}
         </h3>
-        <span className="text-xs text-gold">Manage</span>
+        <span className="text-xs text-gold">
+          {allDnsOk ? 'Manage' : 'Verify DNS →'}
+        </span>
       </div>
+
+      {!allDnsOk && (
+        <p className="mb-3 text-xs text-yellow-400">
+          Action required: open this domain and click Verify DNS to activate email.
+        </p>
+      )}
 
       <div className="mb-3 flex items-center gap-4 text-xs text-slate">
         <span>{domain.mailbox_count} mailbox{domain.mailbox_count !== 1 ? 'es' : ''}</span>
@@ -67,9 +75,6 @@ export default function EmailDomainCard({ domain }: EmailDomainCardProps) {
             <span className="text-xs text-slate">{rec.label}</span>
           </div>
         ))}
-        {!allDnsOk && (
-          <span className="ml-auto text-xs text-yellow-400">Setup needed</span>
-        )}
       </div>
     </Link>
   );
