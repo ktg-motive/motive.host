@@ -16,12 +16,12 @@ export function createDomainCommands(client: OMAClient) {
         suspended?: boolean;
       } = {}
     ): Promise<void> {
-      const params: Record<string, unknown> = { domain };
-      if (options.catchAll !== undefined) params.catch_all = options.catchAll;
-      if (options.spamFilterLevel !== undefined) params.spam_filter_level = options.spamFilterLevel;
-      if (options.suspended !== undefined) params.suspended = options.suspended;
+      const attributes: Record<string, unknown> = {};
+      if (options.catchAll !== undefined) attributes.catch_all = options.catchAll;
+      if (options.spamFilterLevel !== undefined) attributes.spam_filter_level = options.spamFilterLevel;
+      if (options.suspended !== undefined) attributes.suspended = options.suspended;
 
-      await client.request('change_domain', params);
+      await client.request('change_domain', { domain, attributes });
     },
 
     async getDomain(domain: string): Promise<GetDomainResponse> {
