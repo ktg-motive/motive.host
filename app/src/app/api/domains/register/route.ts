@@ -18,7 +18,7 @@ const opensrs = createOpenSRSClient({
 // Rate limits per IP per minute
 const RATE_WINDOW = 60_000
 const POST_LIMIT = 10   // PaymentIntent creation
-const PATCH_LIMIT = 5   // Test-mode confirm
+const DELETE_LIMIT = 10 // PaymentIntent cancellation
 const PUT_LIMIT = 5     // Fulfillment
 
 function checkRateLimit(request: Request, action: string, limit: number) {
@@ -67,6 +67,10 @@ const intentSchema = z.object({
   billingContact: contactSchema.optional(),
   privacy: z.boolean().default(true),
   autoRenew: z.boolean().default(false),
+})
+
+const cancelSchema = z.object({
+  paymentIntentId: z.string().min(1),
 })
 
 const confirmSchema = z.object({
@@ -142,13 +146,9 @@ export async function POST(request: Request) {
   }
 }
 
-// PATCH: server-side payment confirmation (temporary until Stripe Elements is integrated)
-const confirmPaymentSchema = z.object({
-  paymentIntentId: z.string().min(1),
-})
-
-export async function PATCH(request: Request) {
-  const rateLimited = checkRateLimit(request, 'patch', PATCH_LIMIT)
+// DELETE: cancel a PaymentIntent when the user navigates back from the payment step.
+export async function DELETE(request: Request) {
+  const rateLimited = checkRateLimit(request, 'delete', DELETE_LIMIT)
   if (rateLimited) return rateLimited
 
   try {
@@ -160,7 +160,7 @@ export async function PATCH(request: Request) {
     }
 
     const body = await request.json()
-    const parsed = confirmPaymentSchema.safeParse(body)
+    const parsed = cancelSchema.safeParse(body)
 
     if (!parsed.success) {
       return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
@@ -168,34 +168,21 @@ export async function PATCH(request: Request) {
 
     const { paymentIntentId } = parsed.data
 
-    // Verify the PaymentIntent belongs to this user
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId)
+
     if (paymentIntent.metadata.user_id !== user.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
-    // Confirm the PaymentIntent server-side.
-    // TODO: Replace with Stripe Elements confirmPayment() on the client for production.
-    // This PATCH endpoint is for development/test mode only and must not be used in live mode.
-    if (process.env.OPENSRS_ENVIRONMENT === 'live') {
-      return NextResponse.json(
-        { error: 'Server-side payment confirmation is disabled in live mode. Use Stripe Elements.' },
-        { status: 400 }
-      )
+    // Only cancel if still cancellable — ignore if already succeeded or cancelled
+    if (['requires_payment_method', 'requires_confirmation', 'requires_action'].includes(paymentIntent.status)) {
+      await stripe.paymentIntents.cancel(paymentIntentId)
     }
 
-    const confirmed = await stripe.paymentIntents.confirm(paymentIntentId, {
-      payment_method: 'pm_card_visa',
-      return_url: `${request.headers.get('origin') || 'https://domains.motive.host'}/domains`,
-    })
-
-    return NextResponse.json({
-      status: confirmed.status,
-      requiresAction: confirmed.status === 'requires_action',
-    })
+    return NextResponse.json({ cancelled: true })
   } catch (error) {
-    console.error('Payment confirmation error:', error)
-    return NextResponse.json({ error: 'Payment confirmation failed' }, { status: 500 })
+    console.error('PaymentIntent cancel error:', error)
+    return NextResponse.json({ error: 'Failed to cancel payment' }, { status: 500 })
   }
 }
 

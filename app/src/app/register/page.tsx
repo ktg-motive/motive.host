@@ -207,7 +207,14 @@ function PaymentStep({
 
         <button
           type="button"
-          onClick={onBack}
+          onClick={async () => {
+            await fetch('/api/domains/register', {
+              method: 'DELETE',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ paymentIntentId }),
+            }).catch(() => {/* best-effort */})
+            onBack()
+          }}
           disabled={paying || registering}
           className="text-sm text-slate hover:text-muted-white disabled:opacity-50"
         >
