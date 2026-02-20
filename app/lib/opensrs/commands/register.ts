@@ -44,7 +44,7 @@ export function createRegisterCommands(client: OpenSRSClient) {
         custom_tech_contact: '0',
         handle: params.handleNow !== false ? 'process' : 'save',
         reg_type: 'new',
-        reg_username: params.contacts.owner.email,
+        reg_username: params.contacts.owner.email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '').slice(0, 30) || 'user',
         reg_password: crypto.randomUUID().slice(0, 16),
       };
 
