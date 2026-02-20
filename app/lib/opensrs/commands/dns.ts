@@ -1,5 +1,6 @@
 import { createHash } from 'crypto';
 import type { OpenSRSClient } from '../client';
+import { OpenSRSError } from '../types';
 import type {
   DnsRecord,
   DnsRecordType,
@@ -116,6 +117,11 @@ export function createDnsCommands(client: OpenSRSClient) {
         object: 'DOMAIN',
         attributes: { domain },
       });
+
+      // OpenSRS returns is_success=1 even when no zone exists — detect it explicitly.
+      if (response.responseText === 'DNS zone not found for domain') {
+        throw new OpenSRSError(0, 'DNS zone not found for domain');
+      }
 
       const records = parseZoneRecords(response.attributes.records ?? {});
       return {
