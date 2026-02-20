@@ -1,4 +1,10 @@
-import dns from 'dns/promises';
+import { Resolver } from 'dns/promises';
+
+// Use a reliable public resolver instead of the system resolver.
+// Node's default resolver caches aggressively and behaves inconsistently
+// across calls, causing flaky verification results.
+const dns = new Resolver();
+dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 const DOMAIN_RE = /^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
 
