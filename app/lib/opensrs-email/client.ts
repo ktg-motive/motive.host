@@ -30,17 +30,18 @@ export class OMAClient {
 
     const response = await this.rawRequest<{
       session_token: string;
-      token_lifetime: number;
-    }>('generate_token', {
+      session_token_duration: number;
+    }>('authenticate', {
       credentials: {
         user: this.config.user,
         password: this.config.password,
       },
-      token_lifetime: 10800,
+      generate_session_token: true,
+      session_token_duration: 10800,
     });
 
     this.sessionToken = response.session_token;
-    this.tokenExpiresAt = now + response.token_lifetime * 1000;
+    this.tokenExpiresAt = now + response.session_token_duration * 1000;
 
     return { user: this.config.user, session_token: this.sessionToken };
   }
@@ -60,7 +61,7 @@ export class OMAClient {
     const data = await res.json();
 
     if (data.success === false || data.success === 0) {
-      throw new OMAError(data.error ?? 0, data.error_message ?? 'Unknown OMA error');
+      throw new OMAError(data.error_number ?? data.error ?? 0, data.error ?? 'Unknown OMA error');
     }
 
     return data as T;
