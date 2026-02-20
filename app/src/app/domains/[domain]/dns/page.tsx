@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import DnsManager from '@/components/dns/dns-manager'
+import TransferAwayButton from '@/components/domains/transfer-away-button'
 
 interface DnsPageProps {
   params: Promise<{ domain: string }>
@@ -53,6 +54,17 @@ export default async function DnsPage({ params }: DnsPageProps) {
 
       {/* DNS Manager (client component) */}
       <DnsManager domain={decodedDomain} />
+
+      {/* Transfer Away */}
+      {domainRecord.status === 'active' && (
+        <div className="mt-12 border-t border-border pt-8">
+          <h2 className="mb-1 text-base font-semibold text-muted-white">Transfer Away from Motive</h2>
+          <p className="mb-4 text-sm text-slate">
+            Need to move this domain to another registrar? We&apos;ll unlock the domain and send the EPP authorization code to the registrant email on file.
+          </p>
+          <TransferAwayButton domain={decodedDomain} />
+        </div>
+      )}
     </div>
   )
 }

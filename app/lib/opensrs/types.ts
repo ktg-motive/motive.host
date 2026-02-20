@@ -172,6 +172,34 @@ export interface DomainExpiryInfo {
   let_expire: boolean;
 }
 
+// ─── Domain Transfers ────────────────────────────────────────────────────────
+
+export interface TransferEligibility {
+  domain: string;
+  eligible: boolean;
+  reason?: string;
+}
+
+export interface ProcessTransferParams {
+  domain: string;
+  authInfo: string;
+  period: number;
+  contacts: {
+    owner: DomainContact;
+    admin: DomainContact;
+    tech: DomainContact;
+    billing: DomainContact;
+  };
+  autoRenew?: boolean;
+  privacy?: boolean;
+}
+
+export interface ProcessTransferResponse {
+  id: string;
+  transfer_order_id?: string;
+  transfer_status?: string;
+}
+
 // ─── Internal XCP Protocol ───────────────────────────────────────────────────
 
 export interface XCPRequest {

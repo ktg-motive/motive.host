@@ -88,6 +88,12 @@ export default async function DomainsPage() {
           Search Domains
         </Link>
         <Link
+          href="/transfer"
+          className="rounded-lg border border-border px-4 py-2.5 text-sm text-slate transition-colors hover:border-gold hover:text-muted-white"
+        >
+          Transfer a Domain
+        </Link>
+        <Link
           href="https://my.motive.host"
           className="rounded-lg border border-border px-4 py-2.5 text-sm text-slate transition-colors hover:border-gold hover:text-muted-white"
         >
@@ -127,9 +133,13 @@ export default async function DomainsPage() {
                       <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
                         domain.status === 'active'
                           ? 'bg-green-500/10 text-green-400'
-                          : 'bg-yellow-500/10 text-yellow-400'
+                          : domain.status === 'transferring'
+                            ? 'bg-amber-500/10 text-amber-400'
+                            : domain.status === 'transfer_failed'
+                              ? 'bg-red-500/10 text-red-400'
+                              : 'bg-yellow-500/10 text-yellow-400'
                       }`}>
-                        {domain.status}
+                        {domain.status === 'transferring' ? 'Transferring…' : domain.status}
                       </span>
                       {expiresAt && (
                         <span className={`text-xs ${isExpiringSoon ? 'text-yellow-400' : 'text-slate'}`}>

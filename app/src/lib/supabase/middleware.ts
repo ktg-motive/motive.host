@@ -23,6 +23,7 @@ const PROTECTED_PAGE_PREFIXES = [
 const PROTECTED_API_PREFIXES = [
   '/api/domains',
   '/api/email',
+  '/api/transfers',
 ]
 
 export async function updateSession(request: NextRequest) {

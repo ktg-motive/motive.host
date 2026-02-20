@@ -3,6 +3,7 @@ import { createLookupCommands } from './commands/lookup';
 import { createRegisterCommands } from './commands/register';
 import { createDnsCommands } from './commands/dns';
 import { createRenewCommands } from './commands/renew';
+import { createTransferCommands } from './commands/transfer';
 import type { OpenSRSConfig } from './types';
 
 export type { OpenSRSConfig } from './types';
@@ -22,6 +23,9 @@ export type {
   DnsZoneResponse,
   RenewDomainResponse,
   DomainExpiryInfo,
+  TransferEligibility,
+  ProcessTransferParams,
+  ProcessTransferResponse,
 } from './types';
 
 export function createOpenSRSClient(config: OpenSRSConfig) {
@@ -30,6 +34,7 @@ export function createOpenSRSClient(config: OpenSRSConfig) {
   const register = createRegisterCommands(client);
   const dns = createDnsCommands(client);
   const renew = createRenewCommands(client);
+  const transfer = createTransferCommands(client);
 
   return {
     // Domain lookup
@@ -52,6 +57,14 @@ export function createOpenSRSClient(config: OpenSRSConfig) {
     // Renewal
     renewDomain: renew.renewDomain.bind(renew),
     getDomainExpiry: renew.getDomainExpiry,
+
+    // Transfers (inbound + outbound)
+    checkTransferEligibility: transfer.checkTransferEligibility,
+    getTransferPrice: transfer.getTransferPrice,
+    processTransfer: transfer.processTransfer,
+    unlockDomain: transfer.unlockDomain,
+    lockDomain: transfer.lockDomain,
+    sendAuthCode: transfer.sendAuthCode,
   };
 }
 
