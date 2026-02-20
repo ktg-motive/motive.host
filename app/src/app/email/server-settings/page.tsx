@@ -7,9 +7,13 @@ function CopyButton({ value }: { value: string }) {
   const [copied, setCopied] = useState(false);
 
   async function copy() {
-    await navigator.clipboard.writeText(value);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // clipboard unavailable or permission denied — ignore
+    }
   }
 
   return (
@@ -62,7 +66,7 @@ export default function ServerSettingsPage() {
           Incoming Mail (IMAP)
         </h2>
         <div className="space-y-0">
-          <SettingRow label="Server" value="secure.emailsrvr.com" />
+          <SettingRow label="Server" value="mail.motive.host" />
           <SettingRow label="Port" value="993" />
           <SettingRow label="Security" value="SSL/TLS" />
           <div className="flex items-center justify-between border-b border-border py-2">
@@ -82,7 +86,7 @@ export default function ServerSettingsPage() {
           Outgoing Mail (SMTP)
         </h2>
         <div className="space-y-0">
-          <SettingRow label="Server" value="secure.emailsrvr.com" />
+          <SettingRow label="Server" value="mail.motive.host" />
           <SettingRow label="Port" value="465" />
           <SettingRow label="Security" value="SSL/TLS" />
           <div className="flex items-center justify-between border-b border-border py-2">
@@ -105,7 +109,7 @@ export default function ServerSettingsPage() {
           Only use POP3 if IMAP is not available on your device. IMAP is recommended.
         </p>
         <div className="space-y-0">
-          <SettingRow label="Server" value="secure.emailsrvr.com" />
+          <SettingRow label="Server" value="mail.motive.host" />
           <SettingRow label="Port" value="995" />
           <SettingRow label="Security" value="SSL/TLS" />
         </div>
