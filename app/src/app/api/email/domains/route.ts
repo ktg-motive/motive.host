@@ -11,8 +11,11 @@ import { handleApiError } from '@/lib/api-utils';
 const DKIM_SELECTOR = 'default';
 
 function generateDkimKeyPair(): { privateKeyPem: string; dnsRecord: string } {
+  // 1024-bit: OpenSRS enforces a 255-char TXT record limit; 2048-bit public
+  // keys produce ~410-char DKIM records that exceed it. 1024-bit yields ~234
+  // chars and is accepted by all major mail providers for DKIM signing.
   const { privateKey, publicKey } = generateKeyPairSync('rsa', {
-    modulusLength: 2048,
+    modulusLength: 1024,
     publicKeyEncoding: { type: 'spki', format: 'pem' },
     privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
   });
