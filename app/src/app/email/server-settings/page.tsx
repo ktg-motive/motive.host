@@ -62,7 +62,7 @@ export default function ServerSettingsPage() {
           Incoming Mail (IMAP)
         </h2>
         <div className="space-y-0">
-          <SettingRow label="Server" value="mail.motive.host" />
+          <SettingRow label="Server" value="secure.emailsrvr.com" />
           <SettingRow label="Port" value="993" />
           <SettingRow label="Security" value="SSL/TLS" />
           <div className="flex items-center justify-between border-b border-border py-2">
@@ -82,9 +82,9 @@ export default function ServerSettingsPage() {
           Outgoing Mail (SMTP)
         </h2>
         <div className="space-y-0">
-          <SettingRow label="Server" value="mail.motive.host" />
-          <SettingRow label="Port" value="587" />
-          <SettingRow label="Security" value="STARTTLS" />
+          <SettingRow label="Server" value="secure.emailsrvr.com" />
+          <SettingRow label="Port" value="465" />
+          <SettingRow label="Security" value="SSL/TLS" />
           <div className="flex items-center justify-between border-b border-border py-2">
             <span className="text-sm text-slate">Username</span>
             <span className="text-sm text-muted-white">your-email@yourdomain.com</span>
@@ -105,7 +105,7 @@ export default function ServerSettingsPage() {
           Only use POP3 if IMAP is not available on your device. IMAP is recommended.
         </p>
         <div className="space-y-0">
-          <SettingRow label="Server" value="mail.motive.host" />
+          <SettingRow label="Server" value="secure.emailsrvr.com" />
           <SettingRow label="Port" value="995" />
           <SettingRow label="Security" value="SSL/TLS" />
         </div>
