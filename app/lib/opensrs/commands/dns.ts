@@ -41,17 +41,16 @@ function parseZoneRecords(rawRecords: Record<string, unknown>): DnsRecord[] {
   const recordTypes: DnsRecordType[] = ['A', 'AAAA', 'CNAME', 'MX', 'TXT', 'SRV', 'NS'];
 
   for (const type of recordTypes) {
-    const typeRecords = rawRecords[type.toLowerCase()] as Record<string, unknown> | undefined;
+    const typeRecords = rawRecords[type] as Record<string, unknown> | unknown[] | undefined;
     if (!typeRecords) continue;
 
-    // Records can be a single object or keyed by index
     const entries = Object.values(typeRecords) as Array<Record<string, string>>;
     for (const entry of entries) {
       if (typeof entry !== 'object' || entry === null) continue;
 
       const record: DnsRecord = {
         type,
-        subdomain: entry.subdomain ?? '',
+        subdomain: entry.subdomain || '@',
       };
 
       if (entry.ip_address) record.ip_address = entry.ip_address;
@@ -69,17 +68,17 @@ function parseZoneRecords(rawRecords: Record<string, unknown>): DnsRecord[] {
   return records;
 }
 
-// OpenSRS set_dns_zone expects records grouped by type with numeric keys.
-function formatZoneRecords(records: DnsRecord[]): Record<string, Record<string, Record<string, string>>> {
-  const grouped: Record<string, Record<string, Record<string, string>>> = {};
+// OpenSRS SET_DNS_ZONE expects records grouped by uppercase type key,
+// with each group as a dt_array (JS array), and apex subdomain as '' not '@'.
+function formatZoneRecords(records: DnsRecord[]): Record<string, Array<Record<string, string>>> {
+  const grouped: Record<string, Array<Record<string, string>>> = {};
 
   for (const record of records) {
-    const typeKey = record.type.toLowerCase();
-    if (!grouped[typeKey]) grouped[typeKey] = {};
+    const typeKey = record.type.toUpperCase();
+    if (!grouped[typeKey]) grouped[typeKey] = [];
 
-    const idx = String(Object.keys(grouped[typeKey]).length);
     const entry: Record<string, string> = {
-      subdomain: record.subdomain,
+      subdomain: record.subdomain === '@' ? '' : record.subdomain,
     };
 
     if (record.ip_address) entry.ip_address = record.ip_address;
@@ -90,7 +89,7 @@ function formatZoneRecords(records: DnsRecord[]): Record<string, Record<string, 
     if (record.port !== undefined) entry.port = String(record.port);
     if (record.ttl !== undefined) entry.ttl = String(record.ttl);
 
-    grouped[typeKey][idx] = entry;
+    grouped[typeKey].push(entry);
   }
 
   return grouped;
