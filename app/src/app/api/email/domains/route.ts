@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { generateKeyPairSync } from 'crypto';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { isAdmin } from '@/lib/auth';
@@ -6,6 +7,24 @@ import { getOMAClient } from '@/lib/opensrs-email-client';
 import { provisionDomainSchema } from '@/lib/email-schemas';
 import { autoConfigureDns } from '@/lib/email-dns';
 import { handleApiError } from '@/lib/api-utils';
+
+const DKIM_SELECTOR = 'default';
+
+function generateDkimKeyPair(): { privateKeyPem: string; dnsRecord: string } {
+  const { privateKey, publicKey } = generateKeyPairSync('rsa', {
+    modulusLength: 2048,
+    publicKeyEncoding: { type: 'spki', format: 'pem' },
+    privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
+  });
+  const pubKeyBase64 = publicKey
+    .replace('-----BEGIN PUBLIC KEY-----', '')
+    .replace('-----END PUBLIC KEY-----', '')
+    .replace(/\n/g, '');
+  return {
+    privateKeyPem: privateKey,
+    dnsRecord: `v=DKIM1; k=rsa; p=${pubKeyBase64}`,
+  };
+}
 
 export async function GET() {
   try {
@@ -75,12 +94,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Email already enabled for this domain' }, { status: 409 });
     }
 
-    // Provision with OMA — set dkimSelector so OMA generates a DKIM key pair
-    const oma = getOMAClient();
-    await oma.changeDomain(domain.domain_name, { dkimSelector: 'default' });
+    // Generate DKIM key pair — we own the key, OMA uses our private key to sign
+    const { privateKeyPem, dnsRecord: dkimDnsRecord } = generateDkimKeyPair();
 
-    // Get DKIM record from OMA
-    const domainInfo = await oma.getDomain(domain.domain_name);
+    // Provision with OMA, passing both selector and private signing key
+    const oma = getOMAClient();
+    await oma.changeDomain(domain.domain_name, {
+      dkimSelector: DKIM_SELECTOR,
+      dkimKey: privateKeyPem,
+    });
 
     // Insert Supabase record
     const { data: emailDomain, error: insertError } = await supabase
@@ -90,8 +112,8 @@ export async function POST(request: Request) {
         customer_id: user.id,
         domain_name: domain.domain_name,
         opensrs_status: 'active',
-        dkim_selector: domainInfo.dkim_selector ?? null,
-        dkim_record: domainInfo.dkim_record ?? null,
+        dkim_selector: DKIM_SELECTOR,
+        dkim_record: dkimDnsRecord,
       })
       .select()
       .single();
@@ -109,8 +131,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to enable email. Please try again.' }, { status: 500 });
     }
 
-    // Auto-configure DNS (best-effort)
-    const dnsResult = await autoConfigureDns(domain.domain_name, domainInfo);
+    // Auto-configure DNS (best-effort) — pass selector and DNS record we generated
+    const dnsResult = await autoConfigureDns(domain.domain_name, {
+      domain: domain.domain_name,
+      status: 'active',
+      dkim_selector: DKIM_SELECTOR,
+      dkim_record: dkimDnsRecord,
+    });
 
     // Audit log
     await supabase.from('email_audit_log').insert({

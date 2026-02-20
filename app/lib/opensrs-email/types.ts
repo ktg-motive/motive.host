@@ -21,7 +21,7 @@ export type EmailDomainStatus = 'active' | 'suspended' | 'deleted' | 'pending';
 export type SpamFilterLevel = 'aggressive' | 'moderate' | 'permissive';
 
 export interface GetDomainResponse {
-  success: boolean;
+  success?: boolean;
   domain: string;
   status: EmailDomainStatus;
   catch_all?: string;

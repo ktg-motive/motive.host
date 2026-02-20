@@ -15,6 +15,7 @@ export function createDomainCommands(client: OMAClient) {
         spamFilterLevel?: SpamFilterLevel;
         suspended?: boolean;
         dkimSelector?: string;
+        dkimKey?: string;
       } = {}
     ): Promise<void> {
       const attributes: Record<string, unknown> = {};
@@ -22,17 +23,15 @@ export function createDomainCommands(client: OMAClient) {
       if (options.spamFilterLevel !== undefined) attributes.spam_filter_level = options.spamFilterLevel;
       if (options.suspended !== undefined) attributes.suspended = options.suspended;
       if (options.dkimSelector !== undefined) attributes.dkim_selector = options.dkimSelector;
+      if (options.dkimKey !== undefined) attributes.dkim_key = options.dkimKey;
 
       await client.request('change_domain', { domain, attributes });
     },
 
     async getDomain(domain: string): Promise<GetDomainResponse> {
-      // OMA nests domain attributes under an `attributes` key, and uses
-      // `dkim_key` (not `dkim_record`) for the DKIM public key value.
       const raw = await client.request<{
         attributes: {
           dkim_selector?: string | null;
-          dkim_key?: string | null;
           disabled?: boolean;
           [key: string]: unknown;
         };
@@ -42,7 +41,8 @@ export function createDomainCommands(client: OMAClient) {
         domain,
         status: raw.attributes?.disabled ? 'suspended' : 'active',
         dkim_selector: raw.attributes?.dkim_selector ?? undefined,
-        dkim_record: raw.attributes?.dkim_key ?? undefined,
+        // dkim_record is not returned — we generate the key pair ourselves
+        // and store the public DNS record value at provision time.
       };
     },
 
