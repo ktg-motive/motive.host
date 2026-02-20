@@ -123,6 +123,7 @@ export async function POST(request: Request) {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountCents,
       currency: 'usd',
+      automatic_payment_methods: { enabled: true },
       metadata: {
         domain,
         period: String(period),
@@ -242,12 +243,9 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Payment period mismatch' }, { status: 400 })
     }
 
-    const priceResult = await opensrs.getDomainPrice(domain)
-    const customerPrice = getCustomerPrice(priceResult.price)
-    const expectedAmountCents = priceToCents(customerPrice) * period
-    if (paymentIntent.amount !== expectedAmountCents) {
-      return NextResponse.json({ error: 'Payment amount mismatch' }, { status: 400 })
-    }
+    // The PaymentIntent amount is authoritative — set server-side at POST time
+    // from a live OpenSRS price + markup. No need to re-fetch; a second lookup
+    // creates a race condition if the price changes between intent creation and fulfillment.
 
     // 2. Check for existing fulfillment (replay protection)
     const { data: existingFulfillment } = await supabase
@@ -442,10 +440,12 @@ export async function PUT(request: Request) {
     }
 
     // 11. Send confirmation email (non-blocking)
-    try {
-      await sendRegistrationConfirmation(user.email!, domain, expiresAt.toISOString())
-    } catch (emailError) {
-      console.error('Failed to send confirmation email:', emailError)
+    if (user.email) {
+      try {
+        await sendRegistrationConfirmation(user.email, domain, expiresAt.toISOString())
+      } catch (emailError) {
+        console.error('Failed to send confirmation email:', emailError)
+      }
     }
 
     return NextResponse.json({
