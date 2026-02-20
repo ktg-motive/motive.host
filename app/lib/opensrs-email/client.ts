@@ -25,7 +25,7 @@ export class OMAClient {
   private async ensureAuth(): Promise<OMACredentials> {
     const now = Date.now();
     if (this.sessionToken && now < this.tokenExpiresAt - TOKEN_REFRESH_BUFFER_MS) {
-      return { user: this.config.user, session_token: this.sessionToken };
+      return { user: this.config.user, token: this.sessionToken };
     }
 
     const response = await this.rawRequest<{
@@ -43,7 +43,7 @@ export class OMAClient {
     this.sessionToken = response.session_token;
     this.tokenExpiresAt = now + response.session_token_duration * 1000;
 
-    return { user: this.config.user, session_token: this.sessionToken };
+    return { user: this.config.user, token: this.sessionToken };
   }
 
   private async rawRequest<T>(method: string, body: unknown): Promise<T> {

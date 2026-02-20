@@ -12,7 +12,7 @@ export interface OMAConfig {
 export interface OMACredentials {
   user: string;
   password?: string;
-  session_token?: string;
+  token?: string;
 }
 
 // ── Domain Types ───────────────────────────────────────────────────────────
