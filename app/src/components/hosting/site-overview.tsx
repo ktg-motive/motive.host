@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import type { RunCloudWebApp, RunCloudSSL, RunCloudDomain } from '@runcloud';
 import Card from '@/components/ui/card';
-import StatusBadge from './status-badge';
 
 interface HostingAppRow {
   id: string;
@@ -50,13 +49,6 @@ export default function SiteOverview({ appSlug, app, webapp, ssl, domains }: Sit
     error: string | null;
   }>({ loading: null, message: null, error: null });
 
-  const appStatus = (webapp?.state === 'active' ? 'running' : webapp?.state ?? app.cached_status) as
-    | 'running'
-    | 'stopped'
-    | 'error'
-    | 'unknown'
-    | null;
-
   const runtime =
     app.app_type === 'nodejs'
       ? 'Node.js'
@@ -94,10 +86,6 @@ export default function SiteOverview({ appSlug, app, webapp, ssl, domains }: Sit
           Application Status
         </h2>
         <div className="divide-y divide-border">
-          <div className="flex items-center justify-between py-2">
-            <span className="text-sm text-slate">State</span>
-            <StatusBadge status={appStatus} size="md" />
-          </div>
           <InfoRow label="Runtime" value={runtime} />
           {webapp && (
             <>
