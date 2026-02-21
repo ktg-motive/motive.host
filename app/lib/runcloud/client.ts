@@ -32,10 +32,12 @@ export class RunCloudClient {
       cache: 'no-store',
     });
 
+    const text = await res.text();
+
     if (!res.ok) {
       let message = `HTTP ${res.status}: ${res.statusText}`;
       try {
-        const err = (await res.json()) as Record<string, unknown>;
+        const err = JSON.parse(text) as Record<string, unknown>;
         message = (err.message as string) || (err.error as string) || message;
       } catch {
         // Response body wasn't JSON
@@ -43,7 +45,8 @@ export class RunCloudClient {
       throw new RunCloudError(res.status, message);
     }
 
-    return res.json() as Promise<T>;
+    if (!text) return undefined as T;
+    return JSON.parse(text) as T;
   }
 
   async get<T>(path: string): Promise<T> {
