@@ -423,7 +423,7 @@ export default function TransferPage() {
                 className="w-full rounded-lg border border-border bg-card px-3 py-2 font-mono text-sm text-muted-white placeholder-slate/50 outline-none transition-colors focus:border-gold"
               />
               <p className="mt-1 text-xs text-slate">
-                Log in to your current registrar and look for "EPP code", "Auth code", or "Transfer code".
+                Log in to your current registrar and look for &ldquo;EPP code&rdquo;, &ldquo;Auth code&rdquo;, or &ldquo;Transfer code&rdquo;.
               </p>
             </div>
 

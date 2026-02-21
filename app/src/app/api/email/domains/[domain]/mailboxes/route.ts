@@ -6,7 +6,7 @@ import { getOMAClient } from '@/lib/opensrs-email-client';
 import { stripe } from '@/lib/stripe';
 import { createMailboxSchema } from '@/lib/email-schemas';
 import { generatePassword } from '@/lib/password';
-import { getStripePriceId, EMAIL_PRICES } from '@/lib/email-pricing';
+import { getStripePriceId } from '@/lib/email-pricing';
 import { STORAGE_TIERS } from '@opensrs-email';
 import { handleApiError } from '@/lib/api-utils';
 

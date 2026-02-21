@@ -125,7 +125,7 @@ export default async function Home() {
   const mailboxList = mailboxes ?? [];
 
   // Fetch live RunCloud status for each hosting app
-  let liveStatuses: Map<number, { status: string | null; sslValidUntil?: string | null; lastDeploy?: string | null }> =
+  const liveStatuses: Map<number, { status: string | null; sslValidUntil?: string | null; lastDeploy?: string | null }> =
     new Map();
 
   if (appList.length > 0) {

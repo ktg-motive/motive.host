@@ -46,15 +46,13 @@ export default async function HostingPage() {
       const rc = getRunCloudClient();
       const results = await Promise.allSettled(
         appList.map(async (app) => {
-          const [webapp, ssl, git] = await Promise.allSettled([
+          const [webapp, ssl] = await Promise.allSettled([
             rc.getWebApp(app.runcloud_app_id),
             rc.getSSL(app.runcloud_app_id),
-            rc.getGit(app.runcloud_app_id),
           ]);
 
           const webappData = webapp.status === 'fulfilled' ? webapp.value : null;
           const sslData = ssl.status === 'fulfilled' ? ssl.value : null;
-          const gitData = git.status === 'fulfilled' ? git.value : null;
 
           return {
             appId: app.runcloud_app_id,
