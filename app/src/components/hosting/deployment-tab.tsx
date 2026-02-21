@@ -53,8 +53,13 @@ export default function DeploymentTab({ appSlug, app, git, sftpHost }: Deploymen
     error: string | null;
   }>({ loading: false, message: null, error: null });
 
+  const isSelfDeploy = appSlug === 'customer-hub';
+
   async function handleForceDeploy() {
-    if (!window.confirm('Force deploy from git? This will run the deploy script immediately.')) return;
+    const confirmMsg = isSelfDeploy
+      ? 'Force deploy from git? The app will restart and this page will briefly disconnect.'
+      : 'Force deploy from git? This will run the deploy script immediately.';
+    if (!window.confirm(confirmMsg)) return;
     setActionState({ loading: true, message: null, error: null });
     try {
       const res = await fetch(`/api/hosting/${appSlug}/deploy`, { method: 'POST' });
@@ -65,7 +70,12 @@ export default function DeploymentTab({ appSlug, app, git, sftpHost }: Deploymen
         setActionState({ loading: false, message: data.message ?? 'Deploy started', error: null });
       }
     } catch {
-      setActionState({ loading: false, message: null, error: 'Network error' });
+      if (isSelfDeploy) {
+        // Self-deploy kills the Node process before it can respond — this is expected
+        setActionState({ loading: false, message: 'Deploy started — app is restarting. This page will reconnect shortly.', error: null });
+      } else {
+        setActionState({ loading: false, message: null, error: 'Network error' });
+      }
     }
   }
 
