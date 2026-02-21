@@ -97,7 +97,7 @@ export interface RunCloudGit {
 export interface RunCloudActionLog {
   id: number;
   action: string;
-  description: string;
+  description: string | null;
   status: string;
   created_at: string;
 }

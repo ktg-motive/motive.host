@@ -1,6 +1,7 @@
 'use client';
 
-import type { RunCloudWebApp, RunCloudSSL, RunCloudDomain, RunCloudGit } from '@runcloud';
+import { useState } from 'react';
+import type { RunCloudWebApp, RunCloudSSL, RunCloudDomain } from '@runcloud';
 import Card from '@/components/ui/card';
 import StatusBadge from './status-badge';
 
@@ -22,7 +23,6 @@ interface SiteOverviewProps {
   webapp: RunCloudWebApp | null;
   ssl: RunCloudSSL | null;
   domains: RunCloudDomain[];
-  git: RunCloudGit | null;
 }
 
 function formatDate(iso: string | null | undefined): string {
@@ -43,13 +43,13 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-export default function SiteOverview({
-  app,
-  webapp,
-  ssl,
-  domains,
-  git,
-}: SiteOverviewProps) {
+export default function SiteOverview({ appSlug, app, webapp, ssl, domains }: SiteOverviewProps) {
+  const [actionState, setActionState] = useState<{
+    loading: string | null;
+    message: string | null;
+    error: string | null;
+  }>({ loading: null, message: null, error: null });
+
   const appStatus = (webapp?.state === 'active' ? 'running' : webapp?.state ?? app.cached_status) as
     | 'running'
     | 'stopped'
@@ -65,6 +65,26 @@ export default function SiteOverview({
         : app.app_type === 'wordpress'
           ? 'WordPress (PHP)'
           : 'Static';
+
+  async function handleAction(
+    actionName: string,
+    apiPath: string,
+    confirmMsg: string,
+  ) {
+    if (!window.confirm(confirmMsg)) return;
+    setActionState({ loading: actionName, message: null, error: null });
+    try {
+      const res = await fetch(apiPath, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) {
+        setActionState({ loading: null, message: null, error: data.error ?? 'Action failed' });
+      } else {
+        setActionState({ loading: null, message: data.message ?? 'Done', error: null });
+      }
+    } catch {
+      setActionState({ loading: null, message: null, error: 'Network error' });
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -147,34 +167,6 @@ export default function SiteOverview({
         )}
       </Card>
 
-      {/* Git Section */}
-      <Card>
-        <h2 className="mb-4 text-base font-semibold text-muted-white">
-          Git Integration
-        </h2>
-        {git ? (
-          <div className="divide-y divide-border">
-            <InfoRow label="Provider" value={git.provider} />
-            <InfoRow label="Repository" value={git.repository} />
-            <InfoRow label="Branch" value={git.branch} />
-            <div className="flex items-center justify-between py-2">
-              <span className="text-sm text-slate">Auto Deploy</span>
-              {git.auto_deploy ? (
-                <span className="inline-block rounded-full bg-green-500/10 px-2 py-0.5 text-xs font-medium text-green-400">
-                  Enabled
-                </span>
-              ) : (
-                <span className="inline-block rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-400">
-                  Disabled
-                </span>
-              )}
-            </div>
-          </div>
-        ) : (
-          <p className="text-sm text-slate">No git integration configured.</p>
-        )}
-      </Card>
-
       {/* Quick Actions */}
       <Card>
         <h2 className="mb-4 text-base font-semibold text-muted-white">
@@ -182,23 +174,58 @@ export default function SiteOverview({
         </h2>
         <div className="flex flex-wrap gap-3">
           <button
-            disabled
-            className="rounded-lg border border-border px-4 py-2 text-sm text-slate opacity-50 cursor-not-allowed"
-            title="Coming soon -- Phase 2"
+            onClick={() =>
+              handleAction(
+                'rebuild',
+                `/api/hosting/${appSlug}/rebuild`,
+                'Restart this application? It will briefly be unavailable.',
+              )
+            }
+            disabled={actionState.loading !== null}
+            className="rounded-lg border border-border px-4 py-2 text-sm text-slate transition-colors hover:border-gold hover:text-muted-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Force Deploy
+            {actionState.loading === 'rebuild' ? 'Restarting...' : 'Restart App'}
           </button>
-          <button
-            disabled
-            className="rounded-lg border border-border px-4 py-2 text-sm text-slate opacity-50 cursor-not-allowed"
-            title="Coming soon -- Phase 2"
-          >
-            Rebuild App
-          </button>
+
+          {app.app_type === 'nodejs' && (
+            <button
+              onClick={() =>
+                handleAction(
+                  'deploy',
+                  `/api/hosting/${appSlug}/deploy`,
+                  'Force deploy from git? This will run the deploy script immediately.',
+                )
+              }
+              disabled={actionState.loading !== null}
+              className="rounded-lg border border-border px-4 py-2 text-sm text-slate transition-colors hover:border-gold hover:text-muted-white disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {actionState.loading === 'deploy' ? 'Deploying...' : 'Force Deploy'}
+            </button>
+          )}
+
+          {ssl !== null && (
+            <button
+              onClick={() =>
+                handleAction(
+                  'ssl',
+                  `/api/hosting/${appSlug}/ssl-redeploy`,
+                  'Redeploy the SSL certificate? Let\'s Encrypt will be re-provisioned.',
+                )
+              }
+              disabled={actionState.loading !== null}
+              className="rounded-lg border border-border px-4 py-2 text-sm text-slate transition-colors hover:border-gold hover:text-muted-white disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {actionState.loading === 'ssl' ? 'Redeploying...' : 'Force SSL Redeploy'}
+            </button>
+          )}
         </div>
-        <p className="mt-2 text-xs text-slate">
-          Action buttons are coming in a future update.
-        </p>
+
+        {actionState.message && (
+          <p className="mt-3 text-sm text-green-400">{actionState.message}</p>
+        )}
+        {actionState.error && (
+          <p className="mt-3 text-sm text-red-400">{actionState.error}</p>
+        )}
       </Card>
     </div>
   );

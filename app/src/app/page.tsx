@@ -71,6 +71,7 @@ export default async function Home() {
     { data: mailboxes },
     { data: dnsActivity },
     { data: emailActivity },
+    { data: hostingActivity },
   ] = await Promise.all([
     supabase
       .from('customers')
@@ -104,6 +105,12 @@ export default async function Home() {
     supabase
       .from('email_audit_log')
       .select('action, target_label, created_at')
+      .eq('customer_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(5),
+    supabase
+      .from('hosting_activity')
+      .select('action, description, created_at')
       .eq('customer_id', user.id)
       .order('created_at', { ascending: false })
       .limit(5),
@@ -181,6 +188,17 @@ export default async function Home() {
       activities.push({
         type: 'email',
         description: `${actionLabel} - ${label}`,
+        timestamp: entry.created_at,
+      });
+    }
+  }
+
+  if (hostingActivity) {
+    for (const entry of hostingActivity) {
+      const actionLabel = entry.action.replace(/_/g, ' ');
+      activities.push({
+        type: 'hosting',
+        description: entry.description ?? actionLabel,
         timestamp: entry.created_at,
       });
     }

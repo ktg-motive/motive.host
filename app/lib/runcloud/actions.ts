@@ -1,16 +1,21 @@
-// Phase 2 stubs — not implemented yet
+import type { RunCloudClient } from './client';
 
-export function createActionCommands(_client: unknown) {
-  async function rebuildApp(_appId: number): Promise<void> {
-    throw new Error('Not implemented — Phase 2');
+export function createActionCommands(client: RunCloudClient) {
+  const sid = client.serverId;
+
+  /** Restart/rebuild the app process */
+  async function rebuildApp(appId: number): Promise<void> {
+    await client.patch(`/servers/${sid}/webapps/${appId}/rebuild`);
   }
 
-  async function forceDeploy(_appId: number): Promise<void> {
-    throw new Error('Not implemented — Phase 2');
+  /** Force a git deploy (runs the deploy script) */
+  async function forceDeploy(appId: number, gitId: number): Promise<void> {
+    await client.put(`/servers/${sid}/webapps/${appId}/git/${gitId}/script`);
   }
 
-  async function redeploySSL(_appId: number): Promise<void> {
-    throw new Error('Not implemented — Phase 2');
+  /** Redeploy SSL certificate (re-provisions Let's Encrypt) */
+  async function redeploySSL(appId: number, sslId: number): Promise<void> {
+    await client.put(`/servers/${sid}/webapps/${appId}/ssl/${sslId}`);
   }
 
   return { rebuildApp, forceDeploy, redeploySSL };

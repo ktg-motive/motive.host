@@ -2,7 +2,8 @@ import { redirect, notFound } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { getRunCloudClient } from '@/lib/runcloud-client';
-import SiteOverview from '@/components/hosting/site-overview';
+import SiteTabs from '@/components/hosting/site-tabs';
+import type { RunCloudDomain, RunCloudActionLog } from '@runcloud';
 
 interface PageProps {
   params: Promise<{ appSlug: string }>;
@@ -33,16 +34,18 @@ export default async function SiteDetailPage({ params }: PageProps) {
   // Fetch live data from RunCloud in parallel
   let webapp = null;
   let ssl = null;
-  let domains: { id: number; name: string; webapp_id: number; created_at: string }[] = [];
+  let domains: RunCloudDomain[] = [];
   let git = null;
+  let actionLog: RunCloudActionLog[] = [];
 
   try {
     const rc = getRunCloudClient();
-    const [webappResult, sslResult, domainsResult, gitResult] = await Promise.allSettled([
+    const [webappResult, sslResult, domainsResult, gitResult, logResult] = await Promise.allSettled([
       rc.getWebApp(app.runcloud_app_id),
       rc.getSSL(app.runcloud_app_id),
       rc.getDomains(app.runcloud_app_id),
       rc.getGit(app.runcloud_app_id),
+      rc.getActionLog(app.runcloud_app_id),
     ]);
 
     if (webappResult.status === 'fulfilled') {
@@ -68,6 +71,12 @@ export default async function SiteDetailPage({ params }: PageProps) {
     } else {
       console.error('Failed to fetch git:', gitResult.reason);
     }
+
+    if (logResult.status === 'fulfilled') {
+      actionLog = logResult.value;
+    } else {
+      console.error('Failed to fetch action log:', logResult.reason);
+    }
   } catch (err) {
     console.error('RunCloud API unavailable:', err);
   }
@@ -87,13 +96,15 @@ export default async function SiteDetailPage({ params }: PageProps) {
         <p className="mt-1 font-mono text-sm text-slate">{app.primary_domain}</p>
       </div>
 
-      <SiteOverview
+      <SiteTabs
         appSlug={app.app_slug}
         app={app}
         webapp={webapp}
         ssl={ssl}
         domains={domains}
         git={git}
+        actionLog={actionLog}
+        sftpHost={process.env.RUNCLOUD_SERVER_IP ?? ''}
       />
     </div>
   );

@@ -2,6 +2,7 @@ import { RunCloudClient } from './client';
 import { createWebAppCommands } from './webapp';
 import { createServerCommands } from './server';
 import { createActionCommands } from './actions';
+import { cacheInvalidate } from './cache';
 import type { RunCloudConfig } from './types';
 
 export type { RunCloudConfig } from './types';
@@ -20,6 +21,7 @@ export type {
 
 export function createRunCloudClient(config: RunCloudConfig) {
   const client = new RunCloudClient(config);
+  const sid = config.serverId;
   const webapp = createWebAppCommands(client);
   const server = createServerCommands(client);
   const actions = createActionCommands(client);
@@ -40,6 +42,9 @@ export function createRunCloudClient(config: RunCloudConfig) {
     rebuildApp: actions.rebuildApp,
     forceDeploy: actions.forceDeploy,
     redeploySSL: actions.redeploySSL,
+
+    // Cache invalidation — call after any mutation so next page load is fresh
+    invalidateApp: (appId: number) => cacheInvalidate(`rc:${sid}:webapp:${appId}`),
   };
 }
 

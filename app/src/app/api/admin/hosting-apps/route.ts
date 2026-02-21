@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { getRunCloudClient } from '@/lib/runcloud-client';
 import { createHostingAppSchema } from '@/lib/hosting-schemas';
 import { handleRunCloudError } from '@/lib/api-utils';
+import { sendWelcomeHostingEmail } from '@/lib/sendgrid';
 
 export async function POST(request: Request) {
   // 1. Authenticate
@@ -50,7 +51,7 @@ export async function POST(request: Request) {
   const adminDb = createAdminClient();
   const { data: targetCustomer } = await adminDb
     .from('customers')
-    .select('id, plan')
+    .select('id, email, plan, name')
     .eq('id', parsed.data.customer_id)
     .single();
 
@@ -82,6 +83,17 @@ export async function POST(request: Request) {
     }
     console.error('Failed to insert hosting app:', insertError);
     return NextResponse.json({ error: 'Failed to link hosting app' }, { status: 500 });
+  }
+
+  // Fire-and-forget welcome email — never block the response
+  if (targetCustomer.email) {
+    sendWelcomeHostingEmail(
+      targetCustomer.email,
+      targetCustomer.name ?? '',
+      targetCustomer.plan ?? 'harbor',
+      parsed.data.app_name,
+      parsed.data.primary_domain,
+    ).catch((err) => console.error('Welcome email failed:', err));
   }
 
   return NextResponse.json({ hostingApp }, { status: 201 });
