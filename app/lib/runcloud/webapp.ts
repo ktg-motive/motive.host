@@ -101,11 +101,12 @@ export function createWebAppCommands(client: RunCloudClient) {
     if (cached !== undefined) return cached;
 
     try {
-      const res = await client.get<RunCloudResponse<RunCloudGit>>(
+      // v3 API returns the git object directly (no { data: ... } wrapper)
+      const git = await client.get<RunCloudGit>(
         `/servers/${sid}/webapps/${appId}/git`,
       );
-      cacheSet(key, res.data, TTL.git);
-      return res.data;
+      cacheSet(key, git, TTL.git);
+      return git;
     } catch (err) {
       if (err instanceof RunCloudError && err.statusCode === 404) {
         cacheSet(key, null, TTL.git);

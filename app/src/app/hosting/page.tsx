@@ -64,7 +64,7 @@ export default async function HostingPage() {
                 : (webappData.state ?? null)
               : null,
             sslValidUntil: sslData?.validUntil ?? null,
-            lastDeploy: gitData?.updated_at ?? null,
+            lastDeploy: null, // v3 API does not expose last deploy timestamp
           };
         }),
       );

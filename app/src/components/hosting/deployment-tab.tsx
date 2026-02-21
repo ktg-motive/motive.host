@@ -83,12 +83,12 @@ export default function DeploymentTab({ appSlug, app, git, sftpHost }: Deploymen
         {git ? (
           <>
             <div className="divide-y divide-border">
-              <InfoRow label="Repository" value={git.repository} />
+              <InfoRow label="Repository" value={git.repositoryData.url} />
               <InfoRow label="Branch" value={git.branch} />
               <InfoRow label="Provider" value={git.provider} />
               <div className="flex items-center justify-between py-2">
                 <span className="text-sm text-slate">Auto Deploy</span>
-                {git.auto_deploy ? (
+                {git.autoDeploy ? (
                   <span className="inline-block rounded-full bg-green-500/10 px-2 py-0.5 text-xs font-medium text-green-400">
                     Enabled
                   </span>

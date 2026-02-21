@@ -97,25 +97,27 @@ export interface RunCloudDomain {
 
 // ── Git Configuration ─────────────────────────────────────────────────────
 
+// v3 API returns this object directly (no { data: ... } wrapper)
 export interface RunCloudGit {
   id: number;
-  webapp_id: number;
   provider: string;
-  repository: string;
   branch: string;
-  auto_deploy: boolean;
-  deploy_script: string;
+  repositoryData: {
+    url: string;
+    repo: string;
+  };
+  autoDeploy: boolean;
+  deployScript: string;
   created_at: string;
-  updated_at: string;
 }
 
 // ── Action Log ────────────────────────────────────────────────────────────
 
+// v3 API returns { data: RunCloudActionLog[], meta: ... }
+// Items have no id field — use created_at as React key
 export interface RunCloudActionLog {
-  id: number;
-  action: string;
-  description: string | null;
-  status: string;
+  kind: string;
+  content: string;
   created_at: string;
 }
 
