@@ -35,7 +35,8 @@ export async function GET() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const db = isAdmin(user.id) ? createAdminClient() : supabase;
+    const admin = await isAdmin(user.id);
+    const db = admin ? createAdminClient() : supabase;
 
     const selectFields = `
       id, domain_id, domain_name, opensrs_status,
@@ -43,7 +44,7 @@ export async function GET() {
       mailbox_count, storage_used_bytes, storage_provisioned_bytes,
       created_at
     `
-    const { data, error } = await (isAdmin(user.id)
+    const { data, error } = await (admin
       ? db.from('email_domains').select(selectFields).neq('opensrs_status', 'deleted').order('created_at', { ascending: false })
       : db.from('email_domains').select(selectFields).eq('customer_id', user.id).neq('opensrs_status', 'deleted').order('created_at', { ascending: false })
     );

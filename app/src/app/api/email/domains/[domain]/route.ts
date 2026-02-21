@@ -17,9 +17,10 @@ export async function GET(
 
     const { domain } = await params;
     const decodedDomain = decodeURIComponent(domain);
-    const db = isAdmin(user.id) ? createAdminClient() : supabase;
+    const admin = await isAdmin(user.id);
+    const db = admin ? createAdminClient() : supabase;
 
-    const { data: emailDomain, error } = await (isAdmin(user.id)
+    const { data: emailDomain, error } = await (admin
       ? db.from('email_domains').select('*').eq('domain_name', decodedDomain).single()
       : db.from('email_domains').select('*').eq('domain_name', decodedDomain).eq('customer_id', user.id).single()
     );
@@ -43,7 +44,7 @@ export async function DELETE(
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    if (!isAdmin(user.id)) {
+    if (!(await isAdmin(user.id))) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
