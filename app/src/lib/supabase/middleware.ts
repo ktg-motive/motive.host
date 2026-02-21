@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { validateCsrf } from '@/lib/csrf'
 
 // Routes that never require auth or a plan
 const PUBLIC_PATHS = [
@@ -55,6 +56,13 @@ export async function updateSession(request: NextRequest) {
   )
 
   const pathname = request.nextUrl.pathname
+
+  // CSRF protection for all mutation requests (POST/PUT/PATCH/DELETE)
+  // Runs before auth so forged requests never hit the database.
+  const csrfResponse = validateCsrf(request)
+  if (csrfResponse) {
+    return csrfResponse
+  }
 
   // Let public paths through immediately
   if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
