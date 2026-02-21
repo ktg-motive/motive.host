@@ -39,23 +39,40 @@ export interface RunCloudPaginatedResponse<T> {
 
 export interface RunCloudWebApp {
   id: number;
-  server_id: number;
+  server_user_id: number;
   name: string;
   rootPath: string;
   publicPath: string;
   type: string;
   stack: string;
   stackMode: string;
-  state: string;
+  state?: string; // Not returned by v3 API; retained for cached_status fallback
   phpVersion: string | null;
   created_at: string;
-  clickjackingProtection: boolean;
-  xssProtection: boolean;
-  mimeSniffingProtection: boolean;
 }
 
 // ── SSL ───────────────────────────────────────────────────────────────────
 
+// Actual v3 API response: { data: RunCloudSSLDomain[] }
+export interface RunCloudSSLDomain {
+  id: number;
+  name: string;
+  ssl: {
+    id: number;
+    method: string;
+    validUntil: string | null;
+    renewalDate: string | null;
+    enableHttp: boolean;
+    enableHsts: boolean;
+    enableHstsPreload: boolean;
+    authorizationMethod: string;
+    staging: boolean;
+    created_at: string;
+  } | null;
+}
+
+// Normalized shape used internally after parsing the API response.
+// Note: hsts_subdomains is not exposed by the v3 read API (only used in write params).
 export interface RunCloudSSL {
   id: number;
   webapp_id: number;
@@ -63,7 +80,7 @@ export interface RunCloudSSL {
   ssl_enabled: boolean;
   encryption_type: string;
   hsts: boolean;
-  hsts_subdomains: boolean;
+  hsts_subdomains: false; // v3 API does not return this field; always false on read
   hsts_preload: boolean;
   validUntil: string | null;
   created_at: string;
