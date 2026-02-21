@@ -12,6 +12,11 @@ import type {
 import { RunCloudError } from './types';
 import { cacheGet, cacheSet } from './cache';
 
+/** RunCloud returns 403 (not just 404) for resources that don't exist on some webapp types */
+function isNotFound(err: unknown): boolean {
+  return err instanceof RunCloudError && (err.statusCode === 404 || err.statusCode === 403);
+}
+
 const TTL = {
   webapp: 60_000,
   ssl: 300_000,
@@ -67,7 +72,7 @@ export function createWebAppCommands(client: RunCloudClient) {
       cacheSet(key, normalized, TTL.ssl);
       return normalized;
     } catch (err) {
-      if (err instanceof RunCloudError && err.statusCode === 404) {
+      if (isNotFound(err)) {
         cacheSet(key, null, TTL.ssl);
         return null;
       }
@@ -87,7 +92,7 @@ export function createWebAppCommands(client: RunCloudClient) {
       cacheSet(key, res.data, TTL.domains);
       return res.data;
     } catch (err) {
-      if (err instanceof RunCloudError && err.statusCode === 404) {
+      if (isNotFound(err)) {
         cacheSet(key, [], TTL.domains);
         return [];
       }
@@ -108,7 +113,7 @@ export function createWebAppCommands(client: RunCloudClient) {
       cacheSet(key, git, TTL.git);
       return git;
     } catch (err) {
-      if (err instanceof RunCloudError && err.statusCode === 404) {
+      if (isNotFound(err)) {
         cacheSet(key, null, TTL.git);
         return null;
       }
@@ -128,7 +133,7 @@ export function createWebAppCommands(client: RunCloudClient) {
       cacheSet(key, res.data, TTL.logs);
       return res.data;
     } catch (err) {
-      if (err instanceof RunCloudError && err.statusCode === 404) {
+      if (isNotFound(err)) {
         cacheSet(key, [], TTL.logs);
         return [];
       }
