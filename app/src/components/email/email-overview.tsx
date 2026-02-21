@@ -24,7 +24,6 @@ export default function EmailOverview() {
 
   useEffect(() => {
     void fetchDomains();
-    // eslint-disable-next-line react-hooks/set-state-in-effect
   }, [fetchDomains]);
 
   // Aggregated stats
