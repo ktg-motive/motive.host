@@ -2,6 +2,7 @@ import { RunCloudClient } from './client';
 import { createWebAppCommands } from './webapp';
 import { createServerCommands } from './server';
 import { createActionCommands } from './actions';
+import { createProvisionCommands } from './provision';
 import { cacheInvalidate } from './cache';
 import type { RunCloudConfig } from './types';
 
@@ -17,6 +18,10 @@ export type {
   RunCloudService,
   RunCloudResponse,
   RunCloudPaginatedResponse,
+  CreateWebAppParams,
+  InstallSSLParams,
+  ConfigureGitParams,
+  InstallWordPressParams,
 } from './types';
 
 export function createRunCloudClient(config: RunCloudConfig) {
@@ -25,6 +30,7 @@ export function createRunCloudClient(config: RunCloudConfig) {
   const webapp = createWebAppCommands(client);
   const server = createServerCommands(client);
   const actions = createActionCommands(client);
+  const provision = createProvisionCommands(client);
 
   return {
     // WebApp reads
@@ -42,6 +48,13 @@ export function createRunCloudClient(config: RunCloudConfig) {
     rebuildApp: actions.rebuildApp,
     forceDeploy: actions.forceDeploy,
     redeploySSL: actions.redeploySSL,
+
+    // Provisioning (Phase 4)
+    createWebApp: provision.createWebApp,
+    attachDomain: provision.attachDomain,
+    installSSL: provision.installSSL,
+    configureGit: provision.configureGit,
+    installWordPress: provision.installWordPress,
 
     // Cache invalidation — call after any mutation so next page load is fresh
     invalidateApp: (appId: number) => cacheInvalidate(`rc:${sid}:webapp:${appId}`),

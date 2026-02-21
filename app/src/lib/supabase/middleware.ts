@@ -19,6 +19,7 @@ const PROTECTED_PAGE_PREFIXES = [
   '/transfer',
   '/hosting',
   '/account',
+  '/admin',
 ]
 
 // API routes that require both auth and an active plan
@@ -83,14 +84,14 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Plan check — one lightweight query
+  // Plan check — one lightweight query (admins bypass the plan requirement)
   const { data: customer } = await supabase
     .from('customers')
-    .select('plan')
+    .select('plan, is_admin')
     .eq('id', user.id)
     .single()
 
-  if (!customer?.plan) {
+  if (!customer?.plan && !customer?.is_admin) {
     if (isProtectedApi) {
       return NextResponse.json(
         { error: 'No active hosting plan. Contact us at motive.host/contact.html' },

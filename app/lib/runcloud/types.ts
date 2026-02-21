@@ -127,6 +127,51 @@ export interface RunCloudService {
   status: string;
 }
 
+// ── Provisioning: Create Web App ─────────────────────────────────────────
+
+export interface CreateWebAppParams {
+  name: string;
+  domainName: string;
+  user: string;
+  publicPath: string;
+  phpVersion?: string;
+  stack: string;
+  stackMode: string;
+  clickjackingProtection: boolean;
+  xssProtection: boolean;
+  mimeSniffingProtection: boolean;
+}
+
+// ── Provisioning: Install SSL ────────────────────────────────────────────
+
+export interface InstallSSLParams {
+  provider: string;
+  type: string;
+  hsts: boolean;
+  hsts_subdomains: boolean;
+  hsts_preload: boolean;
+}
+
+// ── Provisioning: Configure Git ──────────────────────────────────────────
+
+export interface ConfigureGitParams {
+  provider: string;
+  repository: string;
+  branch: string;
+  autoDeploy: boolean;
+  deployScript?: string;
+}
+
+// ── Provisioning: Install WordPress ──────────────────────────────────────
+
+export interface InstallWordPressParams {
+  title: string;
+  adminUser: string;
+  adminPassword: string;
+  adminEmail: string;
+  dbName?: string;
+}
+
 // ── Cache Entry (internal) ────────────────────────────────────────────────
 
 export interface CacheEntry<T> {
