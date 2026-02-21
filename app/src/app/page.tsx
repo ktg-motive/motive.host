@@ -95,7 +95,8 @@ export default async function Home() {
       .from('email_mailboxes')
       .select('id')
       .eq('customer_id', user.id)
-      .neq('status', 'deleted'),
+      .neq('status', 'deleted')
+      .neq('status', 'pending_billing_cleanup'),
     supabase
       .from('dns_audit_log')
       .select('action, domain_name, record_type, created_at')

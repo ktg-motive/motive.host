@@ -14,7 +14,8 @@ export async function GET() {
       .from('email_mailboxes')
       .select('id, email_address, storage_tier, stripe_price_id, domain_name')
       .eq('customer_id', user.id)
-      .neq('status', 'deleted');
+      .neq('status', 'deleted')
+      .neq('status', 'pending_billing_cleanup');
 
     if (error) {
       console.error('Error fetching billing:', error);

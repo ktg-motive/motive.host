@@ -26,8 +26,8 @@ export async function GET(
     const db = admin ? createAdminClient() : supabase;
 
     const { data: mailbox } = await (admin
-      ? db.from('email_mailboxes').select('*').eq('email_address', decodedEmail).eq('domain_name', decodedDomain).neq('status', 'deleted').single()
-      : db.from('email_mailboxes').select('*').eq('email_address', decodedEmail).eq('domain_name', decodedDomain).eq('customer_id', user.id).neq('status', 'deleted').single()
+      ? db.from('email_mailboxes').select('*').eq('email_address', decodedEmail).eq('domain_name', decodedDomain).neq('status', 'deleted').neq('status', 'pending_billing_cleanup').single()
+      : db.from('email_mailboxes').select('*').eq('email_address', decodedEmail).eq('domain_name', decodedDomain).eq('customer_id', user.id).neq('status', 'deleted').neq('status', 'pending_billing_cleanup').single()
     );
 
     if (!mailbox) {
@@ -79,6 +79,7 @@ export async function PATCH(
       .eq('domain_name', decodedDomain)
       .eq('customer_id', user.id)
       .neq('status', 'deleted')
+      .neq('status', 'pending_billing_cleanup')
       .single();
 
     if (!mailbox) {
@@ -114,19 +115,8 @@ export async function PATCH(
       updates.storage_tier = newTier;
       updates.storage_quota_bytes = STORAGE_TIERS[newTier].bytes;
 
-      // Swap Stripe price
-      if (mailbox.stripe_subscription_item_id) {
-        const newPriceId = getStripePriceId(newTier);
-        if (newPriceId) {
-          await stripe.subscriptionItems.update(mailbox.stripe_subscription_item_id, {
-            price: newPriceId,
-            proration_behavior: 'create_prorations',
-          });
-          updates.stripe_price_id = newPriceId;
-        }
-      }
-
-      // Update domain storage counters (storage-only, no mailbox_count change)
+      // Step 1: Apply OMA changes early (done below with other OMA options)
+      // Step 2: Update domain storage counters
       const oldBytes = STORAGE_TIERS[mailbox.storage_tier as StorageTier].bytes;
       const newBytes = STORAGE_TIERS[newTier].bytes;
       const diff = newBytes - oldBytes;
@@ -147,17 +137,61 @@ export async function PATCH(
       }
     }
 
-    // Apply OMA changes
+    // Apply OMA changes (must succeed before billing changes)
     if (Object.keys(omaOptions).length > 0) {
       await oma.changeUser(decodedEmail, omaOptions);
     }
 
-    // Update Supabase
+    // Update Supabase mailbox record
     if (Object.keys(updates).length > 0) {
       await supabase
         .from('email_mailboxes')
         .update(updates)
         .eq('id', mailbox.id);
+    }
+
+    // Stripe price swap -- LAST, after OMA + DB are committed
+    if (parsed.data.storageTier && parsed.data.storageTier !== mailbox.storage_tier) {
+      const newTier = parsed.data.storageTier as StorageTier;
+      if (mailbox.stripe_subscription_item_id) {
+        const newPriceId = getStripePriceId(newTier);
+        if (newPriceId) {
+          try {
+            await stripe.subscriptionItems.update(mailbox.stripe_subscription_item_id, {
+              price: newPriceId,
+              proration_behavior: 'create_prorations',
+            });
+            // Update the price ID in DB after Stripe confirms
+            await supabase
+              .from('email_mailboxes')
+              .update({ stripe_price_id: newPriceId })
+              .eq('id', mailbox.id);
+          } catch (stripeErr) {
+            console.error('Stripe price swap failed after OMA+DB update:', stripeErr);
+            // Flag for async reconciliation -- do NOT fail the request
+            await supabase
+              .from('email_mailboxes')
+              .update({
+                billing_error: `Price swap failed: ${newTier} (price: ${newPriceId})`,
+                billing_error_at: new Date().toISOString(),
+              })
+              .eq('id', mailbox.id);
+            await supabase.from('email_audit_log').insert({
+              customer_id: user.id,
+              actor_id: user.id,
+              action: 'billing_cleanup_pending',
+              target_type: 'mailbox',
+              target_id: mailbox.id,
+              target_label: decodedEmail,
+              details: {
+                error: String(stripeErr),
+                intended_tier: newTier,
+                intended_price_id: newPriceId,
+              },
+            });
+          }
+        }
+      }
     }
 
     // Audit log
@@ -209,50 +243,70 @@ export async function DELETE(
       .eq('domain_name', decodedDomain)
       .eq('customer_id', user.id)
       .neq('status', 'deleted')
+      .neq('status', 'pending_billing_cleanup')
       .single();
 
     if (!mailbox) {
       return NextResponse.json({ error: 'Mailbox not found' }, { status: 404 });
     }
 
-    // Delete from OMA
+    // Step 1: Delete from OMA (system-of-record)
     const oma = getOMAClient();
     await oma.deleteUser(decodedEmail);
 
-    // Remove Stripe subscription item
+    // Step 2: Attempt Stripe subscription item removal
+    let stripeFailed = false;
+    let stripeError = '';
     if (mailbox.stripe_subscription_item_id) {
       try {
         await stripe.subscriptionItems.del(mailbox.stripe_subscription_item_id, {
           proration_behavior: 'create_prorations',
         });
       } catch (e) {
-        console.error('Failed to remove Stripe item:', e);
+        stripeFailed = true;
+        stripeError = String(e);
+        console.error('Failed to remove Stripe subscription item:', e);
       }
     }
 
-    // Soft-delete
+    // Step 3: Soft-delete -- status depends on whether Stripe succeeded
+    const deleteStatus = stripeFailed ? 'pending_billing_cleanup' : 'deleted';
     await supabase
       .from('email_mailboxes')
-      .update({ status: 'deleted', deleted_at: new Date().toISOString() })
+      .update({
+        status: deleteStatus,
+        deleted_at: new Date().toISOString(),
+        ...(stripeFailed && {
+          billing_error: `Subscription item deletion failed: ${mailbox.stripe_subscription_item_id}`,
+          billing_error_at: new Date().toISOString(),
+        }),
+      })
       .eq('id', mailbox.id);
 
-    // Decrement domain counters
+    // Step 4: Decrement domain counters (mailbox is functionally deleted regardless)
     await supabase.rpc('decrement_mailbox_count', {
       p_email_domain_id: mailbox.email_domain_id,
       p_quota_bytes: mailbox.storage_quota_bytes,
     });
 
-    // Audit log
+    // Step 5: Audit log
     await supabase.from('email_audit_log').insert({
       customer_id: user.id,
       actor_id: user.id,
-      action: 'mailbox_deleted',
+      action: stripeFailed ? 'billing_cleanup_pending' : 'mailbox_deleted',
       target_type: 'mailbox',
       target_id: mailbox.id,
       target_label: decodedEmail,
+      ...(stripeFailed && {
+        details: { stripe_error: stripeError, subscription_item_id: mailbox.stripe_subscription_item_id },
+      }),
     });
 
-    return NextResponse.json({ success: true });
+    // Return success but flag if billing cleanup is needed
+    return NextResponse.json({
+      success: true,
+      ...(stripeFailed && { warning: 'Mailbox deleted but billing cleanup is pending' }),
+    });
   } catch (err) {
     return handleApiError(err);
   }
