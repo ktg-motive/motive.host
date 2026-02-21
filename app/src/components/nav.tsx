@@ -129,11 +129,13 @@ export default function Nav() {
                   <div className="border-b border-border px-3 py-2">
                     <p className="truncate text-xs text-slate">{user.email}</p>
                   </div>
-                  <span
-                    className="block cursor-default px-3 py-2 text-sm text-slate/50"
+                  <Link
+                    href="/account"
+                    onClick={closeMenus}
+                    className="block px-3 py-2 text-sm text-slate transition-colors hover:bg-card-content hover:text-muted-white"
                   >
                     Account
-                  </span>
+                  </Link>
                   <div className="border-t border-border">
                     <button
                       onClick={handleLogout}
@@ -181,9 +183,13 @@ export default function Nav() {
                 <div className="border-t border-border pt-3">
                   <p className="truncate text-xs text-slate">{user.email}</p>
                 </div>
-                <span className="cursor-default text-sm text-slate/50">
+                <Link
+                  href="/account"
+                  onClick={closeMenus}
+                  className="text-sm text-slate transition-colors hover:text-muted-white"
+                >
                   Account
-                </span>
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="text-left text-sm text-slate transition-colors hover:text-red-400"
