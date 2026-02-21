@@ -129,6 +129,7 @@ export async function POST(request: Request) {
       currency: 'usd',
       automatic_payment_methods: { enabled: true },
       metadata: {
+        type: 'register',
         domain,
         period: String(period),
         user_id: user.id,
@@ -172,6 +173,10 @@ export async function DELETE(request: Request) {
 
     if (paymentIntent.metadata.user_id !== user.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+    }
+
+    if (paymentIntent.metadata.type !== 'register') {
+      return NextResponse.json({ error: 'Invalid payment type' }, { status: 400 })
     }
 
     // Only cancel if still cancellable — ignore if already succeeded or cancelled
@@ -221,6 +226,10 @@ export async function PUT(request: Request) {
 
     if (paymentIntent.metadata.user_id !== user.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+    }
+
+    if (paymentIntent.metadata.type !== 'register') {
+      return NextResponse.json({ error: 'Invalid payment type' }, { status: 400 })
     }
 
     if (paymentIntent.metadata.domain !== domain) {
@@ -281,6 +290,7 @@ export async function PUT(request: Request) {
         domain_name: domain,
         period,
         amount_cents: paymentIntent.amount,
+        type: 'register',
         status: 'pending',
       })
 
