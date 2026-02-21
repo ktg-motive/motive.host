@@ -82,22 +82,16 @@ export default async function DomainsPage() {
       {/* Quick links */}
       <div className="mb-8 flex flex-wrap gap-3">
         <Link
-          href="/search"
+          href="/domains/search"
           className="rounded-lg bg-gold px-4 py-2.5 text-sm font-medium text-primary-bg transition-colors hover:bg-gold-hover"
         >
           Search Domains
         </Link>
         <Link
-          href="/transfer"
+          href="/domains/transfer"
           className="rounded-lg border border-border px-4 py-2.5 text-sm text-slate transition-colors hover:border-gold hover:text-muted-white"
         >
           Transfer a Domain
-        </Link>
-        <Link
-          href="https://my.motive.host"
-          className="rounded-lg border border-border px-4 py-2.5 text-sm text-slate transition-colors hover:border-gold hover:text-muted-white"
-        >
-          Hosting Portal
         </Link>
       </div>
 
@@ -111,7 +105,7 @@ export default async function DomainsPage() {
               Find the perfect domain for your business
             </p>
             <Link
-              href="/search"
+              href="/domains/search"
               className="mt-6 inline-block rounded-lg bg-gold px-6 py-2.5 font-medium text-primary-bg transition-colors hover:bg-gold-hover"
             >
               Search Domains
@@ -139,7 +133,7 @@ export default async function DomainsPage() {
                               ? 'bg-red-500/10 text-red-400'
                               : 'bg-yellow-500/10 text-yellow-400'
                       }`}>
-                        {domain.status === 'transferring' ? 'Transferring…' : domain.status}
+                        {domain.status === 'transferring' ? 'Transferring...' : domain.status}
                       </span>
                       {expiresAt && (
                         <span className={`text-xs ${isExpiringSoon ? 'text-yellow-400' : 'text-slate'}`}>

@@ -23,7 +23,9 @@
       "@opensrs/*": ["./lib/opensrs/*"],
       "@opensrs": ["./lib/opensrs"],
       "@opensrs-email/*": ["./lib/opensrs-email/*"],
-      "@opensrs-email": ["./lib/opensrs-email"]
+      "@opensrs-email": ["./lib/opensrs-email"],
+      "@runcloud/*": ["./lib/runcloud/*"],
+      "@runcloud": ["./lib/runcloud"]
     }
   },
   "include": [

@@ -348,7 +348,7 @@ function RegisterForm() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-12 text-center">
         <p className="text-slate">No domain specified.</p>
-        <a href="/search" className="mt-4 inline-block text-gold hover:text-gold-hover">
+        <a href="/domains/search" className="mt-4 inline-block text-gold hover:text-gold-hover">
           Search for a domain
         </a>
       </div>

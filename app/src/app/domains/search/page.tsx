@@ -126,7 +126,7 @@ function SearchForm() {
                     </span>
                   )}
                   <Link
-                    href={`/register?domain=${encodeURIComponent(results.exact.domain)}`}
+                    href={`/domains/register?domain=${encodeURIComponent(results.exact.domain)}`}
                     className="rounded-lg bg-gold px-5 py-2.5 font-medium text-primary-bg transition-colors hover:bg-gold-hover"
                   >
                     Register
@@ -152,7 +152,7 @@ function SearchForm() {
                       )}
                     </div>
                     <Link
-                      href={`/register?domain=${encodeURIComponent(s.domain)}`}
+                      href={`/domains/register?domain=${encodeURIComponent(s.domain)}`}
                       className="rounded-lg border border-gold px-3 py-1.5 text-sm text-gold transition-colors hover:bg-gold hover:text-primary-bg"
                     >
                       Register

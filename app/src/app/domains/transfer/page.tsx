@@ -268,22 +268,27 @@ export default function TransferPage() {
     setEligibilityError(null)
     setPriceCents(null)
 
-    const res = await fetch('/api/transfers/check', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ domain: domain.trim().toLowerCase() }),
-    })
+    try {
+      const res = await fetch('/api/transfers/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ domain: domain.trim().toLowerCase() }),
+      })
 
-    const data = await res.json()
-    setChecking(false)
+      const data = await res.json()
 
-    if (!res.ok || !data.eligible) {
-      setEligibilityError(data.reason ?? data.error ?? 'Domain is not eligible for transfer.')
-      return
+      if (!res.ok || !data.eligible) {
+        setEligibilityError(data.reason ?? data.error ?? 'Domain is not eligible for transfer.')
+        return
+      }
+
+      setPriceCents(data.price_cents)
+      setStep('details')
+    } catch {
+      setEligibilityError('Network error. Please check your connection and try again.')
+    } finally {
+      setChecking(false)
     }
-
-    setPriceCents(data.price_cents)
-    setStep('details')
   }
 
   // Step 2 → 3: Initiate PaymentIntent
@@ -292,24 +297,29 @@ export default function TransferPage() {
     setInitiating(true)
     setInitiateError(null)
 
-    const res = await fetch('/api/transfers', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ domain, period }),
-    })
+    try {
+      const res = await fetch('/api/transfers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ domain, period }),
+      })
 
-    const data = await res.json()
-    setInitiating(false)
+      const data = await res.json()
 
-    if (!res.ok) {
-      setInitiateError(data.error ?? 'Failed to set up payment. Please try again.')
-      return
+      if (!res.ok) {
+        setInitiateError(data.error ?? 'Failed to set up payment. Please try again.')
+        return
+      }
+
+      setClientSecret(data.clientSecret)
+      setPaymentIntentId(data.paymentIntentId)
+      setAmountCents(data.amount)
+      setStep('payment')
+    } catch {
+      setInitiateError('Network error. Please check your connection and try again.')
+    } finally {
+      setInitiating(false)
     }
-
-    setClientSecret(data.clientSecret)
-    setPaymentIntentId(data.paymentIntentId)
-    setAmountCents(data.amount)
-    setStep('payment')
   }
 
   function handlePaymentSuccess(orderId: string) {

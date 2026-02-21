@@ -17,6 +17,7 @@ const PROTECTED_PAGE_PREFIXES = [
   '/register',
   '/email',
   '/transfer',
+  '/hosting',
 ]
 
 // API routes that require both auth and an active plan
@@ -24,6 +25,8 @@ const PROTECTED_API_PREFIXES = [
   '/api/domains',
   '/api/email',
   '/api/transfers',
+  '/api/admin',
+  '/api/hosting',
 ]
 
 export async function updateSession(request: NextRequest) {

@@ -54,39 +54,46 @@ export default function Nav() {
   }
 
   function navLinks(onNavigate?: () => void) {
+    if (!user) return null
+
     return (
       <>
         <Link
-          href="/search"
+          href="/"
           onClick={onNavigate}
           className={`text-sm transition-colors hover:text-muted-white ${
-            pathname === '/search' ? 'text-gold' : 'text-slate'
+            pathname === '/' ? 'text-gold' : 'text-slate'
           }`}
         >
-          Search
+          Dashboard
         </Link>
-        {user && (
-          <>
-            <Link
-              href="/domains"
-              onClick={onNavigate}
-              className={`text-sm transition-colors hover:text-muted-white ${
-                pathname.startsWith('/domains') ? 'text-gold' : 'text-slate'
-              }`}
-            >
-              My Domains
-            </Link>
-            <Link
-              href="/email"
-              onClick={onNavigate}
-              className={`text-sm transition-colors hover:text-muted-white ${
-                pathname.startsWith('/email') ? 'text-gold' : 'text-slate'
-              }`}
-            >
-              Email
-            </Link>
-          </>
-        )}
+        <Link
+          href="/hosting"
+          onClick={onNavigate}
+          className={`text-sm transition-colors hover:text-muted-white ${
+            pathname.startsWith('/hosting') ? 'text-gold' : 'text-slate'
+          }`}
+        >
+          Hosting
+        </Link>
+        <Link
+          href="/domains"
+          onClick={onNavigate}
+          className={`text-sm transition-colors hover:text-muted-white ${
+            pathname.startsWith('/domains') ? 'text-gold' : 'text-slate'
+          }`}
+        >
+          Domains
+        </Link>
+        <Link
+          href="/email"
+          onClick={onNavigate}
+          className={`text-sm transition-colors hover:text-muted-white ${
+            pathname.startsWith('/email') ? 'text-gold' : 'text-slate'
+          }`}
+        >
+          Email
+        </Link>
       </>
     )
   }
@@ -122,27 +129,11 @@ export default function Nav() {
                   <div className="border-b border-border px-3 py-2">
                     <p className="truncate text-xs text-slate">{user.email}</p>
                   </div>
-                  <Link
-                    href="/domains"
-                    onClick={() => setDropdownOpen(false)}
-                    className="block px-3 py-2 text-sm text-slate transition-colors hover:bg-card-content hover:text-muted-white"
+                  <span
+                    className="block cursor-default px-3 py-2 text-sm text-slate/50"
                   >
-                    My Domains
-                  </Link>
-                  <Link
-                    href="/email"
-                    onClick={() => setDropdownOpen(false)}
-                    className="block px-3 py-2 text-sm text-slate transition-colors hover:bg-card-content hover:text-muted-white"
-                  >
-                    Email
-                  </Link>
-                  <Link
-                    href="https://my.motive.host"
-                    onClick={() => setDropdownOpen(false)}
-                    className="block px-3 py-2 text-sm text-slate transition-colors hover:bg-card-content hover:text-muted-white"
-                  >
-                    Hosting Portal
-                  </Link>
+                    Account
+                  </span>
                   <div className="border-t border-border">
                     <button
                       onClick={handleLogout}
@@ -155,20 +146,12 @@ export default function Nav() {
               )}
             </div>
           ) : (
-            <>
-              <Link
-                href="/login"
-                className="rounded-lg border border-border px-3 py-1.5 text-sm text-slate transition-colors hover:border-gold hover:text-muted-white"
-              >
-                Log in
-              </Link>
-              <Link
-                href="/signup"
-                className="rounded-lg bg-gold px-3 py-1.5 text-sm font-medium text-primary-bg transition-colors hover:bg-gold-hover"
-              >
-                Sign up
-              </Link>
-            </>
+            <Link
+              href="/login"
+              className="rounded-lg border border-border px-3 py-1.5 text-sm text-slate transition-colors hover:border-gold hover:text-muted-white"
+            >
+              Log in
+            </Link>
           )}
         </div>
 
@@ -198,9 +181,9 @@ export default function Nav() {
                 <div className="border-t border-border pt-3">
                   <p className="truncate text-xs text-slate">{user.email}</p>
                 </div>
-                <Link href="https://my.motive.host" onClick={closeMenus} className="text-sm text-slate transition-colors hover:text-muted-white">
-                  Hosting Portal
-                </Link>
+                <span className="cursor-default text-sm text-slate/50">
+                  Account
+                </span>
                 <button
                   onClick={handleLogout}
                   className="text-left text-sm text-slate transition-colors hover:text-red-400"
@@ -209,18 +192,12 @@ export default function Nav() {
                 </button>
               </>
             ) : (
-              <div className="flex gap-3 border-t border-border pt-3">
+              <div className="border-t border-border pt-3">
                 <Link
                   href="/login"
-                  className="flex-1 rounded-lg border border-border px-3 py-2 text-center text-sm text-slate transition-colors hover:border-gold hover:text-muted-white"
+                  className="block rounded-lg border border-border px-3 py-2 text-center text-sm text-slate transition-colors hover:border-gold hover:text-muted-white"
                 >
                   Log in
-                </Link>
-                <Link
-                  href="/signup"
-                  className="flex-1 rounded-lg bg-gold px-3 py-2 text-center text-sm font-medium text-primary-bg transition-colors hover:bg-gold-hover"
-                >
-                  Sign up
                 </Link>
               </div>
             )}

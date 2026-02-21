@@ -3,6 +3,28 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   turbopack: {
     root: '..',
+    resolveAlias: {
+      '@runcloud': './lib/runcloud/index.ts',
+    },
+  },
+  async redirects() {
+    return [
+      {
+        source: '/search',
+        destination: '/domains/search',
+        permanent: true,
+      },
+      {
+        source: '/register',
+        destination: '/domains/register',
+        permanent: true,
+      },
+      {
+        source: '/transfer',
+        destination: '/domains/transfer',
+        permanent: true,
+      },
+    ];
   },
   async headers() {
     return [
