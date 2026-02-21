@@ -116,10 +116,6 @@ export default function MailboxDetail({ domain, email }: MailboxDetailProps) {
     );
   }
 
-  const pct = mailbox.storage_quota_bytes > 0
-    ? ((mailbox.storage_used_bytes / mailbox.storage_quota_bytes) * 100).toFixed(1)
-    : '0';
-
   return (
     <>
       {/* Storage */}

@@ -11,15 +11,21 @@ export default function EmailOverview() {
   const [loading, setLoading] = useState(true);
   const [showEnableModal, setShowEnableModal] = useState(false);
 
-  const fetchDomains = useCallback(() => {
+  const fetchDomains = useCallback(async () => {
     setLoading(true);
-    fetch('/api/email/domains')
-      .then(res => res.json())
-      .then(data => setDomains(data.domains ?? []))
-      .finally(() => setLoading(false));
+    try {
+      const res = await fetch('/api/email/domains');
+      const data = await res.json();
+      setDomains(data.domains ?? []);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  useEffect(() => { fetchDomains(); }, [fetchDomains]);
+  useEffect(() => {
+    void fetchDomains();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+  }, [fetchDomains]);
 
   // Aggregated stats
   const totalMailboxes = domains.reduce((sum, d) => sum + d.mailbox_count, 0);

@@ -6,7 +6,6 @@ import type {
   RunCloudDomain,
   RunCloudGit,
   RunCloudActionLog,
-  RunCloudResponse,
   RunCloudPaginatedResponse,
 } from './types';
 import { RunCloudError } from './types';
