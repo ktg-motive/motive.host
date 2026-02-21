@@ -57,17 +57,18 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname
 
+  // Let public paths through immediately (login, forgot-password, etc.)
+  // No CSRF check needed — these forms don't have session cookies to protect.
+  if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
+    await supabase.auth.getUser() // still needed to refresh session cookies
+    return supabaseResponse
+  }
+
   // CSRF protection for all mutation requests (POST/PUT/PATCH/DELETE)
   // Runs before auth so forged requests never hit the database.
   const csrfResponse = validateCsrf(request)
   if (csrfResponse) {
     return csrfResponse
-  }
-
-  // Let public paths through immediately
-  if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
-    await supabase.auth.getUser() // still needed to refresh session cookies
-    return supabaseResponse
   }
 
   const isProtectedPage = PROTECTED_PAGE_PREFIXES.some((p) => pathname.startsWith(p))
