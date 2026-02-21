@@ -24,8 +24,8 @@ export async function GET(
     const db = isAdmin(user.id) ? createAdminClient() : supabase;
 
     const { data, error } = await (isAdmin(user.id)
-      ? db.from('email_mailboxes').select('*').eq('domain_name', decodedDomain).neq('status', 'deleted').order('created_at', { ascending: true })
-      : db.from('email_mailboxes').select('*').eq('domain_name', decodedDomain).eq('customer_id', user.id).neq('status', 'deleted').order('created_at', { ascending: true })
+      ? db.from('email_mailboxes').select('*').eq('domain_name', decodedDomain).neq('status', 'deleted').neq('status', 'pending_billing_cleanup').order('created_at', { ascending: true })
+      : db.from('email_mailboxes').select('*').eq('domain_name', decodedDomain).eq('customer_id', user.id).neq('status', 'deleted').neq('status', 'pending_billing_cleanup').order('created_at', { ascending: true })
     );
 
     if (error) {

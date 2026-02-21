@@ -66,13 +66,15 @@ export async function DELETE(
       .from('email_mailboxes')
       .select('id, stripe_subscription_item_id, storage_quota_bytes')
       .eq('email_domain_id', emailDomain.id)
-      .neq('status', 'deleted');
+      .neq('status', 'deleted')
+      .neq('status', 'pending_billing_cleanup');
 
     // Delete from OMA
     const oma = getOMAClient();
     await oma.deleteDomain(decodedDomain);
 
-    // Remove Stripe subscription items
+    // Remove Stripe subscription items -- track failures
+    const stripeFailures: Array<{ mailbox_id: string; item_id: string; error: string }> = [];
     if (mailboxes) {
       for (const mb of mailboxes) {
         if (mb.stripe_subscription_item_id) {
@@ -81,35 +83,61 @@ export async function DELETE(
               proration_behavior: 'create_prorations',
             });
           } catch (e) {
-            console.error('Failed to remove Stripe item:', e);
+            stripeFailures.push({
+              mailbox_id: mb.id,
+              item_id: mb.stripe_subscription_item_id,
+              error: String(e),
+            });
+            console.error(`Failed to remove Stripe item ${mb.stripe_subscription_item_id}:`, e);
           }
         }
       }
     }
 
-    // Soft-delete mailboxes
-    await admin
-      .from('email_mailboxes')
-      .update({ status: 'deleted', deleted_at: new Date().toISOString() })
-      .eq('email_domain_id', emailDomain.id);
+    const hasStripeFailures = stripeFailures.length > 0;
 
-    // Mark domain as deleted
+    // Soft-delete mailboxes -- flag those with billing issues
+    if (mailboxes) {
+      for (const mb of mailboxes) {
+        const failed = stripeFailures.find(f => f.mailbox_id === mb.id);
+        await admin
+          .from('email_mailboxes')
+          .update({
+            status: failed ? 'pending_billing_cleanup' : 'deleted',
+            deleted_at: new Date().toISOString(),
+            ...(failed && {
+              billing_error: `Subscription item deletion failed: ${failed.item_id}`,
+              billing_error_at: new Date().toISOString(),
+            }),
+          })
+          .eq('id', mb.id);
+      }
+    }
+
+    // Mark domain status based on billing cleanup state
     await admin
       .from('email_domains')
-      .update({ opensrs_status: 'deleted' })
+      .update({ opensrs_status: hasStripeFailures ? 'pending_billing_cleanup' : 'deleted' })
       .eq('id', emailDomain.id);
 
     // Audit log
     await admin.from('email_audit_log').insert({
       customer_id: user.id,
       actor_id: user.id,
-      action: 'domain_deleted',
+      action: hasStripeFailures ? 'billing_cleanup_pending' : 'domain_deleted',
       target_type: 'domain',
       target_id: emailDomain.id,
       target_label: decodedDomain,
+      ...(hasStripeFailures && { details: { stripe_failures: stripeFailures } }),
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      ...(hasStripeFailures && {
+        warning: 'Domain deleted but some billing items need manual cleanup',
+        stripe_failures: stripeFailures,
+      }),
+    });
   } catch (err) {
     return handleApiError(err);
   }

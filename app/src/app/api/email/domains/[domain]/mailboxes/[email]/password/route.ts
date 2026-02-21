@@ -35,6 +35,7 @@ export async function POST(
       .eq('domain_name', decodedDomain)
       .eq('customer_id', user.id)
       .neq('status', 'deleted')
+      .neq('status', 'pending_billing_cleanup')
       .single();
 
     if (!mailbox) {
