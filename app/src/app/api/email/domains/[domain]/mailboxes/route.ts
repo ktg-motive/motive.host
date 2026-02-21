@@ -21,9 +21,10 @@ export async function GET(
 
     const { domain } = await params;
     const decodedDomain = decodeURIComponent(domain);
-    const db = isAdmin(user.id) ? createAdminClient() : supabase;
+    const admin = await isAdmin(user.id);
+    const db = admin ? createAdminClient() : supabase;
 
-    const { data, error } = await (isAdmin(user.id)
+    const { data, error } = await (admin
       ? db.from('email_mailboxes').select('*').eq('domain_name', decodedDomain).neq('status', 'deleted').order('created_at', { ascending: true })
       : db.from('email_mailboxes').select('*').eq('domain_name', decodedDomain).eq('customer_id', user.id).neq('status', 'deleted').order('created_at', { ascending: true })
     );

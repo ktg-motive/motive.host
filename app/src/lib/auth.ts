@@ -1,10 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 
-export function isAdmin(userId: string): boolean {
-  return userId === process.env.ADMIN_USER_ID;
-}
-
-export async function isAdminByDb(userId: string): Promise<boolean> {
+export async function isAdmin(userId: string): Promise<boolean> {
   const supabase = await createClient();
   const { data } = await supabase
     .from('customers')

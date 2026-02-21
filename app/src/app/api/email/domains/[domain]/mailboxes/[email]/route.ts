@@ -22,9 +22,10 @@ export async function GET(
     const { domain, email } = await params;
     const decodedDomain = decodeURIComponent(domain);
     const decodedEmail = decodeURIComponent(email);
-    const db = isAdmin(user.id) ? createAdminClient() : supabase;
+    const admin = await isAdmin(user.id);
+    const db = admin ? createAdminClient() : supabase;
 
-    const { data: mailbox } = await (isAdmin(user.id)
+    const { data: mailbox } = await (admin
       ? db.from('email_mailboxes').select('*').eq('email_address', decodedEmail).eq('domain_name', decodedDomain).neq('status', 'deleted').single()
       : db.from('email_mailboxes').select('*').eq('email_address', decodedEmail).eq('domain_name', decodedDomain).eq('customer_id', user.id).neq('status', 'deleted').single()
     );
