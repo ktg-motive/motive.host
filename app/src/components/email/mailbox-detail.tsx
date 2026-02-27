@@ -208,7 +208,7 @@ export default function MailboxDetail({ domain, email }: MailboxDetailProps) {
         <div className="flex flex-wrap gap-3">
           <Button
             variant="secondary"
-            onClick={() => window.open('https://mail.motive.host', '_blank')}
+            onClick={() => window.open('https://mail.b.hostedemail.com', '_blank')}
           >
             Open Webmail
           </Button>
