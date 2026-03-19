@@ -23,36 +23,48 @@ export async function verifyEmailDns(
     throw new Error(`Invalid domain name: ${domain}`);
   }
 
+  const normalizedDomain = domain.toLowerCase();
+  const expectedMx = `mx.${normalizedDomain}.cust.b.hostedemail.com`;
+
+  // Accept both current (cluster b) and legacy (Rackspace) MX/SPF schemes
+  // so domains provisioned before the migration don't false-fail verification.
+  const legacyMxHosts = ['mx1.emailsrvr.com', 'mx2.emailsrvr.com'];
+  const legacySpfInclude = 'emailsrvr.com';
+
   const result: DnsVerificationResult = {
-    mx:    { verified: false, expected: ['mx1.emailsrvr.com', 'mx2.emailsrvr.com'], actual: [] },
-    spf:   { verified: false, expected: 'include:emailsrvr.com', actual: null },
+    mx:    { verified: false, expected: [expectedMx], actual: [] },
+    spf:   { verified: false, expected: 'include:_spf.hostedemail.com', actual: null },
     dkim:  { verified: false, expected: expectedDkim?.record ?? null, actual: null },
     dmarc: { verified: false, expected: 'v=DMARC1', actual: null },
   };
 
   // MX
   try {
-    const mxRecords = await dns.resolveMx(domain);
+    const mxRecords = await dns.resolveMx(normalizedDomain);
     result.mx.actual = mxRecords.map(r => r.exchange.toLowerCase());
-    result.mx.verified = result.mx.expected.every(
-      expected => result.mx.actual.some(actual => actual.includes(expected))
+    const hasCurrentMx = result.mx.actual.some(
+      actual => actual === expectedMx || actual === expectedMx + '.'
     );
+    const hasLegacyMx = result.mx.actual.some(
+      actual => legacyMxHosts.some(legacy => actual === legacy || actual === legacy + '.')
+    );
+    result.mx.verified = hasCurrentMx || hasLegacyMx;
   } catch { /* no MX records */ }
 
   // SPF
   try {
-    const txtRecords = await dns.resolveTxt(domain);
+    const txtRecords = await dns.resolveTxt(normalizedDomain);
     const spf = txtRecords.flat().find(r => r.startsWith('v=spf1'));
     if (spf) {
       result.spf.actual = spf;
-      result.spf.verified = spf.includes('emailsrvr.com');
+      result.spf.verified = spf.includes('_spf.hostedemail.com') || spf.includes(legacySpfInclude);
     }
   } catch { /* no TXT records */ }
 
   // DKIM
   if (expectedDkim) {
     try {
-      const dkimHost = `${expectedDkim.selector}._domainkey.${domain}`;
+      const dkimHost = `${expectedDkim.selector}._domainkey.${normalizedDomain}`;
       const txtRecords = await dns.resolveTxt(dkimHost);
       const dkim = txtRecords.flat().join('');
       if (dkim) {
@@ -64,7 +76,7 @@ export async function verifyEmailDns(
 
   // DMARC
   try {
-    const txtRecords = await dns.resolveTxt(`_dmarc.${domain}`);
+    const txtRecords = await dns.resolveTxt(`_dmarc.${normalizedDomain}`);
     const dmarc = txtRecords.flat().find(r => r.startsWith('v=DMARC1'));
     if (dmarc) {
       result.dmarc.actual = dmarc;

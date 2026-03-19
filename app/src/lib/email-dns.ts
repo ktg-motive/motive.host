@@ -2,13 +2,12 @@ import { getOpenSRSClient } from '@/lib/opensrs-client';
 import type { DnsRecordChange } from '@opensrs/types';
 import type { GetDomainResponse } from '@opensrs-email';
 
-// OpenSRS Email MX records (standard across OpenSRS email clusters)
-const MX_RECORDS = [
-  { priority: 10, hostname: 'mx1.emailsrvr.com' },
-  { priority: 20, hostname: 'mx2.emailsrvr.com' },
-];
+// OpenSRS Email cluster b — MX hostname is domain-specific
+function getMxHostname(domain: string): string {
+  return `mx.${domain}.cust.b.hostedemail.com`;
+}
 
-const SPF_INCLUDE = 'include:emailsrvr.com';
+const SPF_INCLUDE = 'include:_spf.hostedemail.com';
 
 interface DnsAutoConfigResult {
   success: boolean;
@@ -34,17 +33,14 @@ export async function autoConfigureDns(
   const errors: string[] = [];
 
   // Check if we manage DNS; if not, try to create the zone automatically
-  let zoneExists = true;
+  let zone;
   try {
-    await opensrs.getDnsZone(domain);
+    zone = await opensrs.getDnsZone(domain);
   } catch {
-    zoneExists = false;
-  }
-
-  if (!zoneExists) {
+    // Zone doesn't exist — try to create it, then fetch
     try {
       await opensrs.createDnsZone(domain);
-      zoneExists = true;
+      zone = await opensrs.getDnsZone(domain);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Unknown error';
       return {
@@ -60,27 +56,25 @@ export async function autoConfigureDns(
 
   // DNS is managed by us — add records via read-modify-write
   const changes: DnsRecordChange[] = [];
-  const zone = await opensrs.getDnsZone(domain);
 
-  // MX Records — only add if not already present
+  // MX Record — single domain-specific record for cluster b
+  const mxHostname = getMxHostname(domain);
   const existingMx = zone.records.filter(r => r.type === 'MX');
-  for (const mx of MX_RECORDS) {
-    const alreadyExists = existingMx.some(
-      r => r.hostname === mx.hostname && r.priority === mx.priority
-    );
-    if (!alreadyExists) {
-      changes.push({
-        action: 'add',
-        record: {
-          type: 'MX',
-          subdomain: '@',
-          hostname: mx.hostname,
-          priority: mx.priority,
-        },
-      });
-    } else {
-      skipped.push(`MX ${mx.hostname}`);
-    }
+  const alreadyExists = existingMx.some(
+    r => r.hostname === mxHostname && r.priority === 0
+  );
+  if (!alreadyExists) {
+    changes.push({
+      action: 'add',
+      record: {
+        type: 'MX',
+        subdomain: '@',
+        hostname: mxHostname,
+        priority: 0,
+      },
+    });
+  } else {
+    skipped.push(`MX ${mxHostname}`);
   }
 
   // SPF — merge with existing
@@ -90,10 +84,9 @@ export async function autoConfigureDns(
 
   if (existingSpf && existingSpf.text) {
     if (!existingSpf.text.includes(SPF_INCLUDE)) {
-      const updatedSpf = existingSpf.text.replace(
-        /(\s+[~\-?+]all)/,
-        ` ${SPF_INCLUDE}$1`
-      );
+      const updatedSpf = existingSpf.text.match(/\s+[~\-?+]all/)
+        ? existingSpf.text.replace(/(\s+[~\-?+]all)/, ` ${SPF_INCLUDE}$1`)
+        : `${existingSpf.text} ${SPF_INCLUDE}`;
       changes.push({
         action: 'update',
         record: { type: 'TXT', subdomain: '@', text: updatedSpf },
@@ -111,14 +104,21 @@ export async function autoConfigureDns(
 
   // DKIM
   if (domainInfo.dkim_selector && domainInfo.dkim_record) {
-    changes.push({
-      action: 'add',
-      record: {
-        type: 'TXT',
-        subdomain: `${domainInfo.dkim_selector}._domainkey`,
-        text: domainInfo.dkim_record,
-      },
-    });
+    const existingDkim = zone.records.find(
+      r => r.type === 'TXT' && r.subdomain === `${domainInfo.dkim_selector}._domainkey`
+    );
+    if (!existingDkim) {
+      changes.push({
+        action: 'add',
+        record: {
+          type: 'TXT',
+          subdomain: `${domainInfo.dkim_selector}._domainkey`,
+          text: domainInfo.dkim_record,
+        },
+      });
+    } else {
+      skipped.push('DKIM');
+    }
   }
 
   // DMARC
@@ -141,10 +141,12 @@ export async function autoConfigureDns(
   // Apply all changes
   try {
     await opensrs.updateDnsRecords(domain, changes);
-    configured.push('MX', 'SPF', 'DKIM', 'DMARC');
-    for (const s of skipped) {
-      const idx = configured.indexOf(s);
-      if (idx !== -1) configured.splice(idx, 1);
+    // Build configured list from what was actually changed
+    for (const c of changes) {
+      if (c.record.type === 'MX') configured.push('MX');
+      else if (c.record.type === 'TXT' && c.record.subdomain === '@' && c.record.text?.startsWith('v=spf1')) configured.push('SPF');
+      else if (c.record.type === 'TXT' && c.record.subdomain?.endsWith('._domainkey')) configured.push('DKIM');
+      else if (c.record.type === 'TXT' && c.record.subdomain === '_dmarc') configured.push('DMARC');
     }
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Unknown error';
@@ -162,7 +164,7 @@ export async function autoConfigureDns(
 
 function buildRequiredRecords(domain: string, domainInfo: GetDomainResponse) {
   return {
-    mx: MX_RECORDS,
+    mx: [{ priority: 0, hostname: getMxHostname(domain) }],
     spf: `v=spf1 ${SPF_INCLUDE} ~all`,
     dkim: domainInfo.dkim_selector && domainInfo.dkim_record
       ? { selector: domainInfo.dkim_selector, record: domainInfo.dkim_record }

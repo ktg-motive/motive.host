@@ -120,9 +120,8 @@ export default function EnableEmailModal({ open, onClose, onEnabled }: EnableEma
             <div className="rounded-lg border border-border bg-card-content p-3">
               <p className="mb-2 text-xs font-medium text-slate">DNS records that will be configured:</p>
               <div className="space-y-1 font-mono text-xs text-muted-white">
-                <p>MX @ &rarr; mx1.emailsrvr.com (priority 10)</p>
-                <p>MX @ &rarr; mx2.emailsrvr.com (priority 20)</p>
-                <p>TXT @ &rarr; v=spf1 include:emailsrvr.com ~all</p>
+                <p>MX @ &rarr; mx.{selectedDomain.domain_name}.cust.b.hostedemail.com (priority 0)</p>
+                <p>TXT @ &rarr; v=spf1 include:_spf.hostedemail.com ~all</p>
                 <p>TXT default._domainkey &rarr; [DKIM key]</p>
                 <p>TXT _dmarc &rarr; v=DMARC1; p=none</p>
               </div>

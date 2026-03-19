@@ -57,10 +57,10 @@ function parseZoneRecords(rawRecords: Record<string, unknown>): DnsRecord[] {
       if (entry.ip_address) record.ip_address = entry.ip_address;
       if (entry.hostname) record.hostname = entry.hostname;
       if (entry.text) record.text = entry.text;
-      if (entry.priority) record.priority = parseInt(entry.priority, 10);
-      if (entry.weight) record.weight = parseInt(entry.weight, 10);
-      if (entry.port) record.port = parseInt(entry.port, 10);
-      if (entry.ttl) record.ttl = parseInt(entry.ttl, 10);
+      if (entry.priority != null) record.priority = parseInt(entry.priority, 10);
+      if (entry.weight != null) record.weight = parseInt(entry.weight, 10);
+      if (entry.port != null) record.port = parseInt(entry.port, 10);
+      if (entry.ttl != null) record.ttl = parseInt(entry.ttl, 10);
 
       records.push(record);
     }
@@ -179,8 +179,11 @@ export function createDnsCommands(client: OpenSRSClient) {
       for (const change of changes) {
         switch (change.action) {
           case 'add': {
-            currentRecords.push(change.record);
-            added.push(change.record);
+            const exists = currentRecords.some(r => recordsMatch(r, change.record));
+            if (!exists) {
+              currentRecords.push(change.record);
+              added.push(change.record);
+            }
             break;
           }
 
