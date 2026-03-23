@@ -7,13 +7,13 @@ import { rateLimit, getClientIp } from '@/lib/rate-limit'
 // Add new hosted sites here as they need contact forms
 const SITE_CONFIG: Record<string, { to: string; fromEmail: string; fromName: string; siteName: string }> = {
   'aiwithkai.com': {
-    to: 'kai@kai-ai.io',
+    to: 'kaigray@la-ai.io',
     fromEmail: 'hello@aiwithkai.com',
     fromName: 'AI with Kai',
     siteName: 'aiwithkai.com',
   },
   'www.aiwithkai.com': {
-    to: 'kai@kai-ai.io',
+    to: 'kaigray@la-ai.io',
     fromEmail: 'hello@aiwithkai.com',
     fromName: 'AI with Kai',
     siteName: 'aiwithkai.com',
