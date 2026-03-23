@@ -203,7 +203,7 @@ export async function POST(request: Request) {
     try {
       await rc.installSSL(appId, {
         provider: 'letsencrypt',
-        environment: 'production',
+        environment: 'live',
         enableHttp: false,
         enableHsts: false,
         enableHstsSubdomains: false,
