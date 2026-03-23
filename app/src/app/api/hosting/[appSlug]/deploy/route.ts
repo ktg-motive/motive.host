@@ -127,9 +127,13 @@ export async function POST(_req: Request, { params }: RouteContext) {
         // No build script is fine for some apps
       }
 
-      // For static sites (Vite etc): symlink dist -> public
+      // For static sites (Vite etc): if dist/ exists, copy public/ assets into dist/ then symlink
       const { stdout: lsStat } = await execFileAsync('ls', ['-d', `${appDir}/dist`]).catch(() => ({ stdout: '' }));
       if (lsStat.trim()) {
+        // Copy repo's public/ assets (images, etc.) into dist/ so they're served
+        await execFileAsync('bash', ['-c',
+          `test -d ${appDir}/public && cp -rn ${appDir}/public/* ${appDir}/dist/ 2>/dev/null || true`
+        ]);
         await execFileAsync('bash', ['-c', `rm -rf ${appDir}/public && ln -sfn ${appDir}/dist ${appDir}/public`]);
       }
 
