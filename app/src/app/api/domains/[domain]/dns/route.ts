@@ -43,7 +43,7 @@ export async function GET(
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error'
     // OpenSRS returns a specific error when no DNS zone exists
-    if (message.includes('does not exist') || message.includes('460')) {
+    if (message.includes('not found') || message.includes('does not exist') || message.includes('460')) {
       return NextResponse.json({ records: [], nameservers: [], zoneExists: false })
     }
     console.error('DNS fetch error:', error)
