@@ -46,16 +46,33 @@ export function createWebAppCommands(client: RunCloudClient) {
     if (cached !== undefined) return cached;
 
     try {
-      // v3 API returns { data: RunCloudSSLDomain[] } — SSL is nested under each domain
-      const res = await client.get<{ data: RunCloudSSLDomain[] }>(
+      // v3 API returns either:
+      // Shape A: { data: RunCloudSSLDomain[] } — SSL nested under domains (older apps)
+      // Shape B: { id, method, validUntil, ... } — flat SSL object (newer apps)
+      const raw = await client.get<Record<string, unknown>>(
         `/servers/${sid}/webapps/${appId}/ssl`,
       );
-      const domainWithSsl = res.data.find((d) => d.ssl !== null);
-      if (!domainWithSsl?.ssl) {
+
+      let sslInfo: {
+        id: number; method: string; validUntil: string | null;
+        enableHsts: boolean; enableHstsPreload: boolean;
+        authorizationMethod: string; created_at: string;
+      } | null = null;
+
+      if (Array.isArray(raw.data)) {
+        // Shape A: { data: RunCloudSSLDomain[] }
+        const domainWithSsl = (raw.data as RunCloudSSLDomain[]).find((d) => d.ssl !== null);
+        sslInfo = domainWithSsl?.ssl ?? null;
+      } else if (raw.id && raw.method) {
+        // Shape B: flat SSL object
+        sslInfo = raw as unknown as typeof sslInfo;
+      }
+
+      if (!sslInfo) {
         cacheSet(key, null, TTL.ssl);
         return null;
       }
-      const { ssl: sslInfo } = domainWithSsl;
+
       const normalized: RunCloudSSL = {
         id: sslInfo.id,
         webapp_id: appId,
