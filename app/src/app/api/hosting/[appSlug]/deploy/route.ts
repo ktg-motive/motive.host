@@ -102,7 +102,7 @@ export async function POST(_req: Request, { params }: RouteContext) {
     }
 
     try {
-      // Remove public symlink before pull (it conflicts with repo's public/ directory)
+      // Remove public symlink before pull so git can restore the real public/ directory
       await execFileAsync('bash', ['-c', `test -L ${appDir}/public && rm -f ${appDir}/public || true`]);
 
       // Git pull with per-app deploy key
@@ -111,13 +111,13 @@ export async function POST(_req: Request, { params }: RouteContext) {
         timeout: 30_000,
       });
 
-      // Install + build
+      // Install dependencies
       await execFileAsync('npm', ['install', '--production=false'], {
         cwd: appDir,
         timeout: 120_000,
       });
 
-      // Build (if the app has a build script)
+      // Build (Vite copies public/ into dist/ during this step)
       try {
         await execFileAsync('npm', ['run', 'build'], {
           cwd: appDir,
@@ -127,13 +127,10 @@ export async function POST(_req: Request, { params }: RouteContext) {
         // No build script is fine for some apps
       }
 
-      // For static sites (Vite etc): if dist/ exists, copy public/ assets into dist/ then symlink
+      // For static sites (Vite etc): replace public/ with symlink to dist/ AFTER build
+      // Vite needs public/ as a real directory during build to copy assets into dist/
       const { stdout: lsStat } = await execFileAsync('ls', ['-d', `${appDir}/dist`]).catch(() => ({ stdout: '' }));
       if (lsStat.trim()) {
-        // Copy repo's public/ assets (images, etc.) into dist/ so they're served
-        await execFileAsync('bash', ['-c',
-          `test -d ${appDir}/public && cp -rn ${appDir}/public/* ${appDir}/dist/ 2>/dev/null || true`
-        ]);
         await execFileAsync('bash', ['-c', `rm -rf ${appDir}/public && ln -sfn ${appDir}/dist ${appDir}/public`]);
       }
 
