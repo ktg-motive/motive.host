@@ -94,6 +94,10 @@ function getAllowedHosts(): Set<string> {
   // Hardcode production host as a safety net
   hosts.add('my.motive.host')
 
+  // Hosted sites that POST to our API (e.g. contact forms)
+  hosts.add('aiwithkai.com')
+  hosts.add('www.aiwithkai.com')
+
   _allowedHosts = hosts
   return _allowedHosts
 }
