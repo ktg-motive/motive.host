@@ -56,6 +56,11 @@ export default async function AdminDashboardPage() {
     return acc;
   }, {});
 
+  // Recent 5 customers (sorted by created_at descending)
+  const recentCustomers = [...customerList]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 5);
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-12">
       <div className="mb-8">
@@ -85,9 +90,25 @@ export default async function AdminDashboardPage() {
         ))}
       </div>
 
-      {/* Customers table */}
+      {/* Recent Customers */}
       <div className="mb-8">
-        <h2 className="mb-4 font-display text-xl font-bold text-muted-white">Customers</h2>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="font-display text-xl font-bold text-muted-white">Recent Customers</h2>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/admin/customers/new"
+              className="rounded-lg bg-gold px-3 py-1.5 text-xs font-medium text-primary-bg transition-colors hover:bg-gold-hover"
+            >
+              New Customer
+            </Link>
+            <Link
+              href="/admin/customers"
+              className="text-xs font-medium text-gold transition-colors hover:text-gold-hover"
+            >
+              View All
+            </Link>
+          </div>
+        </div>
         <Card className="overflow-hidden p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -101,7 +122,7 @@ export default async function AdminDashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {customerList.map((c) => {
+                {recentCustomers.map((c) => {
                   const planInfo = c.plan ? PLANS[c.plan as keyof typeof PLANS] : null;
                   const memberSince = new Date(c.created_at).toLocaleDateString('en-US', {
                     month: 'short',
@@ -112,8 +133,10 @@ export default async function AdminDashboardPage() {
                   return (
                     <tr key={c.id} className="transition-colors hover:bg-card-content/50">
                       <td className="px-4 py-3">
-                        <p className="font-medium text-muted-white">{c.name ?? 'No name'}</p>
-                        <p className="text-xs text-slate">{c.email}</p>
+                        <Link href={`/admin/customers/${c.id}`} className="group">
+                          <p className="font-medium text-muted-white group-hover:text-gold transition-colors">{c.name ?? 'No name'}</p>
+                          <p className="text-xs text-slate">{c.email}</p>
+                        </Link>
                       </td>
                       <td className="px-4 py-3">
                         {planInfo ? (

@@ -96,9 +96,23 @@ export async function updateSession(request: NextRequest) {
   // Plan check — one lightweight query (admins bypass the plan requirement)
   const { data: customer } = await supabase
     .from('customers')
-    .select('plan, is_admin')
+    .select('plan, is_admin, disabled_at')
     .eq('id', user.id)
     .single()
+
+  // Check if account is disabled (before plan check — disabled takes priority)
+  if (customer?.disabled_at) {
+    if (isProtectedApi) {
+      return NextResponse.json(
+        { error: 'Account disabled' },
+        { status: 403 }
+      )
+    }
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    url.searchParams.set('error', 'account_disabled')
+    return NextResponse.redirect(url)
+  }
 
   if (!customer?.plan && !customer?.is_admin) {
     if (isProtectedApi) {
