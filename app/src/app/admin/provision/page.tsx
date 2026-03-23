@@ -56,7 +56,7 @@ export default async function ProvisionPage({ searchParams }: PageProps) {
           Provision Site
         </h1>
         <p className="mt-1 text-sm text-slate">
-          Create a new RunCloud web app and link it to a customer
+          Create a new hosted site and link it to a customer
         </p>
       </div>
 

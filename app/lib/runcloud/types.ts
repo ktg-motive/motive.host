@@ -151,7 +151,7 @@ export interface RunCloudService {
 export interface CreateWebAppParams {
   name: string;
   domainName: string;
-  user: string;
+  user: number;
   publicPath: string;
   phpVersion?: string;
   stack: string;

@@ -88,7 +88,7 @@ export async function POST(request: Request) {
     runcloudApp = await rc.createWebApp({
       name: appSlug,
       domainName: input.primary_domain,
-      user: 'motive-host',
+      user: parseInt(process.env.RUNCLOUD_SYSTEM_USER_ID ?? '1883159', 10),
       publicPath: isWordPress ? '/public_html' : '/',
       ...(isWordPress ? { phpVersion: 'php82' } : {}),
       stack: isWordPress ? 'hybrid' : 'native-nginx-custom',
