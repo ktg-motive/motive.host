@@ -128,7 +128,28 @@ export default function DeploymentTab({ appSlug, app, git, sftpHost }: Deploymen
             )}
           </>
         ) : (
-          <p className="text-sm text-slate">No git integration configured.</p>
+          <>
+            <p className="mb-4 text-sm text-slate">
+              No RunCloud git integration configured. Deploy uses local git pull from the server.
+            </p>
+
+            <div className="mt-4">
+              <button
+                onClick={handleForceDeploy}
+                disabled={actionState.loading}
+                className="rounded-lg bg-gold px-4 py-2 text-sm font-medium text-primary-bg transition-colors hover:bg-gold-hover disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {actionState.loading ? 'Deploying...' : 'Force Deploy'}
+              </button>
+            </div>
+
+            {actionState.message && (
+              <p className="mt-2 text-sm text-green-400">{actionState.message}</p>
+            )}
+            {actionState.error && (
+              <p className="mt-2 text-sm text-red-400">{actionState.error}</p>
+            )}
+          </>
         )}
       </Card>
 
