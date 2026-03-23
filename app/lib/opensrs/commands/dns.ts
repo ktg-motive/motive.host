@@ -160,8 +160,19 @@ export function createDnsCommands(client: OpenSRSClient) {
       changes: DnsRecordChange[],
       options: DnsUpdateOptions = {}
     ): Promise<DnsUpdateResult> {
-      // 1. Fetch existing records
-      const zone = await this.getDnsZone(domain);
+      // 1. Fetch existing records (auto-create zone if it doesn't exist yet)
+      let zone: DnsZoneResponse;
+      try {
+        zone = await this.getDnsZone(domain);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : '';
+        if (msg.includes('not found') || msg.includes('does not exist') || msg.includes('460')) {
+          await this.createDnsZone(domain);
+          zone = { records: [], nameservers: [], version: computeZoneVersion([]) };
+        } else {
+          throw err;
+        }
+      }
       const currentRecords = [...zone.records];
 
       // Optimistic locking: if caller provided a version, verify it matches
