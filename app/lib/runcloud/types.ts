@@ -156,6 +156,7 @@ export interface CreateWebAppParams {
   phpVersion?: string;
   stack: string;
   stackMode: string;
+  type?: string;
   clickjackingProtection: boolean;
   xssProtection: boolean;
   mimeSniffingProtection: boolean;
