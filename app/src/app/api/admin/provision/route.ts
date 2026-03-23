@@ -89,7 +89,7 @@ export async function POST(request: Request) {
       name: appSlug,
       domainName: input.primary_domain,
       user: parseInt(process.env.RUNCLOUD_SYSTEM_USER_ID ?? '1883159', 10),
-      publicPath: `/home/motive-host/webapps/${appSlug}${isWordPress ? '/public_html' : ''}`,
+      publicPath: isWordPress ? '/public_html' : '/public',
       ...(isWordPress ? { phpVersion: 'php82' } : {}),
       stack: 'nativenginx',
       stackMode: 'production',
@@ -203,6 +203,7 @@ export async function POST(request: Request) {
     try {
       await rc.installSSL(appId, {
         provider: 'letsencrypt',
+        environment: 'production',
         enableHttp: false,
         enableHsts: false,
         enableHstsSubdomains: false,

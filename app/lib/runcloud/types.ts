@@ -166,6 +166,7 @@ export interface CreateWebAppParams {
 
 export interface InstallSSLParams {
   provider: string;
+  environment?: string;
   enableHttp: boolean;
   enableHsts: boolean;
   enableHstsSubdomains: boolean;
