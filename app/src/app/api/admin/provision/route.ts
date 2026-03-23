@@ -107,18 +107,19 @@ export async function POST(request: Request) {
   console.log('[provision] step 3 complete: appId =', appId);
 
   // ── Step 4: Attach domain ─────────────────────────────────────────────
+  // createWebApp already attaches the domain via domainName param,
+  // but we try again in case it wasn't included or for additional domains.
   console.log('[provision] step 4: attaching domain', input.primary_domain);
   try {
     await rc.attachDomain(appId, input.primary_domain);
   } catch (err) {
-    console.error('[provision] step 4 failed: attachDomain', err);
-    return NextResponse.json(
-      {
-        error: `App created (RunCloud ID: ${appId}) but domain attachment failed. Attach manually in RunCloud.`,
-        runcloudAppId: appId,
-      },
-      { status: 502 },
-    );
+    const errMsg = err instanceof Error ? err.message : '';
+    if (errMsg.includes('already exists') || errMsg.includes('Domain already')) {
+      console.log('[provision] step 4: domain already attached (from createWebApp) — continuing');
+    } else {
+      console.error('[provision] step 4 failed: attachDomain', err);
+      warnings.push('Domain attachment failed — may need manual configuration in RunCloud.');
+    }
   }
   console.log('[provision] step 4 complete');
 
