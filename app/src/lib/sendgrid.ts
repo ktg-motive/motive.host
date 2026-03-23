@@ -52,6 +52,60 @@ export async function sendRegistrationConfirmation(
   })
 }
 
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+}
+
+/**
+ * Generic contact form submission — forwards form data to a recipient
+ * as a formatted email. Used by hosted sites (e.g. aiwithkai.com).
+ */
+export async function sendContactForm(opts: {
+  to: string
+  fromEmail?: string
+  fromName: string
+  replyTo: string
+  subject: string
+  fields: Record<string, string>
+  siteName?: string
+}) {
+  if (!apiKey) {
+    console.warn('SendGrid API key not configured — skipping contact email')
+    return
+  }
+
+  const rows = Object.entries(opts.fields)
+    .filter(([, v]) => v)
+    .map(
+      ([k, v]) =>
+        `<tr>
+          <td style="padding: 8px 12px; color: #718096; font-size: 13px; font-weight: 600; vertical-align: top; white-space: nowrap;">${escapeHtml(k)}</td>
+          <td style="padding: 8px 12px; color: #1F2329; font-size: 14px; line-height: 1.6;">${escapeHtml(v).replace(/\n/g, '<br>')}</td>
+        </tr>`
+    )
+    .join('')
+
+  await sgMail.send({
+    to: opts.to,
+    from: { email: opts.fromEmail || FROM_EMAIL, name: opts.fromName || 'Motive Hosting' },
+    replyTo: opts.replyTo,
+    subject: opts.subject,
+    html: `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 40px 20px;">
+        <h1 style="color: #1F2329; font-size: 22px; margin-bottom: 6px;">${escapeHtml(opts.subject)}</h1>
+        <p style="color: #718096; font-size: 14px; margin-bottom: 24px;">via ${opts.siteName || 'contact form'}</p>
+        <table style="width: 100%; border-collapse: collapse; background: #f7f8fa; border-radius: 8px; overflow: hidden;">
+          ${rows}
+        </table>
+        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 32px 0;">
+        <p style="color: #a0aec0; font-size: 12px;">
+          Delivered by <a href="https://motive.host" style="color: #a0aec0;">Motive Hosting</a>
+        </p>
+      </div>
+    `,
+  })
+}
+
 export async function sendWelcomeHostingEmail(
   email: string,
   name: string,
