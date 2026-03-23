@@ -166,10 +166,12 @@ export interface CreateWebAppParams {
 
 export interface InstallSSLParams {
   provider: string;
-  type: string;
-  hsts: boolean;
-  hsts_subdomains: boolean;
-  hsts_preload: boolean;
+  enableHttp: boolean;
+  enableHsts: boolean;
+  enableHstsSubdomains: boolean;
+  enableHstsPreload: boolean;
+  authorizationMethod?: string;
+  sslProtocolId?: number;
 }
 
 // ── Provisioning: Configure Git ──────────────────────────────────────────

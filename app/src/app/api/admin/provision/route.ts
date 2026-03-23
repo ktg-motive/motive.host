@@ -203,10 +203,12 @@ export async function POST(request: Request) {
     try {
       await rc.installSSL(appId, {
         provider: 'letsencrypt',
-        type: 'HTTP/2',
-        hsts: true,
-        hsts_subdomains: false,
-        hsts_preload: false,
+        enableHttp: false,
+        enableHsts: false,
+        enableHstsSubdomains: false,
+        enableHstsPreload: false,
+        authorizationMethod: 'http-01',
+        sslProtocolId: 2,
       });
       console.log('[provision] step 7 complete');
     } catch (err) {

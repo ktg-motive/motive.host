@@ -4,7 +4,7 @@
 // hosted on the RunCloud-managed server. Based on the customer-hub pattern.
 
 import { execFile } from 'child_process';
-import { writeFile } from 'fs/promises';
+import { writeFile, access } from 'fs/promises';
 import { promisify } from 'util';
 
 import type { DeployTemplate } from './deploy-scripts';
@@ -163,7 +163,20 @@ export async function writeNginxConfigs(options: NginxConfigOptions): Promise<vo
   }
 
   // Step 2: Fix try_files in RunCloud's managed main.conf for this app
+  // RunCloud creates this file asynchronously after createWebApp — wait for it
   const mainConfPath = `${NGINX_CONF_DIR}/${appSlug}.d/main.conf`;
+  const MAX_WAIT = 15;
+  for (let i = 0; i < MAX_WAIT; i++) {
+    try {
+      await execFileAsync('sudo', ['test', '-f', mainConfPath]);
+      break;
+    } catch {
+      if (i === MAX_WAIT - 1) {
+        throw new Error(`Timed out waiting for RunCloud to create ${mainConfPath}`);
+      }
+      await new Promise(r => setTimeout(r, 2000));
+    }
+  }
   await execFileAsync('sudo', [
     'sed', '-i',
     's|try_files $uri $uri/ /index.php$is_args$args;|try_files /dev/null @backend;|g',
