@@ -17,8 +17,9 @@ interface ProvisionFormProps {
 }
 
 interface ProvisionResult {
-  hostingApp: { app_slug: string };
-  runcloudAppId: number;
+  success: boolean;
+  app: { id: string; slug: string; domain: string; runcloud_app_id: number; port: number | null; deploy_template: string | null; deploy_method: string | null };
+  warnings: string[];
 }
 
 interface ProvisionError {
@@ -36,9 +37,11 @@ export default function ProvisionForm({ customers, preselectedCustomerId }: Prov
   const [appName, setAppName] = useState('');
 
   // Node.js fields
+  const [deployTemplate, setDeployTemplate] = useState<'nextjs' | 'express' | 'generic'>('nextjs');
   const [gitProvider, setGitProvider] = useState('github');
   const [gitRepository, setGitRepository] = useState('');
   const [gitBranch, setGitBranch] = useState('main');
+  const [gitSubdir, setGitSubdir] = useState('');
 
   // WordPress fields
   const [wpTitle, setWpTitle] = useState('');
@@ -64,10 +67,15 @@ export default function ProvisionForm({ customers, preselectedCustomerId }: Prov
     };
 
     if (appType === 'nodejs') {
+      payload.deploy_template = deployTemplate;
+      payload.deploy_method = gitProvider;
       if (gitRepository.trim()) {
         payload.git_provider = gitProvider;
         payload.git_repository = gitRepository.trim();
         payload.git_branch = gitBranch.trim() || 'main';
+      }
+      if (gitSubdir.trim()) {
+        payload.git_subdir = gitSubdir.trim();
       }
     }
 
@@ -116,17 +124,27 @@ export default function ProvisionForm({ customers, preselectedCustomerId }: Prov
 
   // Success state
   if (formState === 'success' && result) {
-    const appSlug = result.hostingApp.app_slug;
     return (
       <Card className="mx-auto max-w-lg py-12 text-center">
         <div className="mb-4 text-4xl">&#10003;</div>
         <h2 className="font-display text-xl font-bold text-muted-white">Site Provisioned</h2>
         <p className="mt-2 text-sm text-slate">
-          RunCloud app created (ID: {result.runcloudAppId}) and linked to customer.
+          RunCloud app created (ID: {result.app.runcloud_app_id}) and linked to customer.
+          {result.app.port && ` Port: ${result.app.port}.`}
         </p>
+        {result.warnings.length > 0 && (
+          <div className="mt-4 rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-3 text-left">
+            <p className="mb-1 text-xs font-medium uppercase tracking-wide text-yellow-400">Warnings</p>
+            <ul className="space-y-1">
+              {result.warnings.map((w, i) => (
+                <li key={i} className="text-xs text-yellow-300/80">{w}</li>
+              ))}
+            </ul>
+          </div>
+        )}
         <div className="mt-6 flex items-center justify-center gap-3">
           <Link
-            href={`/hosting/${appSlug}`}
+            href={`/hosting/${result.app.slug}`}
             className="rounded-lg bg-gold px-4 py-2 text-sm font-medium text-primary-bg transition-colors hover:bg-gold-hover"
           >
             View Site
@@ -227,7 +245,20 @@ export default function ProvisionForm({ customers, preselectedCustomerId }: Prov
         {/* Node.js Git Config */}
         {appType === 'nodejs' && (
           <div className="space-y-4 rounded-lg border border-border/50 p-4">
-            <p className="text-xs font-medium uppercase tracking-wide text-slate">Git Configuration (optional)</p>
+            <p className="text-xs font-medium uppercase tracking-wide text-slate">Deploy Configuration</p>
+            <div>
+              <label htmlFor="deployTemplate" className={labelClass}>Deploy Template</label>
+              <select
+                id="deployTemplate"
+                value={deployTemplate}
+                onChange={(e) => setDeployTemplate(e.target.value as 'nextjs' | 'express' | 'generic')}
+                className={inputClass}
+              >
+                <option value="nextjs">Next.js</option>
+                <option value="express">Express</option>
+                <option value="generic">Generic Node.js</option>
+              </select>
+            </div>
             <div>
               <label htmlFor="gitProvider" className={labelClass}>Git Provider</label>
               <select
@@ -238,8 +269,6 @@ export default function ProvisionForm({ customers, preselectedCustomerId }: Prov
               >
                 <option value="github">GitHub</option>
                 <option value="gitlab">GitLab</option>
-                <option value="bitbucket">Bitbucket</option>
-                <option value="custom">Custom</option>
               </select>
             </div>
             <div>
@@ -261,6 +290,17 @@ export default function ProvisionForm({ customers, preselectedCustomerId }: Prov
                 value={gitBranch}
                 onChange={(e) => setGitBranch(e.target.value)}
                 placeholder="main"
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="gitSubdir" className={labelClass}>Subdirectory (monorepo)</label>
+              <input
+                id="gitSubdir"
+                type="text"
+                value={gitSubdir}
+                onChange={(e) => setGitSubdir(e.target.value)}
+                placeholder="e.g. app, packages/web (leave empty if root)"
                 className={inputClass}
               />
             </div>

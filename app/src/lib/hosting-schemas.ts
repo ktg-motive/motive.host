@@ -1,5 +1,12 @@
 import { z } from 'zod';
 
+// Deploy configuration types
+export const deployTemplates = ['nextjs', 'express', 'generic'] as const;
+export type DeployTemplate = (typeof deployTemplates)[number];
+
+export const deployMethods = ['github', 'gitlab'] as const;
+export type DeployMethod = (typeof deployMethods)[number];
+
 export const createHostingAppSchema = z.object({
   customer_id: z.string().uuid(),
   runcloud_app_id: z.number().int().positive(),
@@ -30,16 +37,26 @@ export const provisionSiteSchema = z.object({
       'Must be a valid domain name (e.g. example.com)',
     ),
   app_name: z.string().min(1).max(200),
+  // Deploy configuration (required for Node.js, ignored for WordPress)
+  deploy_template: z.enum(deployTemplates).optional(),
+  deploy_method: z.enum(deployMethods).optional(),
   // Optional git config (Node.js)
   git_provider: z.enum(['github', 'bitbucket', 'gitlab', 'custom']).optional(),
   git_repository: z.string().optional(),
   git_branch: z.string().optional(),
+  git_subdir: z.string().trim().max(100)
+    .regex(/^[a-zA-Z0-9_][a-zA-Z0-9_.\-\/]*$/, 'Subdirectory must be a safe relative path (no leading slash)')
+    .refine(v => !v.includes('..'), 'Subdirectory must not contain path traversal (..)').optional(),
   // WordPress config (required when app_type === 'wordpress')
   wp_title: z.string().optional(),
   wp_admin_user: z.string().optional(),
   wp_admin_password: z.string().optional(),
   wp_admin_email: z.string().email().optional(),
 }).superRefine((data, ctx) => {
+  if (data.app_type === 'nodejs') {
+    if (!data.deploy_template) ctx.addIssue({ code: 'custom', path: ['deploy_template'], message: 'Required for Node.js apps' });
+    if (!data.deploy_method) ctx.addIssue({ code: 'custom', path: ['deploy_method'], message: 'Required for Node.js apps' });
+  }
   if (data.app_type === 'wordpress') {
     if (!data.wp_title) ctx.addIssue({ code: 'custom', path: ['wp_title'], message: 'Required for WordPress apps' });
     if (!data.wp_admin_user) ctx.addIssue({ code: 'custom', path: ['wp_admin_user'], message: 'Required for WordPress apps' });
