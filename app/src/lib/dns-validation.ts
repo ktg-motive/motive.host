@@ -1,8 +1,9 @@
 import { z } from 'zod'
 import type { DnsRecordType } from '@opensrs/types'
 
-// Valid hostname: alphanumeric, hyphens, dots, or @ for root
-const hostnameRegex = /^(@|(\*\.)?[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*)$/
+// Valid hostname: alphanumeric, hyphens, underscores, dots, or @ for root
+// Underscores are required for DKIM (_domainkey), DMARC (_dmarc), SRV records, etc.
+const hostnameRegex = /^(@|(\*\.)?[a-zA-Z0-9_]([a-zA-Z0-9_-]*[a-zA-Z0-9_])?(\.[a-zA-Z0-9_]([a-zA-Z0-9_-]*[a-zA-Z0-9_])?)*)$/
 
 // IPv4 address
 const ipv4Regex = /^((25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(25[0-5]|2[0-4]\d|[01]?\d\d?)$/
