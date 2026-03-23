@@ -83,9 +83,28 @@ export async function POST(_req: Request, { params }: RouteContext) {
   } else {
     // Local deploy: git pull + build + restart (same server)
     const appDir = `/home/motive-host/webapps/${appSlug}`;
-    const deployKeyPath = `/home/motive-host/.ssh/${appSlug.replace(/-com$/, '')}_deploy`;
+    // Try common deploy key naming patterns
+    const keyBase = `/home/motive-host/.ssh`;
+    const candidates = [
+      `${keyBase}/${appSlug}_deploy`,
+      `${keyBase}/${appSlug.replace(/-com$/, '')}_deploy`,
+      `${keyBase}/${appSlug.replace(/-[a-z]+$/, '')}_deploy`,
+    ];
+    let deployKeyPath = candidates[0]; // default
+    for (const candidate of candidates) {
+      try {
+        await execFileAsync('test', ['-f', candidate]);
+        deployKeyPath = candidate;
+        break;
+      } catch {
+        // try next
+      }
+    }
 
     try {
+      // Remove public symlink before pull (it conflicts with repo's public/ directory)
+      await execFileAsync('bash', ['-c', `test -L ${appDir}/public && rm -f ${appDir}/public || true`]);
+
       // Git pull with per-app deploy key
       await execFileAsync('git', ['-C', appDir, 'pull', 'origin', 'main'], {
         env: { ...process.env, GIT_SSH_COMMAND: `ssh -i ${deployKeyPath} -o StrictHostKeyChecking=no` },
