@@ -4,6 +4,8 @@ import { useState } from 'react';
 import type { RunCloudWebApp, RunCloudSSL, RunCloudDomain, RunCloudGit, RunCloudActionLog } from '@runcloud';
 import SiteOverview from './site-overview';
 import DeploymentTab from './deployment-tab';
+import DiyDeploymentTab from './diy-deployment-tab';
+import EnvVarsTab from './env-vars-tab';
 import ActivityTab from './activity-tab';
 
 interface HostingAppRow {
@@ -15,7 +17,21 @@ interface HostingAppRow {
   runcloud_app_id: number;
   runcloud_server_id: number;
   cached_status: string | null;
+  managed_by: string;
   created_at: string;
+  webhook_enabled?: boolean;
+  git_branch?: string;
+  git_repo?: string | null;
+  deploy_template?: string | null;
+  port?: number | null;
+  ssl_pending?: boolean;
+}
+
+interface LastOperation {
+  operation_type: string;
+  status: string;
+  created_at: string;
+  error_message: string | null;
 }
 
 interface SiteTabsProps {
@@ -27,9 +43,12 @@ interface SiteTabsProps {
   git: RunCloudGit | null;
   actionLog: RunCloudActionLog[];
   sftpHost: string;
+  deployKeyPublic?: string | null;
+  lastOperation?: LastOperation | null;
+  isAdmin?: boolean;
 }
 
-type TabId = 'overview' | 'deployment' | 'activity';
+type TabId = 'overview' | 'deployment' | 'env' | 'activity';
 
 interface Tab {
   id: TabId;
@@ -45,12 +64,21 @@ export default function SiteTabs({
   git,
   actionLog,
   sftpHost,
+  deployKeyPublic,
+  lastOperation,
+  isAdmin,
 }: SiteTabsProps) {
   const [activeTab, setActiveTab] = useState<TabId>('overview');
+  const isDiy = app.managed_by === 'diy';
 
   const tabs: Tab[] = [
     { id: 'overview', label: 'Overview' },
-    ...(app.app_type === 'nodejs' ? [{ id: 'deployment' as const, label: 'Deployment' }] : []),
+    // Deployment tab: shown for Node.js RunCloud apps and all DIY apps
+    ...(isDiy || app.app_type === 'nodejs'
+      ? [{ id: 'deployment' as const, label: 'Deployment' }]
+      : []),
+    // Env vars: only for DIY apps, admin-only (backend is admin-gated)
+    ...(isDiy && isAdmin ? [{ id: 'env' as const, label: 'Environment' }] : []),
     { id: 'activity', label: 'Activity' },
   ];
 
@@ -82,13 +110,27 @@ export default function SiteTabs({
         />
       )}
 
-      {activeTab === 'deployment' && app.app_type === 'nodejs' && (
+      {activeTab === 'deployment' && isDiy && (
+        <DiyDeploymentTab
+          appSlug={appSlug}
+          app={app}
+          deployKeyPublic={deployKeyPublic ?? null}
+          lastOperation={lastOperation ?? null}
+          isAdmin={isAdmin}
+        />
+      )}
+
+      {activeTab === 'deployment' && !isDiy && app.app_type === 'nodejs' && (
         <DeploymentTab
           appSlug={appSlug}
           app={app}
           git={git}
           sftpHost={sftpHost}
         />
+      )}
+
+      {activeTab === 'env' && isDiy && (
+        <EnvVarsTab appSlug={appSlug} />
       )}
 
       {activeTab === 'activity' && (

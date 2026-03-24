@@ -1,6 +1,8 @@
 import { redirect, notFound } from 'next/navigation';
+import { readFile } from 'node:fs/promises';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { getRunCloudClient } from '@/lib/runcloud-client';
 import SiteTabs from '@/components/hosting/site-tabs';
 import type { RunCloudDomain, RunCloudActionLog } from '@runcloud';
@@ -22,7 +24,7 @@ export default async function SiteDetailPage({ params }: PageProps) {
   // Fetch the hosting app by slug -- RLS ensures customer_id matches
   const { data: app } = await supabase
     .from('hosting_apps')
-    .select('id, app_slug, app_name, app_type, primary_domain, runcloud_app_id, runcloud_server_id, cached_status, managed_by, created_at, ssl_pending, domain_aliases')
+    .select('id, app_slug, app_name, app_type, primary_domain, runcloud_app_id, runcloud_server_id, cached_status, managed_by, created_at, ssl_pending, domain_aliases, webhook_enabled, git_branch, git_repo, deploy_template, port')
     .eq('app_slug', appSlug)
     .eq('customer_id', user.id)
     .single();
@@ -37,6 +39,9 @@ export default async function SiteDetailPage({ params }: PageProps) {
   let domains: RunCloudDomain[] = [];
   let git = null;
   let actionLog: RunCloudActionLog[] = [];
+  let deployKeyPublic: string | null = null;
+  let lastOperation: { operation_type: string; status: string; created_at: string; error_message: string | null } | null = null;
+  let isAdmin = false;
 
   if (app.managed_by !== 'diy') {
     try {
@@ -108,7 +113,39 @@ export default async function SiteDetailPage({ params }: PageProps) {
       webapp_id: 0,
       created_at: app.created_at,
     }));
+
+    // Read the deploy key public key from disk (best-effort)
+    try {
+      deployKeyPublic = await readFile(
+        `/home/motive-host/.ssh/${app.app_slug}_deploy.pub`,
+        'utf-8',
+      );
+    } catch {
+      // Deploy key may not exist (e.g., static site with no git repo)
+    }
+
+    // Fetch most recent operation for this app
+    const adminDb = createAdminClient();
+    const { data: recentOp } = await adminDb
+      .from('hosting_operations')
+      .select('operation_type, status, created_at, error_message')
+      .eq('hosting_app_id', app.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (recentOp) {
+      lastOperation = recentOp;
+    }
   }
+
+  // Check admin status for gating admin-only UI sections
+  const { data: customer } = await supabase
+    .from('customers')
+    .select('is_admin')
+    .eq('id', user.id)
+    .single();
+  isAdmin = customer?.is_admin === true;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12">
@@ -134,6 +171,9 @@ export default async function SiteDetailPage({ params }: PageProps) {
         git={git}
         actionLog={actionLog}
         sftpHost={process.env.RUNCLOUD_SERVER_IP ?? ''}
+        deployKeyPublic={deployKeyPublic}
+        lastOperation={lastOperation}
+        isAdmin={isAdmin}
       />
     </div>
   );

@@ -11,6 +11,7 @@ interface SiteCardProps {
     cached_status: string | null;
     cached_ssl_expiry: string | null;
     cached_last_deploy: string | null;
+    managed_by?: string;
   };
   live?: {
     status: string | null;
@@ -48,6 +49,7 @@ function formatExpiryDate(iso: string): string {
 }
 
 export default function SiteCard({ app, live }: SiteCardProps) {
+  const isDiy = app.managed_by === 'diy';
   const effectiveStatus = (live?.status ?? app.cached_status) as
     | 'running'
     | 'stopped'
@@ -72,6 +74,11 @@ export default function SiteCard({ app, live }: SiteCardProps) {
               >
                 {typeStyle.label}
               </span>
+              {isDiy && (
+                <span className="inline-block rounded-full bg-gold/10 px-2 py-0.5 text-xs font-medium text-gold">
+                  DIY
+                </span>
+              )}
             </div>
             <p className="mt-0.5 truncate font-mono text-xs text-slate">
               {app.primary_domain}
@@ -79,7 +86,15 @@ export default function SiteCard({ app, live }: SiteCardProps) {
           </div>
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate sm:flex-col sm:items-end sm:gap-y-0.5">
-            <StatusBadge status={effectiveStatus} />
+            {/* For DIY static apps, show "Static" instead of a process status */}
+            {isDiy && app.app_type === 'static' ? (
+              <span className="inline-flex items-center text-xs text-slate">
+                <span className="mr-1.5 inline-block h-2 w-2 rounded-full bg-purple-400" />
+                Static
+              </span>
+            ) : (
+              <StatusBadge status={effectiveStatus} />
+            )}
             {sslExpiry ? (
               <span>SSL expires {formatExpiryDate(sslExpiry)}</span>
             ) : (
