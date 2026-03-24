@@ -32,12 +32,8 @@ cd "$APP_DIR"
 __SUBDIR_CD__
 BUILD_DIR="$(pwd)"
 
-# Load environment variables if .env exists
-if [ -f "$APP_DIR/.env" ]; then
-  set -a
-  source "$APP_DIR/.env"
-  set +a
-fi
+# .env is read by the app via framework-native loading (Next.js, dotenv).
+# Deploy scripts do NOT source .env -- see architecture doc Section 7.
 
 npm install --production=false
 npm run build
@@ -64,12 +60,8 @@ APP_PORT=__PORT__
 cd "$APP_DIR"
 __SUBDIR_CD__
 
-# Load environment variables if .env exists
-if [ -f "$APP_DIR/.env" ]; then
-  set -a
-  source "$APP_DIR/.env"
-  set +a
-fi
+# .env is read by the app via framework-native loading (dotenv).
+# Deploy scripts do NOT source .env -- see architecture doc Section 7.
 
 npm install --production=false
 
@@ -94,12 +86,8 @@ APP_PORT=__PORT__
 cd "$APP_DIR"
 __SUBDIR_CD__
 
-# Load environment variables if .env exists
-if [ -f "$APP_DIR/.env" ]; then
-  set -a
-  source "$APP_DIR/.env"
-  set +a
-fi
+# .env is read by the app via framework-native loading (dotenv).
+# Deploy scripts do NOT source .env -- see architecture doc Section 7.
 
 npm install --production=false
 

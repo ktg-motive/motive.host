@@ -1,7 +1,7 @@
 // app/lib/server-mgmt/index.ts
 // Barrel export for all server management modules.
 
-export { execLocal, execSudo, execBash, writeSudoFile, ExecError, BUILD_TIMEOUT, CLONE_TIMEOUT, CERTBOT_TIMEOUT } from './exec';
+export { execLocal, execSudo, execBash, writeSudoFile, ExecError, assertValidSlug, BUILD_TIMEOUT, CLONE_TIMEOUT, CERTBOT_TIMEOUT } from './exec';
 export type { ExecResult } from './exec';
 
 export {
@@ -19,11 +19,21 @@ export {
 } from './provision';
 export type { ProvisionAppOptions } from './provision';
 
+export { pullLatest, deployAndRestart, writeDeployLog } from './deploy';
+export type { DeployOptions, DeployResult } from './deploy';
+
+export { restartApp, stopApp, getAppStatus, renewSSL, getDeployLog, getAppLogs } from './actions';
+
+export {
+  verifyGitHubSignature, verifyGitLabToken,
+  extractBranch, shouldDeploy, generateWebhookSecret,
+} from './webhook';
+
 export { encryptValue, decryptValue, isValidEnvKey, renderDotEnv, writeEnvFile, readEnvFile } from './env';
 export type { EnvVar } from './env';
 
 export {
-  beginOperation, heartbeat, completeOperation, failOperation,
+  beginOperation, heartbeat, startHeartbeat, completeOperation, failOperation,
   recoverStaleOperations, getActiveOperation, getRecentOperations,
   OPERATION_TIMEOUTS, HEARTBEAT_INTERVAL, STALE_THRESHOLD,
 } from './operations';

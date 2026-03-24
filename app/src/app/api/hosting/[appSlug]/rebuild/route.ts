@@ -1,12 +1,16 @@
 import { NextResponse } from 'next/server';
-import { execFile } from 'child_process';
-import { promisify } from 'util';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getRunCloudClient } from '@/lib/runcloud-client';
 import { handleRunCloudError } from '@/lib/api-utils';
-
-const execFileAsync = promisify(execFile);
+import { restartApp } from '../../../../../../lib/server-mgmt/actions';
+import {
+  beginOperation,
+  completeOperation,
+  failOperation,
+  recoverStaleOperations,
+  startHeartbeat,
+} from '../../../../../../lib/server-mgmt/operations';
 
 interface RouteContext {
   params: Promise<{ appSlug: string }>;
@@ -59,16 +63,40 @@ export async function POST(_req: Request, { params }: RouteContext) {
       );
     }
 
-    try {
-      await execFileAsync('pm2', ['restart', app.app_slug], { timeout: 15_000 });
-    } catch (err) {
-      console.error(`[rebuild] PM2 restart failed for ${app.app_slug}:`, err);
+    // Recover any stale operations before checking for active ones
+    await recoverStaleOperations(adminDb).catch(() => { /* best-effort */ });
+
+    const operation = await beginOperation(adminDb, app.id, 'restart', 'api');
+    if (!operation) {
       return NextResponse.json(
-        { error: 'Restart failed — check server logs' },
-        { status: 500 },
+        { error: 'Another operation is already in progress for this app' },
+        { status: 409 },
       );
     }
+
+    const stopHeartbeat = startHeartbeat(adminDb, operation.id);
+    try {
+      await restartApp(app.app_slug);
+      await completeOperation(adminDb, operation.id);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Restart failed';
+      await failOperation(adminDb, operation.id, message).catch(() => { /* best-effort */ });
+      console.error(`[rebuild] PM2 restart failed for ${app.app_slug}:`, err);
+      return NextResponse.json(
+        { error: 'Restart failed -- check server logs', operation_id: operation.id },
+        { status: 500 },
+      );
+    } finally {
+      stopHeartbeat();
+    }
   } else {
+    if (!app.runcloud_app_id) {
+      return NextResponse.json(
+        { error: 'RunCloud app ID not configured' },
+        { status: 400 },
+      );
+    }
+
     const rc = getRunCloudClient();
     try {
       await rc.rebuildApp(app.runcloud_app_id);
@@ -78,13 +106,15 @@ export async function POST(_req: Request, { params }: RouteContext) {
     }
   }
 
-  // 5. Log activity (best-effort — don't fail the request if this fails)
+  // 5. Log activity (best-effort)
   try {
     await adminDb.from('hosting_activity').insert({
       customer_id: user.id,
       hosting_app_id: app.id,
       action: 'rebuild',
-      description: 'App rebuild triggered',
+      description: app.managed_by === 'diy'
+        ? `PM2 process restarted for ${app.app_slug}`
+        : 'App rebuild triggered via RunCloud',
       status: 'success',
     });
   } catch (err) {

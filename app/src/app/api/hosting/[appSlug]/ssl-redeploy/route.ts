@@ -3,7 +3,14 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getRunCloudClient } from '@/lib/runcloud-client';
 import { handleRunCloudError } from '@/lib/api-utils';
-import { execSudo, CERTBOT_TIMEOUT } from '../../../../../../lib/server-mgmt/exec';
+import { renewSSL } from '../../../../../../lib/server-mgmt/actions';
+import {
+  beginOperation,
+  completeOperation,
+  failOperation,
+  recoverStaleOperations,
+  startHeartbeat,
+} from '../../../../../../lib/server-mgmt/operations';
 
 interface RouteContext {
   params: Promise<{ appSlug: string }>;
@@ -47,10 +54,10 @@ export async function POST(_req: Request, { params }: RouteContext) {
     );
   }
 
-  // 4. Redeploy SSL — branch on managed_by
+  // 4. Redeploy SSL -- branch on managed_by
   if (app.managed_by === 'diy') {
     // DIY: force-renew via certbot
-    // Cert name uses the bare domain (www. stripped) — matches how provisioning issues the cert
+    // Cert name uses the bare domain (www. stripped) -- matches how provisioning issues the cert
     const certDomain = app.primary_domain?.toLowerCase().replace(/^www\./, '');
     if (!certDomain) {
       return NextResponse.json(
@@ -59,18 +66,41 @@ export async function POST(_req: Request, { params }: RouteContext) {
       );
     }
 
+    // Recover any stale operations before checking for active ones
+    await recoverStaleOperations(adminDb).catch(() => { /* best-effort */ });
+
+    const operation = await beginOperation(adminDb, app.id, 'ssl_renew', 'api');
+    if (!operation) {
+      return NextResponse.json(
+        { error: 'Another operation is already in progress for this app' },
+        { status: 409 },
+      );
+    }
+
+    const stopHeartbeat = startHeartbeat(adminDb, operation.id);
     try {
-      await execSudo('certbot', ['renew', '--force-renewal', '--cert-name', certDomain], { timeout: CERTBOT_TIMEOUT });
-      await execSudo('systemctl', ['reload', 'nginx-rc']);
+      await renewSSL(certDomain);
+      await completeOperation(adminDb, operation.id);
     } catch (err) {
+      const message = err instanceof Error ? err.message : 'SSL renewal failed';
+      await failOperation(adminDb, operation.id, message).catch(() => { /* best-effort */ });
       console.error(`[ssl-redeploy] certbot renew failed for ${certDomain}:`, err);
       return NextResponse.json(
-        { error: 'SSL renewal failed — check server logs' },
+        { error: 'SSL renewal failed -- check server logs', operation_id: operation.id },
         { status: 500 },
       );
+    } finally {
+      stopHeartbeat();
     }
   } else {
     // RunCloud-managed: use RunCloud API
+    if (!app.runcloud_app_id) {
+      return NextResponse.json(
+        { error: 'RunCloud app ID not configured' },
+        { status: 400 },
+      );
+    }
+
     const rc = getRunCloudClient();
     let ssl;
     try {

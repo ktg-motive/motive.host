@@ -48,6 +48,32 @@ export const HEARTBEAT_INTERVAL = 30_000;
 export const STALE_THRESHOLD = 2 * 60_000;
 
 // ---------------------------------------------------------------------------
+// Heartbeat Timer
+// ---------------------------------------------------------------------------
+
+/**
+ * Start a background heartbeat that keeps an operation alive while work runs.
+ * Returns a cleanup function that MUST be called when the operation finishes
+ * (success or failure) to stop the interval.
+ *
+ * Usage:
+ *   const stopHeartbeat = startHeartbeat(adminDb, operation.id);
+ *   try { await longRunningWork(); } finally { stopHeartbeat(); }
+ */
+export function startHeartbeat(
+  adminDb: SupabaseClient,
+  operationId: string,
+): () => void {
+  const timer = setInterval(() => {
+    heartbeat(adminDb, operationId).catch((err) => {
+      console.error(`[heartbeat] Failed for operation ${operationId}:`, err);
+    });
+  }, HEARTBEAT_INTERVAL);
+
+  return () => clearInterval(timer);
+}
+
+// ---------------------------------------------------------------------------
 // Operations
 // ---------------------------------------------------------------------------
 
@@ -110,12 +136,23 @@ export async function completeOperation(
   operationId: string,
   metadata?: Record<string, unknown>,
 ): Promise<void> {
+  // Merge new metadata with existing (preserves context from beginOperation)
+  let mergedMetadata: Record<string, unknown> | undefined;
+  if (metadata) {
+    const { data: existing } = await adminDb
+      .from('hosting_operations')
+      .select('metadata')
+      .eq('id', operationId)
+      .single();
+    mergedMetadata = { ...(existing?.metadata as Record<string, unknown> ?? {}), ...metadata };
+  }
+
   const updates: Record<string, unknown> = {
     status: 'succeeded',
     finished_at: new Date().toISOString(),
   };
-  if (metadata) {
-    updates.metadata = metadata;
+  if (mergedMetadata) {
+    updates.metadata = mergedMetadata;
   }
   await adminDb
     .from('hosting_operations')
@@ -133,13 +170,24 @@ export async function failOperation(
   errorMessage: string,
   metadata?: Record<string, unknown>,
 ): Promise<void> {
+  // Merge new metadata with existing (preserves context from beginOperation)
+  let mergedMetadata: Record<string, unknown> | undefined;
+  if (metadata) {
+    const { data: existing } = await adminDb
+      .from('hosting_operations')
+      .select('metadata')
+      .eq('id', operationId)
+      .single();
+    mergedMetadata = { ...(existing?.metadata as Record<string, unknown> ?? {}), ...metadata };
+  }
+
   const updates: Record<string, unknown> = {
     status: 'failed',
     finished_at: new Date().toISOString(),
     error_message: errorMessage.slice(0, 2000),
   };
-  if (metadata) {
-    updates.metadata = metadata;
+  if (mergedMetadata) {
+    updates.metadata = mergedMetadata;
   }
   await adminDb
     .from('hosting_operations')

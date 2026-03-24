@@ -27,6 +27,19 @@ export const CLONE_TIMEOUT = 120_000;
 /** Timeout for certbot operations (60 seconds). */
 export const CERTBOT_TIMEOUT = 60_000;
 
+const VALID_SLUG = /^[a-z0-9][a-z0-9-]*$/;
+
+/**
+ * Validate an app slug before using it in file paths or shell arguments.
+ * Prevents path traversal (../) and shell metacharacter injection.
+ * Throws if the slug is invalid.
+ */
+export function assertValidSlug(slug: string): void {
+  if (!VALID_SLUG.test(slug)) {
+    throw new Error(`Invalid app slug: ${JSON.stringify(slug)}`);
+  }
+}
+
 /** Result of a successful command execution. */
 export interface ExecResult {
   stdout: string;
