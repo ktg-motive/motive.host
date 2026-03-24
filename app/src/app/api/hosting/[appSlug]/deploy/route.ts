@@ -32,14 +32,14 @@ export async function POST(_req: Request, { params }: RouteContext) {
   if (customer?.is_admin) {
     const { data } = await adminDb
       .from('hosting_apps')
-      .select('id, app_slug, app_type, app_name, runcloud_app_id, customer_id, deploy_template, deploy_method, port')
+      .select('id, app_slug, app_type, app_name, runcloud_app_id, customer_id, deploy_template, deploy_method, port, git_branch, git_subdir')
       .eq('app_slug', appSlug)
       .single();
     app = data;
   } else {
     const { data } = await supabase
       .from('hosting_apps')
-      .select('id, app_slug, app_type, app_name, runcloud_app_id, customer_id, deploy_template, deploy_method, port')
+      .select('id, app_slug, app_type, app_name, runcloud_app_id, customer_id, deploy_template, deploy_method, port, git_branch, git_subdir')
       .eq('app_slug', appSlug)
       .eq('customer_id', user.id)
       .single();
@@ -101,14 +101,20 @@ export async function POST(_req: Request, { params }: RouteContext) {
       }
     }
 
+    const branch = app.git_branch || 'main';
+    const workDir = app.git_subdir ? `${appDir}/${app.git_subdir}` : appDir;
+
     try {
       // Remove public symlink so git can restore the real public/ directory
       await execFileAsync('bash', ['-c', `test -L ${appDir}/public && rm -f ${appDir}/public || true`]);
 
-      // Git pull with per-app deploy key
-      await execFileAsync('git', ['-C', appDir, 'pull', 'origin', 'main'], {
+      // Git fetch + reset with per-app deploy key (supports non-main branches)
+      await execFileAsync('git', ['-C', appDir, 'fetch', 'origin', branch], {
         env: { ...process.env, GIT_SSH_COMMAND: `ssh -i ${deployKeyPath} -o StrictHostKeyChecking=no` },
         timeout: 30_000,
+      });
+      await execFileAsync('git', ['-C', appDir, 'reset', '--hard', `origin/${branch}`], {
+        timeout: 10_000,
       });
 
       // Force-restore public/ from git (in case pull didn't restore it)
@@ -116,16 +122,16 @@ export async function POST(_req: Request, { params }: RouteContext) {
         timeout: 10_000,
       }).catch(() => { /* public/ may not exist in repo */ });
 
-      // Install dependencies
+      // Install dependencies (in subdir if applicable)
       await execFileAsync('npm', ['install', '--production=false'], {
-        cwd: appDir,
+        cwd: workDir,
         timeout: 120_000,
       });
 
       // Build (Vite copies public/ into dist/ during this step)
       try {
         await execFileAsync('npm', ['run', 'build'], {
-          cwd: appDir,
+          cwd: workDir,
           timeout: 120_000,
         });
       } catch {
@@ -134,9 +140,10 @@ export async function POST(_req: Request, { params }: RouteContext) {
 
       // For static sites (Vite etc): replace public/ with symlink to dist/ AFTER build
       // Vite needs public/ as a real directory during build to copy assets into dist/
-      const { stdout: lsStat } = await execFileAsync('ls', ['-d', `${appDir}/dist`]).catch(() => ({ stdout: '' }));
+      const distDir = app.git_subdir ? `${workDir}/dist` : `${appDir}/dist`;
+      const { stdout: lsStat } = await execFileAsync('ls', ['-d', distDir]).catch(() => ({ stdout: '' }));
       if (lsStat.trim()) {
-        await execFileAsync('bash', ['-c', `rm -rf ${appDir}/public && ln -sfn ${appDir}/dist ${appDir}/public`]);
+        await execFileAsync('bash', ['-c', `rm -rf ${appDir}/public && ln -sfn ${distDir} ${appDir}/public`]);
       }
 
       // For Node.js apps with PM2: restart
@@ -146,7 +153,7 @@ export async function POST(_req: Request, { params }: RouteContext) {
         } catch {
           // App might not be running yet — start it
           await execFileAsync('bash', ['-c',
-            `cd ${appDir} && PORT=${app.port} pm2 start npm --name "${appSlug}" -- start && pm2 save`
+            `cd ${workDir} && PORT=${app.port} pm2 start npm --name "${appSlug}" -- start && pm2 save`
           ]);
         }
       }

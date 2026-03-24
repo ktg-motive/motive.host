@@ -8,6 +8,16 @@ import { sendWelcomeHostingEmail } from '@/lib/sendgrid';
 import { generateDeployScript } from '../../../../../lib/deploy-scripts';
 import { writeNginxConfigs } from '../../../../../lib/nginx-config';
 import { getOpenSRSClient } from '@/lib/opensrs-client';
+import {
+  provisionApp,
+  rollbackProvision,
+  encryptValue,
+  writeEnvFile,
+  beginOperation,
+  completeOperation,
+  failOperation,
+} from '../../../../../lib/server-mgmt';
+import type { AppTemplate, EnvVar } from '../../../../../lib/server-mgmt';
 
 const MAX_PORT_RETRIES = 3;
 const BASE_PORT = 3000; // first app gets 3001
@@ -48,6 +58,17 @@ export async function POST(request: Request) {
   const input = parsed.data;
   const safeInputForLogging = { ...input, wp_admin_password: input.wp_admin_password ? '[REDACTED]' : undefined };
 
+  // WordPress with DIY is not supported
+  const isWordPress = input.app_type === 'wordpress';
+  const useDiy = !isWordPress;
+
+  if (isWordPress && useDiy) {
+    return NextResponse.json(
+      { error: 'WordPress is not supported with DIY server management. Use RunCloud.' },
+      { status: 400 },
+    );
+  }
+
   // Verify target customer exists
   const adminDb = createAdminClient();
   const { data: targetCustomer } = await adminDb
@@ -64,7 +85,7 @@ export async function POST(request: Request) {
   const normalizedDomain = input.primary_domain.toLowerCase().replace(/^www\./, '');
   const appSlug = normalizedDomain.replace(/\./g, '-');
 
-  // Check slug uniqueness before touching RunCloud (avoids orphaned apps)
+  // Check slug uniqueness
   const { data: existingApp } = await adminDb
     .from('hosting_apps')
     .select('id')
@@ -78,11 +99,350 @@ export async function POST(request: Request) {
     );
   }
 
-  // ── Step 3: Create RunCloud webapp ────────────────────────────────────
+  // ── Branch: DIY vs RunCloud ───────────────────────────────────────────
+  if (useDiy) {
+    return provisionDiy({ input, user, adminDb, targetCustomer, appSlug, normalizedDomain, warnings, safeInputForLogging });
+  } else {
+    return provisionRunCloud({ input, user, adminDb, targetCustomer, appSlug, normalizedDomain, warnings, safeInputForLogging });
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// DIY Provisioning Path
+// ════════════════════════════════════════════════════════════════════════════
+
+interface ProvisionContext {
+  input: ReturnType<typeof provisionSiteSchema.parse>;
+  user: { id: string };
+  adminDb: ReturnType<typeof createAdminClient>;
+  targetCustomer: { id: string; email: string | null; name: string | null; plan: string | null };
+  appSlug: string;
+  normalizedDomain: string;
+  warnings: string[];
+  safeInputForLogging: Record<string, unknown>;
+}
+
+async function provisionDiy(ctx: ProvisionContext) {
+  const { input, user, adminDb, targetCustomer, appSlug, normalizedDomain, warnings, safeInputForLogging } = ctx;
+
+  // ── Calculate port (static apps don't need one) ───────────────────────
+  let assignedPort: number | null = null;
+  const needsPort = input.app_type !== 'static';
+
+  if (needsPort) {
+    const { data: maxPortRow } = await adminDb
+      .from('hosting_apps')
+      .select('port')
+      .not('port', 'is', null)
+      .order('port', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    assignedPort = (maxPortRow?.port ?? BASE_PORT) + 1;
+  }
+
+  // ── Auto-configure DNS ────────────────────────────────────────────────
+  let sslPending = false;
+  const serverIp = process.env.RUNCLOUD_SERVER_IP;
+  const dnsOwnership = input.dns_ownership ?? 'motive';
+
+  console.log('[provision/diy] checking DNS for domain', normalizedDomain);
+  const { data: managedDomain } = await adminDb
+    .from('domains')
+    .select('id, domain_name')
+    .eq('domain_name', normalizedDomain)
+    .maybeSingle();
+
+  if (dnsOwnership === 'motive' && managedDomain && serverIp) {
+    console.log('[provision/diy] Motive-managed domain -- auto-configuring DNS');
+    try {
+      const opensrs = getOpenSRSClient();
+      let existingRecords: Array<{ type: string; subdomain: string; ip_address?: string; hostname?: string }> = [];
+      try {
+        const zone = await opensrs.getDnsZone(normalizedDomain);
+        existingRecords = zone.records;
+      } catch {
+        // Zone may not exist yet
+      }
+
+      type DnsChange = Parameters<typeof opensrs.updateDnsRecords>[1][number];
+      const changes: DnsChange[] = [];
+
+      for (const r of existingRecords) {
+        if (r.type === 'A' && (r.subdomain === '@' || r.subdomain === '') && r.ip_address !== serverIp) {
+          changes.push({ action: 'remove', record: r as DnsChange['record'] });
+        }
+        if (r.subdomain === 'www' && !(r.type === 'CNAME' && r.hostname === `${normalizedDomain}.`)) {
+          changes.push({ action: 'remove', record: r as DnsChange['record'] });
+        }
+      }
+
+      changes.push(
+        { action: 'add', record: { type: 'A', subdomain: '@', ip_address: serverIp } },
+        { action: 'add', record: { type: 'CNAME', subdomain: 'www', hostname: `${normalizedDomain}.` } },
+      );
+
+      await opensrs.updateDnsRecords(normalizedDomain, changes);
+      console.log('[provision/diy] DNS configured');
+    } catch (err) {
+      console.error('[provision/diy] DNS auto-config failed', err);
+      warnings.push(`DNS auto-config failed for ${normalizedDomain}. Configure A/CNAME records manually.`);
+      sslPending = true;
+    }
+  } else {
+    if (dnsOwnership === 'external') {
+      console.log('[provision/diy] external domain -- skipping DNS auto-config');
+    } else if (!managedDomain) {
+      console.log('[provision/diy] domain not in domains table -- skipping DNS auto-config');
+    } else {
+      console.log('[provision/diy] RUNCLOUD_SERVER_IP not set -- skipping DNS');
+      warnings.push('RUNCLOUD_SERVER_IP env var not set -- DNS auto-config skipped.');
+    }
+    sslPending = true;
+  }
+
+  // ── Derive template ───────────────────────────────────────────────────
+  let template: AppTemplate;
+  if (input.app_type === 'static') {
+    template = 'static';
+  } else if (input.deploy_template) {
+    template = input.deploy_template as AppTemplate;
+  } else {
+    template = 'generic';
+  }
+
+  // ── DB insert FIRST (source of truth) ─────────────────────────────────
+  console.log('[provision/diy] inserting hosting_apps record');
+  let hostingApp: Record<string, unknown> | null = null;
+  let insertSucceeded = false;
+
+  for (let attempt = 0; attempt < MAX_PORT_RETRIES; attempt++) {
+    const { data, error: insertError } = await adminDb
+      .from('hosting_apps')
+      .insert({
+        customer_id: input.customer_id,
+        runcloud_app_id: null,
+        runcloud_server_id: parseInt(process.env.RUNCLOUD_SERVER_ID ?? '338634', 10),
+        app_slug: appSlug,
+        app_name: input.app_name,
+        app_type: input.app_type,
+        primary_domain: input.primary_domain,
+        provisioned_by: user.id,
+        port: assignedPort,
+        git_subdir: input.git_subdir || null,
+        deploy_template: input.deploy_template || null,
+        deploy_method: input.git_provider || input.deploy_method || null,
+        ssl_pending: sslPending,
+        managed_by: 'diy',
+        git_repo: input.git_repository || null,
+        git_branch: input.git_branch || 'main',
+        www_behavior: input.www_behavior || 'add_www',
+        dns_ownership: dnsOwnership,
+      })
+      .select()
+      .single();
+
+    if (!insertError) {
+      hostingApp = data;
+      insertSucceeded = true;
+      break;
+    }
+
+    // Port collision -- retry with next port
+    if (insertError.code === '23505' && insertError.message?.includes('port') && assignedPort !== null) {
+      console.warn(`[provision/diy] port ${assignedPort} collision, retrying with ${assignedPort + 1}`);
+      assignedPort++;
+      continue;
+    }
+
+    // Non-port duplicate (slug)
+    if (insertError.code === '23505') {
+      return NextResponse.json(
+        { error: 'Duplicate -- this slug is already in use' },
+        { status: 409 },
+      );
+    }
+
+    console.error('[provision/diy] DB insert failed:', insertError);
+    return NextResponse.json(
+      { error: 'Failed to create app record in database' },
+      { status: 500 },
+    );
+  }
+
+  if (!insertSucceeded || !hostingApp) {
+    return NextResponse.json(
+      { error: `Port assignment failed after ${MAX_PORT_RETRIES} retries` },
+      { status: 500 },
+    );
+  }
+
+  const hostingAppId = hostingApp.id as string;
+  console.log('[provision/diy] DB insert complete: id =', hostingAppId, 'port =', assignedPort);
+
+  // ── Create durable operation record ───────────────────────────────────
+  const operation = await beginOperation(adminDb, hostingAppId, 'provision', 'api', {
+    domain: input.primary_domain,
+    template,
+  });
+
+  if (!operation) {
+    // Another operation is already running for this app (shouldn't happen during provision)
+    console.error('[provision/diy] Failed to begin operation -- concurrent operation exists');
+    // Clean up the DB row we just inserted
+    await adminDb.from('hosting_apps').delete().eq('id', hostingAppId);
+    return NextResponse.json(
+      { error: 'Another operation is already in progress for this app' },
+      { status: 409 },
+    );
+  }
+
+  // ── Server-side provisioning ──────────────────────────────────────────
+  try {
+    const result = await provisionApp({
+      appSlug,
+      domain: normalizedDomain,
+      template,
+      port: assignedPort ?? undefined,
+      gitRepo: input.git_repository,
+      gitBranch: input.git_branch,
+      gitSubdir: input.git_subdir,
+      aliases: [],
+      wwwBehavior: input.www_behavior ?? 'add_www',
+      dnsOwnership,
+    });
+
+    // Update ssl_pending based on actual SSL result
+    if (result.sslInstalled && sslPending) {
+      await adminDb
+        .from('hosting_apps')
+        .update({ ssl_pending: false })
+        .eq('id', hostingAppId);
+      sslPending = false;
+    } else if (!result.sslInstalled && !sslPending) {
+      // SSL was attempted but failed
+      await adminDb
+        .from('hosting_apps')
+        .update({ ssl_pending: true })
+        .eq('id', hostingAppId);
+      sslPending = true;
+      warnings.push('SSL installation failed -- install manually or retry later.');
+    }
+
+    if (!result.sslInstalled) {
+      warnings.push('SSL not installed. Configure DNS first, then install SSL via the dashboard.');
+    }
+
+    if (input.git_repository && !result.gitCloned) {
+      warnings.push('Git clone failed -- add the deploy key to your repository and redeploy.');
+    }
+
+    // ── Write env vars (if provided) ──────────────────────────────────
+    if (input.env_vars && input.env_vars.length > 0) {
+      try {
+        const envRows: EnvVar[] = [];
+        for (const ev of input.env_vars) {
+          const encrypted = encryptValue(ev.value);
+          const { error: envError } = await adminDb
+            .from('hosting_app_env_vars')
+            .insert({
+              hosting_app_id: hostingAppId,
+              key: ev.key,
+              encrypted_value: encrypted,
+              is_secret: ev.is_secret ?? false,
+            });
+
+          if (envError) {
+            console.error(`[provision/diy] Failed to insert env var "${ev.key}":`, envError);
+            warnings.push(`Failed to save env var "${ev.key}".`);
+          } else {
+            envRows.push({ key: ev.key, encrypted_value: encrypted, is_secret: ev.is_secret ?? false });
+          }
+        }
+
+        // Write .env file to disk
+        if (envRows.length > 0) {
+          try {
+            await writeEnvFile(appSlug, envRows);
+          } catch (err) {
+            console.error('[provision/diy] Failed to write .env file:', err);
+            warnings.push('Failed to write .env file to app directory.');
+          }
+        }
+      } catch (err) {
+        console.error('[provision/diy] env vars processing failed:', err);
+        warnings.push('Environment variable setup failed.');
+      }
+    }
+
+    // ── Complete the operation ───────────────────────────────────────────
+    await completeOperation(adminDb, operation.id, {
+      sslInstalled: result.sslInstalled,
+      gitCloned: result.gitCloned,
+      deployKeyPublic: result.deployKeyPublic,
+      warnings,
+    });
+
+    // ── Welcome email ───────────────────────────────────────────────────
+    if (targetCustomer.email) {
+      sendWelcomeHostingEmail(
+        targetCustomer.email,
+        targetCustomer.name ?? '',
+        targetCustomer.plan ?? 'harbor',
+        input.app_name,
+        input.primary_domain,
+      ).catch((err) => console.error('[provision/diy] welcome email failed:', err));
+    }
+
+    console.log('[provision/diy] complete -- appSlug:', appSlug, 'input:', safeInputForLogging);
+
+    return NextResponse.json(
+      {
+        success: true,
+        app: {
+          id: hostingAppId,
+          slug: appSlug,
+          domain: input.primary_domain,
+          managed_by: 'diy',
+          ssl_pending: sslPending,
+          deploy_key_public: result.deployKeyPublic,
+        },
+        warnings,
+      },
+      { status: 201 },
+    );
+  } catch (err) {
+    // Fatal server-side failure after DB insert -- rollback
+    console.error('[provision/diy] server-side provisioning failed:', err);
+
+    await failOperation(adminDb, operation.id, err instanceof Error ? err.message : 'Unknown provisioning error');
+
+    // Clean up server state
+    await rollbackProvision(appSlug);
+
+    // Delete the DB row
+    await adminDb.from('hosting_apps').delete().eq('id', hostingAppId);
+
+    return NextResponse.json(
+      { error: 'Provisioning failed. Server state has been cleaned up. Check logs and retry.' },
+      { status: 500 },
+    );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// RunCloud Provisioning Path (existing code, WordPress only going forward)
+// ════════════════════════════════════════════════════════════════════════════
+
+async function provisionRunCloud(ctx: ProvisionContext) {
+  const { input, user, adminDb, targetCustomer, appSlug, normalizedDomain, warnings, safeInputForLogging } = ctx;
+
   const isWordPress = input.app_type === 'wordpress';
+
+  // ── Step 3: Create RunCloud webapp ────────────────────────────────────
   const rc = getRunCloudClient();
 
-  console.log('[provision] step 3: creating web app', appSlug);
+  console.log('[provision/rc] step 3: creating web app', appSlug);
   let runcloudApp;
   try {
     runcloudApp = await rc.createWebApp({
@@ -99,32 +459,30 @@ export async function POST(request: Request) {
       mimeSniffingProtection: true,
     });
   } catch (err) {
-    console.error('[provision] step 3 failed: createWebApp', err);
+    console.error('[provision/rc] step 3 failed: createWebApp', err);
     return handleRunCloudError(err);
   }
 
   const appId = runcloudApp.id;
-  console.log('[provision] step 3 complete: appId =', appId);
+  console.log('[provision/rc] step 3 complete: appId =', appId);
 
   // ── Step 4: Attach domain ─────────────────────────────────────────────
-  // createWebApp already attaches the domain via domainName param,
-  // but we try again in case it wasn't included or for additional domains.
-  console.log('[provision] step 4: attaching domain', input.primary_domain);
+  console.log('[provision/rc] step 4: attaching domain', input.primary_domain);
   try {
     await rc.attachDomain(appId, input.primary_domain);
   } catch (err) {
     const errMsg = err instanceof Error ? err.message : '';
     if (errMsg.includes('already exists') || errMsg.includes('Domain already')) {
-      console.log('[provision] step 4: domain already attached (from createWebApp) — continuing');
+      console.log('[provision/rc] step 4: domain already attached (from createWebApp) — continuing');
     } else {
-      console.error('[provision] step 4 failed: attachDomain', err);
+      console.error('[provision/rc] step 4 failed: attachDomain', err);
       warnings.push('Domain attachment failed — may need manual configuration in RunCloud.');
     }
   }
-  console.log('[provision] step 4 complete');
+  console.log('[provision/rc] step 4 complete');
 
   // ── Step 5: Calculate initial port ──────────────────────────────────
-  console.log('[provision] step 5: calculating port');
+  console.log('[provision/rc] step 5: calculating port');
   const { data: maxPortRow } = await adminDb
     .from('hosting_apps')
     .select('port')
@@ -134,13 +492,13 @@ export async function POST(request: Request) {
     .maybeSingle();
 
   let assignedPort = (maxPortRow?.port ?? BASE_PORT) + 1;
-  console.log('[provision] step 5 complete: initial port =', assignedPort);
+  console.log('[provision/rc] step 5 complete: initial port =', assignedPort);
 
   // ── Step 6: Auto-configure DNS ────────────────────────────────────────
   let sslPending = false;
   const serverIp = process.env.RUNCLOUD_SERVER_IP;
 
-  console.log('[provision] step 6: checking DNS for domain', normalizedDomain);
+  console.log('[provision/rc] step 6: checking DNS for domain', normalizedDomain);
   const { data: managedDomain } = await adminDb
     .from('domains')
     .select('id, domain_name')
@@ -148,50 +506,46 @@ export async function POST(request: Request) {
     .maybeSingle();
 
   if (managedDomain && serverIp) {
-    console.log('[provision] step 6: Motive-managed domain — auto-configuring DNS');
+    console.log('[provision/rc] step 6: Motive-managed domain — auto-configuring DNS');
     try {
       const opensrs = getOpenSRSClient();
-      // Fetch existing records to remove conflicting A/@  and CNAME/www entries
       let existingRecords: Array<{ type: string; subdomain: string; ip_address?: string; hostname?: string }> = [];
       try {
         const zone = await opensrs.getDnsZone(normalizedDomain);
         existingRecords = zone.records;
       } catch {
-        // Zone may not exist yet — updateDnsRecords auto-creates
+        // Zone may not exist yet
       }
 
       type DnsChange = Parameters<typeof opensrs.updateDnsRecords>[1][number];
       const changes: DnsChange[] = [];
 
-      // Remove conflicting records at apex (A) and www (any type — A, AAAA, CNAME)
       for (const r of existingRecords) {
         if (r.type === 'A' && (r.subdomain === '@' || r.subdomain === '') && r.ip_address !== serverIp) {
           changes.push({ action: 'remove', record: r as DnsChange['record'] });
         }
-        // www gets a CNAME, so remove any conflicting record type at www
         if (r.subdomain === 'www' && !(r.type === 'CNAME' && r.hostname === `${normalizedDomain}.`)) {
           changes.push({ action: 'remove', record: r as DnsChange['record'] });
         }
       }
 
-      // Add correct records
       changes.push(
         { action: 'add', record: { type: 'A', subdomain: '@', ip_address: serverIp } },
         { action: 'add', record: { type: 'CNAME', subdomain: 'www', hostname: `${normalizedDomain}.` } },
       );
 
       await opensrs.updateDnsRecords(normalizedDomain, changes);
-      console.log('[provision] step 6 complete: DNS configured');
+      console.log('[provision/rc] step 6 complete: DNS configured');
     } catch (err) {
-      console.error('[provision] step 6 failed: DNS auto-config', err);
+      console.error('[provision/rc] step 6 failed: DNS auto-config', err);
       warnings.push(`DNS auto-config failed for ${normalizedDomain}. Configure A/CNAME records manually.`);
       sslPending = true;
     }
   } else {
     if (!managedDomain) {
-      console.log('[provision] step 6 skipped: external domain (not in domains table)');
+      console.log('[provision/rc] step 6 skipped: external domain (not in domains table)');
     } else {
-      console.log('[provision] step 6 skipped: RUNCLOUD_SERVER_IP not set');
+      console.log('[provision/rc] step 6 skipped: RUNCLOUD_SERVER_IP not set');
       warnings.push('RUNCLOUD_SERVER_IP env var not set — DNS auto-config skipped.');
     }
     sslPending = true;
@@ -199,7 +553,7 @@ export async function POST(request: Request) {
 
   // ── Step 7: Install SSL ───────────────────────────────────────────────
   if (!sslPending) {
-    console.log('[provision] step 7: installing SSL');
+    console.log('[provision/rc] step 7: installing SSL');
     try {
       await rc.installSSL(appId, {
         provider: 'letsencrypt',
@@ -211,21 +565,21 @@ export async function POST(request: Request) {
         authorizationMethod: 'http-01',
         sslProtocolId: 2,
       });
-      console.log('[provision] step 7 complete');
+      console.log('[provision/rc] step 7 complete');
     } catch (err) {
-      console.error('[provision] step 7 failed: installSSL', err);
+      console.error('[provision/rc] step 7 failed: installSSL', err);
       sslPending = true;
       warnings.push(`SSL install failed — install manually via the hosting dashboard.`);
     }
   } else {
     const skipReason = !managedDomain ? 'external domain' : 'RUNCLOUD_SERVER_IP not set';
-    console.log(`[provision] step 7 skipped: ${skipReason} — SSL pending`);
+    console.log(`[provision/rc] step 7 skipped: ${skipReason} — SSL pending`);
     warnings.push(`SSL not installed — ${skipReason}. Configure DNS first, then install SSL.`);
   }
 
   // ── Step 7a: WordPress install (WordPress only) ───────────────────────
   if (isWordPress && input.wp_title && input.wp_admin_user && input.wp_admin_password && input.wp_admin_email) {
-    console.log('[provision] step 7a: installing WordPress');
+    console.log('[provision/rc] step 7a: installing WordPress');
     try {
       await rc.installWordPress(appId, {
         title: input.wp_title,
@@ -233,9 +587,9 @@ export async function POST(request: Request) {
         adminPassword: input.wp_admin_password,
         adminEmail: input.wp_admin_email,
       });
-      console.log('[provision] step 7a complete');
+      console.log('[provision/rc] step 7a complete');
     } catch (err) {
-      console.error('[provision] step 7a failed: installWordPress', err);
+      console.error('[provision/rc] step 7a failed: installWordPress', err);
       return NextResponse.json(
         {
           error: `App created (RunCloud ID: ${appId}), domain + SSL configured, but WordPress install failed. Install manually.`,
@@ -246,10 +600,8 @@ export async function POST(request: Request) {
     }
   }
 
-  // ── Step 8: Insert hosting_apps record (confirms port via unique constraint) ──
-  // Port must be confirmed in DB BEFORE writing Nginx config or deploy script,
-  // so that all three use the same port value.
-  console.log('[provision] step 8: inserting hosting_apps record');
+  // ── Step 8: Insert hosting_apps record ──────────────────────────────
+  console.log('[provision/rc] step 8: inserting hosting_apps record');
   let hostingApp;
   let insertSucceeded = false;
 
@@ -269,6 +621,7 @@ export async function POST(request: Request) {
         deploy_template: input.deploy_template || null,
         deploy_method: input.git_provider || input.deploy_method || null,
         ssl_pending: sslPending,
+        managed_by: 'runcloud',
       })
       .select()
       .single();
@@ -281,7 +634,7 @@ export async function POST(request: Request) {
 
     // Port collision — retry with next port
     if (insertError.code === '23505' && insertError.message?.includes('port')) {
-      console.warn(`[provision] step 8: port ${assignedPort} collision, retrying with ${assignedPort + 1}`);
+      console.warn(`[provision/rc] step 8: port ${assignedPort} collision, retrying with ${assignedPort + 1}`);
       assignedPort++;
       continue;
     }
@@ -298,7 +651,7 @@ export async function POST(request: Request) {
     }
 
     // Other DB error
-    console.error('[provision] step 8 failed: insert hosting_apps', insertError);
+    console.error('[provision/rc] step 8 failed: insert hosting_apps', insertError);
     return NextResponse.json(
       {
         error: `RunCloud app provisioned (ID: ${appId}) but failed to save to database. Link manually via POST /api/admin/hosting-apps.`,
@@ -318,30 +671,29 @@ export async function POST(request: Request) {
     );
   }
 
-  console.log('[provision] step 8 complete: confirmed port =', assignedPort);
+  console.log('[provision/rc] step 8 complete: confirmed port =', assignedPort);
 
-  // ── Step 9: Write Nginx proxy configs (uses confirmed port) ───────────
-  // Only for Node.js apps — WordPress uses PHP-FPM, not a proxy
+  // ── Step 9: Write Nginx proxy configs ──────────────────────────────
   if (!isWordPress) {
-    console.log('[provision] step 9: writing Nginx proxy configs');
+    console.log('[provision/rc] step 9: writing Nginx proxy configs');
     try {
       await writeNginxConfigs({
         appSlug,
         port: assignedPort,
         template: input.deploy_template!,
       });
-      console.log('[provision] step 9 complete');
+      console.log('[provision/rc] step 9 complete');
     } catch (err) {
-      console.error('[provision] step 9 failed: writeNginxConfigs', err);
+      console.error('[provision/rc] step 9 failed: writeNginxConfigs', err);
       warnings.push(`Nginx config write failed — configure proxy manually for port ${assignedPort}.`);
     }
   } else {
-    console.log('[provision] step 9 skipped: WordPress app (no proxy needed)');
+    console.log('[provision/rc] step 9 skipped: WordPress app (no proxy needed)');
   }
 
-  // ── Step 10: Configure git with deploy script (uses confirmed port) ───
+  // ── Step 10: Configure git with deploy script ─────────────────────
   if (input.git_provider && input.git_repository) {
-    console.log('[provision] step 10: configuring git');
+    console.log('[provision/rc] step 10: configuring git');
     try {
       const deployScript = !isWordPress
         ? generateDeployScript({
@@ -359,16 +711,16 @@ export async function POST(request: Request) {
         autoDeploy: true,
         ...(deployScript ? { deployScript } : {}),
       });
-      console.log('[provision] step 10 complete');
+      console.log('[provision/rc] step 10 complete');
     } catch (err) {
-      console.error('[provision] step 10 failed: configureGit', err);
+      console.error('[provision/rc] step 10 failed: configureGit', err);
       warnings.push(`Git setup failed — configure manually via the hosting dashboard.`);
     }
   } else {
-    console.log('[provision] step 10 skipped: no git provider/repository specified');
+    console.log('[provision/rc] step 10 skipped: no git provider/repository specified');
   }
 
-  // ── Step 11: Fire-and-forget welcome email ────────────────────────────
+  // ── Step 11: Welcome email ────────────────────────────────────────
   if (targetCustomer.email) {
     sendWelcomeHostingEmail(
       targetCustomer.email,
@@ -376,10 +728,10 @@ export async function POST(request: Request) {
       targetCustomer.plan ?? 'harbor',
       input.app_name,
       input.primary_domain,
-    ).catch((err) => console.error('[provision] welcome email failed:', err));
+    ).catch((err) => console.error('[provision/rc] welcome email failed:', err));
   }
 
-  console.log('[provision] complete — appSlug:', appSlug, 'appId:', appId, 'input:', safeInputForLogging);
+  console.log('[provision/rc] complete — appSlug:', appSlug, 'appId:', appId, 'input:', safeInputForLogging);
 
   return NextResponse.json(
     {

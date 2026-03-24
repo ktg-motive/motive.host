@@ -9,7 +9,7 @@ export type DeployMethod = (typeof deployMethods)[number];
 
 export const createHostingAppSchema = z.object({
   customer_id: z.string().uuid(),
-  runcloud_app_id: z.number().int().positive(),
+  runcloud_app_id: z.number().int().positive().nullable().optional(),
   app_slug: z
     .string()
     .min(1)
@@ -27,7 +27,7 @@ export type CreateHostingAppInput = z.infer<typeof createHostingAppSchema>;
 
 export const provisionSiteSchema = z.object({
   customer_id: z.string().uuid(),
-  app_type: z.enum(['wordpress', 'nodejs']),
+  app_type: z.enum(['wordpress', 'nodejs', 'static']),
   primary_domain: z
     .string()
     .min(1)
@@ -47,6 +47,15 @@ export const provisionSiteSchema = z.object({
   git_subdir: z.string().trim().max(100)
     .regex(/^[a-zA-Z0-9_][a-zA-Z0-9_.\-\/]*$/, 'Subdirectory must be a safe relative path (no leading slash)')
     .refine(v => !v.includes('..'), 'Subdirectory must not contain path traversal (..)').optional(),
+  // Domain config (DIY)
+  www_behavior: z.enum(['add_www', 'no_www', 'as_is']).optional(),
+  dns_ownership: z.enum(['motive', 'external']).optional(),
+  // Environment variables (DIY)
+  env_vars: z.array(z.object({
+    key: z.string().regex(/^[A-Za-z_][A-Za-z0-9_]*$/, 'Invalid env var key'),
+    value: z.string(),
+    is_secret: z.boolean().optional(),
+  })).max(50).optional(),
   // WordPress config (required when app_type === 'wordpress')
   wp_title: z.string().optional(),
   wp_admin_user: z.string().optional(),

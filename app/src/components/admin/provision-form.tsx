@@ -18,7 +18,18 @@ interface ProvisionFormProps {
 
 interface ProvisionResult {
   success: boolean;
-  app: { id: string; slug: string; domain: string; runcloud_app_id: number; port: number | null; deploy_template: string | null; deploy_method: string | null };
+  app: {
+    id: string;
+    slug: string;
+    domain: string;
+    managed_by?: 'diy' | 'runcloud';
+    runcloud_app_id?: number;
+    port?: number | null;
+    deploy_template?: string | null;
+    deploy_method?: string | null;
+    deploy_key_public?: string;
+    ssl_pending?: boolean;
+  };
   warnings: string[];
 }
 
@@ -129,9 +140,18 @@ export default function ProvisionForm({ customers, preselectedCustomerId }: Prov
         <div className="mb-4 text-4xl">&#10003;</div>
         <h2 className="font-display text-xl font-bold text-muted-white">Site Provisioned</h2>
         <p className="mt-2 text-sm text-slate">
-          RunCloud app created (ID: {result.app.runcloud_app_id}) and linked to customer.
-          {result.app.port && ` Port: ${result.app.port}.`}
+          {result.app.managed_by === 'diy' ? 'DIY' : 'RunCloud'} app created
+          {result.app.runcloud_app_id != null && ` (RunCloud ID: ${result.app.runcloud_app_id})`}
+          {' '}and linked to customer.
+          {result.app.port != null && ` Port: ${result.app.port}.`}
+          {result.app.ssl_pending && ' SSL pending.'}
         </p>
+        {result.app.deploy_key_public && (
+          <div className="mt-3 rounded-lg border border-border bg-primary-bg p-3 text-left">
+            <p className="mb-1 text-xs font-medium uppercase tracking-wide text-slate">Deploy Key (add to your repo)</p>
+            <pre className="overflow-x-auto whitespace-pre-wrap break-all font-mono text-xs text-muted-white">{result.app.deploy_key_public}</pre>
+          </div>
+        )}
         {result.warnings.length > 0 && (
           <div className="mt-4 rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-3 text-left">
             <p className="mb-1 text-xs font-medium uppercase tracking-wide text-yellow-400">Warnings</p>

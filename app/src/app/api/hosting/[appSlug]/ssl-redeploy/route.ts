@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getRunCloudClient } from '@/lib/runcloud-client';
 import { handleRunCloudError } from '@/lib/api-utils';
+import { execSudo, CERTBOT_TIMEOUT } from '../../../../../../lib/server-mgmt/exec';
 
 interface RouteContext {
   params: Promise<{ appSlug: string }>;
@@ -19,30 +20,14 @@ export async function POST(_req: Request, { params }: RouteContext) {
   // 2. Fetch hosting app (scoped to authenticated user)
   const { data: app } = await supabase
     .from('hosting_apps')
-    .select('id, app_slug, app_type, runcloud_app_id, customer_id')
+    .select('id, app_slug, app_type, runcloud_app_id, customer_id, managed_by, primary_domain')
     .eq('app_slug', appSlug)
     .eq('customer_id', user.id)
     .single();
 
   if (!app) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  // 3. Get SSL config
-  const rc = getRunCloudClient();
-  let ssl;
-  try {
-    ssl = await rc.getSSL(app.runcloud_app_id);
-  } catch (err) {
-    return handleRunCloudError(err);
-  }
-
-  if (!ssl) {
-    return NextResponse.json(
-      { error: 'No SSL certificate configured for this application' },
-      { status: 400 },
-    );
-  }
-
-  // 4. Rate limit: one SSL redeploy per hour (Let's Encrypt rate limit protection)
+  // 3. Rate limit: one SSL redeploy per hour (Let's Encrypt rate limit protection)
   const adminDb = createAdminClient();
   const { count: recentCount, error: countError } = await adminDb
     .from('hosting_activity')
@@ -62,21 +47,62 @@ export async function POST(_req: Request, { params }: RouteContext) {
     );
   }
 
-  // 5. Redeploy SSL then invalidate cache
-  try {
-    await rc.redeploySSL(app.runcloud_app_id, ssl.id);
-    rc.invalidateApp(app.runcloud_app_id);
-  } catch (err) {
-    return handleRunCloudError(err);
+  // 4. Redeploy SSL — branch on managed_by
+  if (app.managed_by === 'diy') {
+    // DIY: force-renew via certbot
+    // Cert name uses the bare domain (www. stripped) — matches how provisioning issues the cert
+    const certDomain = app.primary_domain?.toLowerCase().replace(/^www\./, '');
+    if (!certDomain) {
+      return NextResponse.json(
+        { error: 'No primary domain configured for this app' },
+        { status: 400 },
+      );
+    }
+
+    try {
+      await execSudo('certbot', ['renew', '--force-renewal', '--cert-name', certDomain], { timeout: CERTBOT_TIMEOUT });
+      await execSudo('systemctl', ['reload', 'nginx-rc']);
+    } catch (err) {
+      console.error(`[ssl-redeploy] certbot renew failed for ${certDomain}:`, err);
+      return NextResponse.json(
+        { error: 'SSL renewal failed — check server logs' },
+        { status: 500 },
+      );
+    }
+  } else {
+    // RunCloud-managed: use RunCloud API
+    const rc = getRunCloudClient();
+    let ssl;
+    try {
+      ssl = await rc.getSSL(app.runcloud_app_id);
+    } catch (err) {
+      return handleRunCloudError(err);
+    }
+
+    if (!ssl) {
+      return NextResponse.json(
+        { error: 'No SSL certificate configured for this application' },
+        { status: 400 },
+      );
+    }
+
+    try {
+      await rc.redeploySSL(app.runcloud_app_id, ssl.id);
+      rc.invalidateApp(app.runcloud_app_id);
+    } catch (err) {
+      return handleRunCloudError(err);
+    }
   }
 
-  // 6. Log activity (best-effort)
+  // 5. Log activity (best-effort)
   try {
     await adminDb.from('hosting_activity').insert({
       customer_id: user.id,
       hosting_app_id: app.id,
       action: 'ssl_redeploy',
-      description: 'SSL certificate redeployed',
+      description: app.managed_by === 'diy'
+        ? `SSL certificate force-renewed via certbot for ${app.primary_domain?.toLowerCase().replace(/^www\./, '')}`
+        : 'SSL certificate redeployed via RunCloud',
       status: 'success',
     });
   } catch (err) {

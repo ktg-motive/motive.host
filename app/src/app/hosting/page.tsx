@@ -21,7 +21,7 @@ export default async function HostingPage() {
       .single(),
     supabase
       .from('hosting_apps')
-      .select('app_slug, app_name, app_type, primary_domain, cached_status, cached_ssl_expiry, cached_last_deploy, runcloud_app_id, runcloud_server_id')
+      .select('app_slug, app_name, app_type, primary_domain, cached_status, cached_ssl_expiry, cached_last_deploy, runcloud_app_id, runcloud_server_id, managed_by')
       .eq('customer_id', user.id)
       .order('created_at', { ascending: false }),
   ]);
@@ -31,7 +31,7 @@ export default async function HostingPage() {
   const appList = hostingApps ?? [];
   const sitesLimit = planInfo?.sites ?? 0;
 
-  // Fetch live data from RunCloud for each app
+  // Fetch live data from RunCloud for each RunCloud-managed app (skip DIY apps)
   const liveData = new Map<
     number,
     {
@@ -41,11 +41,13 @@ export default async function HostingPage() {
     }
   >();
 
-  if (appList.length > 0) {
+  const rcApps = appList.filter((a) => a.managed_by !== 'diy' && a.runcloud_app_id);
+
+  if (rcApps.length > 0) {
     try {
       const rc = getRunCloudClient();
       const results = await Promise.allSettled(
-        appList.map(async (app) => {
+        rcApps.map(async (app) => {
           const [webapp, ssl] = await Promise.allSettled([
             rc.getWebApp(app.runcloud_app_id),
             rc.getSSL(app.runcloud_app_id),
