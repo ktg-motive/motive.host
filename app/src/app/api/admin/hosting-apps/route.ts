@@ -39,12 +39,14 @@ export async function POST(request: Request) {
     );
   }
 
-  // 4. Verify the RunCloud app exists
-  const rc = getRunCloudClient();
-  try {
-    await rc.getWebApp(parsed.data.runcloud_app_id);
-  } catch (err) {
-    return handleRunCloudError(err);
+  // 4. Verify the RunCloud app exists (only for RunCloud-managed apps)
+  if (parsed.data.runcloud_app_id) {
+    const rc = getRunCloudClient();
+    try {
+      await rc.getWebApp(parsed.data.runcloud_app_id);
+    } catch (err) {
+      return handleRunCloudError(err);
+    }
   }
 
   // 5. Verify the target customer exists
