@@ -43,7 +43,8 @@ type FormState = 'idle' | 'submitting' | 'success' | 'error';
 
 export default function ProvisionForm({ customers, preselectedCustomerId }: ProvisionFormProps) {
   const [customerId, setCustomerId] = useState(preselectedCustomerId ?? '');
-  const [appType, setAppType] = useState<'wordpress' | 'nodejs'>('wordpress');
+  const [appType, setAppType] = useState<'wordpress' | 'nodejs' | 'static'>('nodejs');
+  const [dnsOwnership, setDnsOwnership] = useState<'motive' | 'external'>('motive');
   const [primaryDomain, setPrimaryDomain] = useState('');
   const [appName, setAppName] = useState('');
 
@@ -75,11 +76,23 @@ export default function ProvisionForm({ customers, preselectedCustomerId }: Prov
       app_type: appType,
       primary_domain: primaryDomain.trim().toLowerCase(),
       app_name: appName.trim(),
+      dns_ownership: dnsOwnership,
     };
 
     if (appType === 'nodejs') {
       payload.deploy_template = deployTemplate;
       payload.deploy_method = gitProvider;
+      if (gitRepository.trim()) {
+        payload.git_provider = gitProvider;
+        payload.git_repository = gitRepository.trim();
+        payload.git_branch = gitBranch.trim() || 'main';
+      }
+      if (gitSubdir.trim()) {
+        payload.git_subdir = gitSubdir.trim();
+      }
+    }
+
+    if (appType === 'static') {
       if (gitRepository.trim()) {
         payload.git_provider = gitProvider;
         payload.git_repository = gitRepository.trim();
@@ -231,6 +244,17 @@ export default function ProvisionForm({ customers, preselectedCustomerId }: Prov
               />
               Node.js
             </label>
+            <label className="flex items-center gap-2 text-sm text-muted-white">
+              <input
+                type="radio"
+                name="appType"
+                value="static"
+                checked={appType === 'static'}
+                onChange={() => setAppType('static')}
+                className="accent-gold"
+              />
+              Static
+            </label>
           </div>
         </div>
 
@@ -262,23 +286,59 @@ export default function ProvisionForm({ customers, preselectedCustomerId }: Prov
           />
         </div>
 
-        {/* Node.js Git Config */}
-        {appType === 'nodejs' && (
+        {/* DNS Ownership */}
+        {appType !== 'wordpress' && (
+          <div>
+            <p className={labelClass}>DNS Ownership</p>
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2 text-sm text-muted-white">
+                <input
+                  type="radio"
+                  name="dnsOwnership"
+                  value="motive"
+                  checked={dnsOwnership === 'motive'}
+                  onChange={() => setDnsOwnership('motive')}
+                  className="accent-gold"
+                />
+                Motive-managed
+              </label>
+              <label className="flex items-center gap-2 text-sm text-muted-white">
+                <input
+                  type="radio"
+                  name="dnsOwnership"
+                  value="external"
+                  checked={dnsOwnership === 'external'}
+                  onChange={() => setDnsOwnership('external')}
+                  className="accent-gold"
+                />
+                External DNS
+              </label>
+            </div>
+            <p className="mt-1 text-xs text-slate/70">
+              {dnsOwnership === 'motive' ? 'DNS A/CNAME records will be auto-configured' : 'You\'ll configure DNS yourself — SSL will be pending'}
+            </p>
+          </div>
+        )}
+
+        {/* Node.js / Static Git Config */}
+        {(appType === 'nodejs' || appType === 'static') && (
           <div className="space-y-4 rounded-lg border border-border/50 p-4">
             <p className="text-xs font-medium uppercase tracking-wide text-slate">Deploy Configuration</p>
-            <div>
-              <label htmlFor="deployTemplate" className={labelClass}>Deploy Template</label>
-              <select
-                id="deployTemplate"
-                value={deployTemplate}
-                onChange={(e) => setDeployTemplate(e.target.value as 'nextjs' | 'express' | 'generic')}
-                className={inputClass}
-              >
-                <option value="nextjs">Next.js</option>
-                <option value="express">Express</option>
-                <option value="generic">Generic Node.js</option>
-              </select>
-            </div>
+            {appType === 'nodejs' && (
+              <div>
+                <label htmlFor="deployTemplate" className={labelClass}>Deploy Template</label>
+                <select
+                  id="deployTemplate"
+                  value={deployTemplate}
+                  onChange={(e) => setDeployTemplate(e.target.value as 'nextjs' | 'express' | 'generic')}
+                  className={inputClass}
+                >
+                  <option value="nextjs">Next.js</option>
+                  <option value="express">Express</option>
+                  <option value="generic">Generic Node.js</option>
+                </select>
+              </div>
+            )}
             <div>
               <label htmlFor="gitProvider" className={labelClass}>Git Provider</label>
               <select
