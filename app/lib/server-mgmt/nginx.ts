@@ -155,7 +155,7 @@ export function generateServerBlock(options: ServerBlockOptions): string {
 
   const acmeLocation = `
     # ACME challenge for certbot webroot mode
-    location /.well-known/acme-challenge/ {
+    location ^~ /.well-known/acme-challenge/ {
         root ${WEBAPPS_DIR}/${appSlug};
     }`;
 
@@ -317,7 +317,7 @@ server {
     server_name ${serverNames};
 
     # ACME challenge must stay on port 80 for certbot renewal
-    location /.well-known/acme-challenge/ {
+    location ^~ /.well-known/acme-challenge/ {
         root ${WEBAPPS_DIR}/${appSlug};
     }
 
