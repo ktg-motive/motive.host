@@ -102,7 +102,7 @@ export async function POST(_req: Request, { params }: RouteContext) {
     }
 
     try {
-      // Remove public symlink before pull so git can restore the real public/ directory
+      // Remove public symlink so git can restore the real public/ directory
       await execFileAsync('bash', ['-c', `test -L ${appDir}/public && rm -f ${appDir}/public || true`]);
 
       // Git pull with per-app deploy key
@@ -110,6 +110,11 @@ export async function POST(_req: Request, { params }: RouteContext) {
         env: { ...process.env, GIT_SSH_COMMAND: `ssh -i ${deployKeyPath} -o StrictHostKeyChecking=no` },
         timeout: 30_000,
       });
+
+      // Force-restore public/ from git (in case pull didn't restore it)
+      await execFileAsync('git', ['-C', appDir, 'checkout', '--', 'public'], {
+        timeout: 10_000,
+      }).catch(() => { /* public/ may not exist in repo */ });
 
       // Install dependencies
       await execFileAsync('npm', ['install', '--production=false'], {
