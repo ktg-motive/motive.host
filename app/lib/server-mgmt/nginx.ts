@@ -356,6 +356,14 @@ export async function writeServerBlock(options: ServerBlockOptions): Promise<voi
   // Create the per-app config directory
   await execSudo('mkdir', ['-p', confDir]);
 
+  // Ensure top-level include file exists (nginx.conf only loads *.conf)
+  const topLevelConf = `${NGINX_CONF_DIR}/${appSlug}.conf`;
+  try {
+    await stat(topLevelConf);
+  } catch {
+    await writeSudoFile(topLevelConf, `include ${confDir}/main.conf;\n`);
+  }
+
   // Back up current config if it exists
   let hasBackup = false;
   try {
@@ -407,7 +415,9 @@ export async function writeServerBlock(options: ServerBlockOptions): Promise<voi
  */
 export async function removeServerBlock(appSlug: string): Promise<void> {
   const confDir = `${NGINX_CONF_DIR}/${appSlug}.d`;
+  const topLevelConf = `${NGINX_CONF_DIR}/${appSlug}.conf`;
   await execSudo('rm', ['-rf', confDir]);
+  await execSudo('rm', ['-f', topLevelConf]);
   await execSudo('/usr/local/sbin/nginx-rc', ['-t']);
   await execSudo('systemctl', ['reload', 'nginx-rc']);
 }
