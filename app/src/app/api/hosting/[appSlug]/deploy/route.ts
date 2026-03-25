@@ -5,6 +5,7 @@ import { getRunCloudClient } from '@/lib/runcloud-client';
 import { handleRunCloudError } from '@/lib/api-utils';
 import { deployAndRestart, writeDeployLog } from '../../../../../../lib/server-mgmt/deploy';
 import { writeEnvFile, type EnvVar } from '../../../../../../lib/server-mgmt/env';
+import { injectAnalyticsScript } from '../../../../../../lib/server-mgmt/analytics';
 import {
   beginOperation,
   completeOperation,
@@ -34,7 +35,7 @@ export async function POST(_req: Request, { params }: RouteContext) {
     .single();
 
   let app;
-  const selectCols = 'id, app_slug, app_type, app_name, runcloud_app_id, customer_id, deploy_template, deploy_method, port, git_branch, git_subdir, managed_by';
+  const selectCols = 'id, app_slug, app_type, app_name, runcloud_app_id, customer_id, deploy_template, deploy_method, port, git_branch, git_subdir, managed_by, umami_website_id';
   if (customer?.is_admin) {
     const { data } = await adminDb
       .from('hosting_apps')
@@ -92,6 +93,7 @@ async function handleDiyDeploy(
     port: number | null;
     git_branch: string;
     git_subdir: string | null;
+    umami_website_id: string | null;
   },
 ) {
   // Recover any stale operations before checking for active ones
@@ -133,6 +135,13 @@ async function handleDiyDeploy(
     await writeDeployLog(app.app_slug, result).catch((err) => {
       console.error(`[deploy] Failed to write deploy log for ${app.app_slug}:`, err);
     });
+
+    // Inject analytics script into built HTML (best-effort)
+    if (result.success && app.umami_website_id) {
+      await injectAnalyticsScript(app.app_slug, app.umami_website_id).catch((err) => {
+        console.warn(`[deploy] Analytics injection failed for ${app.app_slug}:`, err instanceof Error ? err.message : err);
+      });
+    }
 
     if (result.success) {
       // Update cached_last_deploy timestamp

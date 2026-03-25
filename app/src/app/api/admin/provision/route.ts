@@ -18,6 +18,7 @@ import {
   failOperation,
 } from '../../../../../lib/server-mgmt';
 import type { AppTemplate, EnvVar } from '../../../../../lib/server-mgmt';
+import { createWebsite as createUmamiWebsite, deleteWebsite as deleteUmamiWebsite } from '../../../../../lib/umami';
 
 const MAX_PORT_RETRIES = 3;
 const BASE_PORT = 3000; // first app gets 3001
@@ -280,6 +281,23 @@ async function provisionDiy(ctx: ProvisionContext) {
   const hostingAppId = hostingApp.id as string;
   console.log('[provision/self-managed] DB insert complete: id =', hostingAppId, 'port =', assignedPort);
 
+  // ── Create Umami analytics website (best-effort) ─────────────────────
+  let umamiWebsiteId: string | null = null;
+  try {
+    const umamiSite = await createUmamiWebsite(input.app_name, normalizedDomain);
+    if (umamiSite) {
+      umamiWebsiteId = umamiSite.id;
+      await adminDb
+        .from('hosting_apps')
+        .update({ umami_website_id: umamiWebsiteId })
+        .eq('id', hostingAppId);
+      console.log('[provision/self-managed] Umami website created:', umamiWebsiteId);
+    }
+  } catch (err) {
+    console.warn('[provision/self-managed] Umami website creation failed:', err instanceof Error ? err.message : err);
+    warnings.push('Analytics setup failed -- configure manually later.');
+  }
+
   // ── Create durable operation record ───────────────────────────────────
   const operation = await beginOperation(adminDb, hostingAppId, 'provision', 'api', {
     domain: input.primary_domain,
@@ -289,7 +307,8 @@ async function provisionDiy(ctx: ProvisionContext) {
   if (!operation) {
     // Another operation is already running for this app (shouldn't happen during provision)
     console.error('[provision/self-managed] Failed to begin operation -- concurrent operation exists');
-    // Clean up the DB row we just inserted
+    // Clean up Umami website and DB row
+    if (umamiWebsiteId) await deleteUmamiWebsite(umamiWebsiteId).catch(() => {});
     await adminDb.from('hosting_apps').delete().eq('id', hostingAppId);
     return NextResponse.json(
       { error: 'Another operation is already in progress for this app' },
@@ -406,6 +425,7 @@ async function provisionDiy(ctx: ProvisionContext) {
           managed_by: 'self-managed',
           ssl_pending: sslPending,
           deploy_key_public: result.deployKeyPublic,
+          umami_website_id: umamiWebsiteId,
         },
         warnings,
       },
@@ -416,6 +436,9 @@ async function provisionDiy(ctx: ProvisionContext) {
     console.error('[provision/self-managed] server-side provisioning failed:', err);
 
     await failOperation(adminDb, operation.id, err instanceof Error ? err.message : 'Unknown provisioning error');
+
+    // Clean up Umami website
+    if (umamiWebsiteId) await deleteUmamiWebsite(umamiWebsiteId).catch(() => {});
 
     // Clean up server state
     await rollbackProvision(appSlug);
