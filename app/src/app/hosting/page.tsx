@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getRunCloudClient } from '@/lib/runcloud-client';
 import { getPlan } from '@/lib/plans';
 import SiteCard from '@/components/hosting/site-card';
+import SiteRequestCard from '@/components/hosting/site-request-card';
 import Card from '@/components/ui/card';
 
 export default async function HostingPage() {
@@ -13,7 +14,7 @@ export default async function HostingPage() {
     redirect('/login');
   }
 
-  const [{ data: customer }, { data: hostingApps }] = await Promise.all([
+  const [{ data: customer }, { data: hostingApps }, { data: pendingRequests }] = await Promise.all([
     supabase
       .from('customers')
       .select('plan')
@@ -24,14 +25,22 @@ export default async function HostingPage() {
       .select('app_slug, app_name, app_type, primary_domain, cached_status, cached_ssl_expiry, cached_last_deploy, runcloud_app_id, runcloud_server_id, managed_by')
       .eq('customer_id', user.id)
       .order('created_at', { ascending: false }),
+    supabase
+      .from('site_requests')
+      .select('id, domain, app_type, status, created_at')
+      .eq('customer_id', user.id)
+      .in('status', ['pending', 'approved'])
+      .order('created_at', { ascending: false }),
   ]);
 
   const plan = customer?.plan ?? 'harbor';
   const planInfo = getPlan(plan);
   const appList = hostingApps ?? [];
+  const requestList = pendingRequests ?? [];
+  const pendingCount = requestList.length;
   const sitesLimit = planInfo?.sites ?? 0;
 
-  // Fetch live data from RunCloud for each RunCloud-managed app (skip DIY apps)
+  // Fetch live data from RunCloud for each RunCloud-managed app (skip self-managed apps)
   const liveData = new Map<
     number,
     {
@@ -41,7 +50,7 @@ export default async function HostingPage() {
     }
   >();
 
-  const rcApps = appList.filter((a) => a.managed_by !== 'diy' && a.runcloud_app_id);
+  const rcApps = appList.filter((a) => a.managed_by !== 'self-managed' && a.runcloud_app_id);
 
   if (rcApps.length > 0) {
     try {
@@ -92,20 +101,18 @@ export default async function HostingPage() {
           Hosting
         </h1>
         <p className="mt-1 text-sm text-slate">
-          {appList.length} of {sitesLimit} sites on your {planDisplayName} plan
+          {appList.length} of {sitesLimit} sites on your {planDisplayName} plan{pendingCount > 0 ? ` (${pendingCount} pending)` : ''}
         </p>
       </div>
 
-      {appList.length === 0 ? (
+      {appList.length === 0 && pendingCount === 0 ? (
         <Card className="py-12 text-center">
           <p className="text-lg text-slate">No sites yet</p>
           <p className="mt-2 text-sm text-slate">
-            Get in touch and we&apos;ll set up your first site.
+            Request your first site and we&apos;ll get it set up for you.
           </p>
           <a
-            href="https://motive.host/contact.html?subject=new-site"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/hosting/request"
             className="mt-6 inline-block rounded-lg bg-gold px-6 py-2.5 font-medium text-primary-bg transition-colors hover:bg-gold-hover"
           >
             Request a New Site
@@ -121,18 +128,23 @@ export default async function HostingPage() {
             />
           ))}
 
-          {appList.length < sitesLimit && (
+          {requestList.map((request) => (
+            <SiteRequestCard
+              key={request.id}
+              request={request}
+            />
+          ))}
+
+          {appList.length + pendingCount < sitesLimit && (
             <a
-              href="https://motive.host/contact.html?subject=new-site"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/hosting/request"
               className="block"
             >
               <Card className="flex items-center justify-center py-8 transition-colors hover:border-gold/40">
                 <div className="text-center">
                   <p className="text-lg font-medium text-gold">+ Request New Site</p>
                   <p className="mt-1 text-sm text-slate">
-                    You have {sitesLimit - appList.length} {sitesLimit - appList.length === 1 ? 'slot' : 'slots'} remaining on your plan
+                    You have {sitesLimit - appList.length - pendingCount} {sitesLimit - appList.length - pendingCount === 1 ? 'slot' : 'slots'} remaining on your plan
                   </p>
                 </div>
               </Card>

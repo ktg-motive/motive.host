@@ -157,6 +157,61 @@ export async function sendCustomerWelcomeEmail(
   })
 }
 
+export async function sendSiteRequestNotification(opts: {
+  customerName: string
+  customerEmail: string
+  domain: string
+  appType: string
+  description: string
+  gitRepoUrl?: string
+}): Promise<void> {
+  if (!apiKey) {
+    console.warn('SendGrid API key not configured — skipping site request notification')
+    return
+  }
+
+  const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'kai@motive.host'
+  const appTypeLabel = opts.appType === 'nodejs' ? 'Node.js' : opts.appType.charAt(0).toUpperCase() + opts.appType.slice(1)
+
+  const rows = [
+    ['Customer', escapeHtml(opts.customerName)],
+    ['Email', escapeHtml(opts.customerEmail)],
+    ['Domain', escapeHtml(opts.domain)],
+    ['App Type', escapeHtml(appTypeLabel)],
+    ...(opts.description ? [['Description', escapeHtml(opts.description).replace(/\n/g, '<br>')]] : []),
+    ...(opts.gitRepoUrl ? [['Git Repo', `<a href="${escapeHtml(opts.gitRepoUrl)}" style="color: #D4AF37;">${escapeHtml(opts.gitRepoUrl)}</a>`]] : []),
+  ]
+    .map(
+      ([label, value]) =>
+        `<tr>
+          <td style="padding: 8px 12px; color: #718096; font-size: 13px; font-weight: 600; vertical-align: top; white-space: nowrap;">${label}</td>
+          <td style="padding: 8px 12px; color: #1F2329; font-size: 14px; line-height: 1.6;">${value}</td>
+        </tr>`
+    )
+    .join('')
+
+  await sgMail.send({
+    to: adminEmail,
+    from: { email: FROM_EMAIL, name: FROM_NAME },
+    subject: `New Site Request: ${opts.domain}`,
+    html: `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 40px 20px;">
+        <h1 style="color: #1F2329; font-size: 22px; margin-bottom: 24px;">New Site Request</h1>
+        <table style="width: 100%; border-collapse: collapse; background: #f7f8fa; border-radius: 8px; overflow: hidden;">
+          ${rows}
+        </table>
+        <a href="https://my.motive.host/admin/provision" style="display: inline-block; background: #D4AF37; color: #1F2329; padding: 12px 24px; border-radius: 8px; font-weight: 600; text-decoration: none; margin: 24px 0 8px;">
+          Review in Admin
+        </a>
+        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 32px 0;">
+        <p style="color: #a0aec0; font-size: 12px;">
+          Motive Hosting &mdash; Gulf Coast Business Hosting
+        </p>
+      </div>
+    `,
+  })
+}
+
 export async function sendWelcomeHostingEmail(
   email: string,
   name: string,

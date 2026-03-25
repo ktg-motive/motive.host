@@ -54,8 +54,8 @@ export async function POST(_req: Request, { params }: RouteContext) {
     );
   }
 
-  // 4. Rebuild: RunCloud API for managed apps, PM2 restart for DIY apps
-  if (app.managed_by === 'diy') {
+  // 4. Rebuild: RunCloud API for managed apps, PM2 restart for self-managed apps
+  if (app.managed_by === 'self-managed') {
     if (app.app_type === 'static') {
       return NextResponse.json(
         { error: 'Static sites do not have a running process to restart' },
@@ -112,7 +112,7 @@ export async function POST(_req: Request, { params }: RouteContext) {
       customer_id: user.id,
       hosting_app_id: app.id,
       action: 'rebuild',
-      description: app.managed_by === 'diy'
+      description: app.managed_by === 'self-managed'
         ? `PM2 process restarted for ${app.app_slug}`
         : 'App rebuild triggered via RunCloud',
       status: 'success',

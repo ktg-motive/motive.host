@@ -47,10 +47,10 @@ export const provisionSiteSchema = z.object({
   git_subdir: z.string().trim().max(100)
     .regex(/^[a-zA-Z0-9_][a-zA-Z0-9_.\-\/]*$/, 'Subdirectory must be a safe relative path (no leading slash)')
     .refine(v => !v.includes('..'), 'Subdirectory must not contain path traversal (..)').optional(),
-  // Domain config (DIY)
+  // Domain config (self-managed)
   www_behavior: z.enum(['add_www', 'no_www', 'as_is']).optional(),
   dns_ownership: z.enum(['motive', 'external']).optional(),
-  // Environment variables (DIY)
+  // Environment variables (self-managed)
   env_vars: z.array(z.object({
     key: z.string().regex(/^[A-Za-z_][A-Za-z0-9_]*$/, 'Invalid env var key'),
     value: z.string(),
@@ -75,3 +75,10 @@ export const provisionSiteSchema = z.object({
 });
 
 export type ProvisionSiteInput = z.infer<typeof provisionSiteSchema>;
+
+export const siteRequestSchema = z.object({
+  domain: z.string().min(1, 'Domain is required').max(253).transform(v => v.trim().toLowerCase()),
+  app_type: z.enum(['wordpress', 'nodejs', 'static']),
+  description: z.string().max(1000).default(''),
+  git_repo_url: z.string().url().max(500).optional().or(z.literal('')).transform(v => v || undefined),
+});

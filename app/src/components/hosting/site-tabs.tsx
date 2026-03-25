@@ -69,16 +69,16 @@ export default function SiteTabs({
   isAdmin,
 }: SiteTabsProps) {
   const [activeTab, setActiveTab] = useState<TabId>('overview');
-  const isDiy = app.managed_by === 'diy';
+  const isSelfManaged = app.managed_by === 'self-managed';
 
   const tabs: Tab[] = [
     { id: 'overview', label: 'Overview' },
-    // Deployment tab: shown for Node.js RunCloud apps and all DIY apps
-    ...(isDiy || app.app_type === 'nodejs'
+    // Deployment tab: shown for Node.js RunCloud apps and all self-managed apps
+    ...(isSelfManaged || app.app_type === 'nodejs'
       ? [{ id: 'deployment' as const, label: 'Deployment' }]
       : []),
-    // Env vars: only for DIY apps, admin-only (backend is admin-gated)
-    ...(isDiy && isAdmin ? [{ id: 'env' as const, label: 'Environment' }] : []),
+    // Env vars: shown for all self-managed apps (backend checks ownership)
+    ...(isSelfManaged ? [{ id: 'env' as const, label: 'Environment' }] : []),
     { id: 'activity', label: 'Activity' },
   ];
 
@@ -110,7 +110,7 @@ export default function SiteTabs({
         />
       )}
 
-      {activeTab === 'deployment' && isDiy && (
+      {activeTab === 'deployment' && isSelfManaged && (
         <DiyDeploymentTab
           appSlug={appSlug}
           app={app}
@@ -120,7 +120,7 @@ export default function SiteTabs({
         />
       )}
 
-      {activeTab === 'deployment' && !isDiy && app.app_type === 'nodejs' && (
+      {activeTab === 'deployment' && !isSelfManaged && app.app_type === 'nodejs' && (
         <DeploymentTab
           appSlug={appSlug}
           app={app}
@@ -129,7 +129,7 @@ export default function SiteTabs({
         />
       )}
 
-      {activeTab === 'env' && isDiy && (
+      {activeTab === 'env' && isSelfManaged && (
         <EnvVarsTab appSlug={appSlug} />
       )}
 

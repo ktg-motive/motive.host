@@ -53,9 +53,9 @@ export default function SiteOverview({ appSlug, app, webapp, ssl, domains }: Sit
     error: string | null;
   }>({ loading: null, message: null, error: null });
 
-  const isDiy = app.managed_by === 'diy';
+  const isSelfManaged = app.managed_by === 'self-managed';
 
-  // PM2 status state for DIY Node.js apps
+  // PM2 status state for self-managed Node.js apps
   const [pm2Status, setPm2Status] = useState<{
     loaded: boolean;
     status: string;
@@ -64,9 +64,9 @@ export default function SiteOverview({ appSlug, app, webapp, ssl, domains }: Sit
     restarts?: number;
   }>({ loaded: false, status: 'loading' });
 
-  // Fetch PM2 status on mount for DIY nodejs apps
+  // Fetch PM2 status on mount for self-managed nodejs apps
   useEffect(() => {
-    if (!isDiy || app.app_type !== 'nodejs') return;
+    if (!isSelfManaged || app.app_type !== 'nodejs') return;
     fetch(`/api/hosting/${appSlug}/status`)
       .then(r => r.json())
       .then(data => {
@@ -81,9 +81,9 @@ export default function SiteOverview({ appSlug, app, webapp, ssl, domains }: Sit
       .catch(() => {
         setPm2Status({ loaded: true, status: 'unknown' });
       });
-  }, [isDiy, app.app_type, appSlug]);
+  }, [isSelfManaged, app.app_type, appSlug]);
 
-  const runtime = isDiy
+  const runtime = isSelfManaged
     ? app.app_type === 'nodejs'
       ? `Node.js${app.deploy_template ? ` (${app.deploy_template})` : ''}`
       : 'Static'
@@ -148,22 +148,22 @@ export default function SiteOverview({ appSlug, app, webapp, ssl, domains }: Sit
         </h2>
         <div className="divide-y divide-border">
           <InfoRow label="Runtime" value={runtime} />
-          {isDiy && (
-            <InfoRow label="Management" value="DIY (Direct Server)" />
+          {isSelfManaged && (
+            <InfoRow label="Management" value="Self-Managed" />
           )}
-          {!isDiy && webapp && (
+          {!isSelfManaged && webapp && (
             <>
               <InfoRow label="Stack" value={webapp.stack} />
               <InfoRow label="Mode" value={webapp.stackMode} />
             </>
           )}
           <InfoRow label="Type" value={app.app_type} />
-          {isDiy && app.port && (
+          {isSelfManaged && app.port && (
             <InfoRow label="Port" value={String(app.port)} />
           )}
 
-          {/* PM2 status for DIY Node.js apps */}
-          {isDiy && app.app_type === 'nodejs' && (
+          {/* PM2 status for self-managed Node.js apps */}
+          {isSelfManaged && app.app_type === 'nodejs' && (
             <div className="flex items-center justify-between py-2">
               <span className="text-sm text-slate">Process Status</span>
               <span className="inline-flex items-center text-sm text-muted-white">
@@ -172,7 +172,7 @@ export default function SiteOverview({ appSlug, app, webapp, ssl, domains }: Sit
               </span>
             </div>
           )}
-          {isDiy && app.app_type === 'nodejs' && pm2Status.loaded && pm2Status.pid && (
+          {isSelfManaged && app.app_type === 'nodejs' && pm2Status.loaded && pm2Status.pid && (
             <>
               <InfoRow label="PID" value={String(pm2Status.pid)} />
               {pm2Status.memory != null && (
@@ -184,8 +184,8 @@ export default function SiteOverview({ appSlug, app, webapp, ssl, domains }: Sit
             </>
           )}
 
-          {/* Static badge for DIY static apps */}
-          {isDiy && app.app_type === 'static' && (
+          {/* Static badge for self-managed static apps */}
+          {isSelfManaged && app.app_type === 'static' && (
             <div className="flex items-center justify-between py-2">
               <span className="text-sm text-slate">Process</span>
               <span className="inline-block rounded-full bg-purple-500/10 px-2 py-0.5 text-xs font-medium text-purple-400">
@@ -222,7 +222,7 @@ export default function SiteOverview({ appSlug, app, webapp, ssl, domains }: Sit
             <>
               <InfoRow label="Expires" value={formatDate(ssl.validUntil)} />
               <InfoRow label="Method" value={ssl.method} />
-              {!isDiy && (
+              {!isSelfManaged && (
                 <InfoRow
                   label="HSTS"
                   value={ssl.hsts ? 'Enabled' : 'Disabled'}
@@ -246,8 +246,8 @@ export default function SiteOverview({ appSlug, app, webapp, ssl, domains }: Sit
           )}
         </div>
 
-        {/* SSL renew button for DIY apps */}
-        {isDiy && ssl && (
+        {/* SSL renew button for self-managed apps */}
+        {isSelfManaged && ssl && (
           <div className="mt-4">
             <button
               onClick={() =>
@@ -292,14 +292,14 @@ export default function SiteOverview({ appSlug, app, webapp, ssl, domains }: Sit
           Quick Actions
         </h2>
         <div className="flex flex-wrap gap-3">
-          {/* Restart: available for RunCloud apps and DIY Node.js apps */}
-          {(app.app_type === 'nodejs' || !isDiy) && (
+          {/* Restart: available for RunCloud apps and self-managed Node.js apps */}
+          {(app.app_type === 'nodejs' || !isSelfManaged) && (
             <button
               onClick={() =>
                 handleAction(
                   'rebuild',
                   `/api/hosting/${appSlug}/rebuild`,
-                  isDiy
+                  isSelfManaged
                     ? 'Restart this application? The PM2 process will be restarted.'
                     : 'Restart this application? It will briefly be unavailable.',
                 )
@@ -311,8 +311,8 @@ export default function SiteOverview({ appSlug, app, webapp, ssl, domains }: Sit
             </button>
           )}
 
-          {/* Deploy: available for all DIY apps and RunCloud Node.js apps */}
-          {(isDiy || app.app_type === 'nodejs') && (
+          {/* Deploy: available for all self-managed apps and RunCloud Node.js apps */}
+          {(isSelfManaged || app.app_type === 'nodejs') && (
             <button
               onClick={() =>
                 handleAction(
@@ -329,7 +329,7 @@ export default function SiteOverview({ appSlug, app, webapp, ssl, domains }: Sit
           )}
 
           {/* SSL: available for all apps with SSL installed */}
-          {ssl !== null && !isDiy && (
+          {ssl !== null && !isSelfManaged && (
             <button
               onClick={() =>
                 handleAction(

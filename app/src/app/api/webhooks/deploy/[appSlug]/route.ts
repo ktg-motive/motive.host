@@ -50,7 +50,7 @@ export async function POST(req: Request, { params }: RouteContext) {
     .single();
 
   // Normalize all "not deployable" states to the same 404 to prevent slug enumeration
-  if (!app || app.managed_by !== 'diy' || !app.webhook_enabled || !app.webhook_secret) {
+  if (!app || app.managed_by !== 'self-managed' || !app.webhook_enabled || !app.webhook_secret) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
 

@@ -58,13 +58,13 @@ export async function POST(request: Request) {
   const input = parsed.data;
   const safeInputForLogging = { ...input, wp_admin_password: input.wp_admin_password ? '[REDACTED]' : undefined };
 
-  // WordPress with DIY is not supported
+  // WordPress with self-managed is not supported
   const isWordPress = input.app_type === 'wordpress';
   const useDiy = !isWordPress;
 
   if (isWordPress && useDiy) {
     return NextResponse.json(
-      { error: 'WordPress is not supported with DIY server management. Use RunCloud.' },
+      { error: 'WordPress is not supported with self-managed server management. Use RunCloud.' },
       { status: 400 },
     );
   }
@@ -99,7 +99,7 @@ export async function POST(request: Request) {
     );
   }
 
-  // ── Branch: DIY vs RunCloud ───────────────────────────────────────────
+  // ── Branch: Self-Managed vs RunCloud ─────────────────────────────────
   if (useDiy) {
     return provisionDiy({ input, user, adminDb, targetCustomer, appSlug, normalizedDomain, warnings, safeInputForLogging });
   } else {
@@ -108,7 +108,7 @@ export async function POST(request: Request) {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// DIY Provisioning Path
+// Self-Managed Provisioning Path
 // ════════════════════════════════════════════════════════════════════════════
 
 interface ProvisionContext {
@@ -146,7 +146,7 @@ async function provisionDiy(ctx: ProvisionContext) {
   const serverIp = process.env.RUNCLOUD_SERVER_IP;
   const dnsOwnership = input.dns_ownership ?? 'motive';
 
-  console.log('[provision/diy] checking DNS for domain', normalizedDomain);
+  console.log('[provision/self-managed] checking DNS for domain', normalizedDomain);
   const { data: managedDomain } = await adminDb
     .from('domains')
     .select('id, domain_name')
@@ -154,7 +154,7 @@ async function provisionDiy(ctx: ProvisionContext) {
     .maybeSingle();
 
   if (dnsOwnership === 'motive' && managedDomain && serverIp) {
-    console.log('[provision/diy] Motive-managed domain -- auto-configuring DNS');
+    console.log('[provision/self-managed] Motive-managed domain -- auto-configuring DNS');
     try {
       const opensrs = getOpenSRSClient();
       let existingRecords: Array<{ type: string; subdomain: string; ip_address?: string; hostname?: string }> = [];
@@ -183,19 +183,19 @@ async function provisionDiy(ctx: ProvisionContext) {
       );
 
       await opensrs.updateDnsRecords(normalizedDomain, changes);
-      console.log('[provision/diy] DNS configured');
+      console.log('[provision/self-managed] DNS configured');
     } catch (err) {
-      console.error('[provision/diy] DNS auto-config failed', err);
+      console.error('[provision/self-managed] DNS auto-config failed', err);
       warnings.push(`DNS auto-config failed for ${normalizedDomain}. Configure A/CNAME records manually.`);
       sslPending = true;
     }
   } else {
     if (dnsOwnership === 'external') {
-      console.log('[provision/diy] external domain -- skipping DNS auto-config');
+      console.log('[provision/self-managed] external domain -- skipping DNS auto-config');
     } else if (!managedDomain) {
-      console.log('[provision/diy] domain not in domains table -- skipping DNS auto-config');
+      console.log('[provision/self-managed] domain not in domains table -- skipping DNS auto-config');
     } else {
-      console.log('[provision/diy] RUNCLOUD_SERVER_IP not set -- skipping DNS');
+      console.log('[provision/self-managed] RUNCLOUD_SERVER_IP not set -- skipping DNS');
       warnings.push('RUNCLOUD_SERVER_IP env var not set -- DNS auto-config skipped.');
     }
     sslPending = true;
@@ -212,7 +212,7 @@ async function provisionDiy(ctx: ProvisionContext) {
   }
 
   // ── DB insert FIRST (source of truth) ─────────────────────────────────
-  console.log('[provision/diy] inserting hosting_apps record');
+  console.log('[provision/self-managed] inserting hosting_apps record');
   let hostingApp: Record<string, unknown> | null = null;
   let insertSucceeded = false;
 
@@ -233,7 +233,7 @@ async function provisionDiy(ctx: ProvisionContext) {
         deploy_template: input.deploy_template || null,
         deploy_method: input.git_provider || input.deploy_method || null,
         ssl_pending: sslPending,
-        managed_by: 'diy',
+        managed_by: 'self-managed',
         git_repo: input.git_repository || null,
         git_branch: input.git_branch || 'main',
         www_behavior: input.www_behavior || 'add_www',
@@ -250,7 +250,7 @@ async function provisionDiy(ctx: ProvisionContext) {
 
     // Port collision -- retry with next port
     if (insertError.code === '23505' && insertError.message?.includes('port') && assignedPort !== null) {
-      console.warn(`[provision/diy] port ${assignedPort} collision, retrying with ${assignedPort + 1}`);
+      console.warn(`[provision/self-managed] port ${assignedPort} collision, retrying with ${assignedPort + 1}`);
       assignedPort++;
       continue;
     }
@@ -263,7 +263,7 @@ async function provisionDiy(ctx: ProvisionContext) {
       );
     }
 
-    console.error('[provision/diy] DB insert failed:', insertError);
+    console.error('[provision/self-managed] DB insert failed:', insertError);
     return NextResponse.json(
       { error: 'Failed to create app record in database' },
       { status: 500 },
@@ -278,7 +278,7 @@ async function provisionDiy(ctx: ProvisionContext) {
   }
 
   const hostingAppId = hostingApp.id as string;
-  console.log('[provision/diy] DB insert complete: id =', hostingAppId, 'port =', assignedPort);
+  console.log('[provision/self-managed] DB insert complete: id =', hostingAppId, 'port =', assignedPort);
 
   // ── Create durable operation record ───────────────────────────────────
   const operation = await beginOperation(adminDb, hostingAppId, 'provision', 'api', {
@@ -288,7 +288,7 @@ async function provisionDiy(ctx: ProvisionContext) {
 
   if (!operation) {
     // Another operation is already running for this app (shouldn't happen during provision)
-    console.error('[provision/diy] Failed to begin operation -- concurrent operation exists');
+    console.error('[provision/self-managed] Failed to begin operation -- concurrent operation exists');
     // Clean up the DB row we just inserted
     await adminDb.from('hosting_apps').delete().eq('id', hostingAppId);
     return NextResponse.json(
@@ -353,7 +353,7 @@ async function provisionDiy(ctx: ProvisionContext) {
             });
 
           if (envError) {
-            console.error(`[provision/diy] Failed to insert env var "${ev.key}":`, envError);
+            console.error(`[provision/self-managed] Failed to insert env var "${ev.key}":`, envError);
             warnings.push(`Failed to save env var "${ev.key}".`);
           } else {
             envRows.push({ key: ev.key, encrypted_value: encrypted, is_secret: ev.is_secret ?? false });
@@ -365,12 +365,12 @@ async function provisionDiy(ctx: ProvisionContext) {
           try {
             await writeEnvFile(appSlug, envRows);
           } catch (err) {
-            console.error('[provision/diy] Failed to write .env file:', err);
+            console.error('[provision/self-managed] Failed to write .env file:', err);
             warnings.push('Failed to write .env file to app directory.');
           }
         }
       } catch (err) {
-        console.error('[provision/diy] env vars processing failed:', err);
+        console.error('[provision/self-managed] env vars processing failed:', err);
         warnings.push('Environment variable setup failed.');
       }
     }
@@ -391,10 +391,10 @@ async function provisionDiy(ctx: ProvisionContext) {
         targetCustomer.plan ?? 'harbor',
         input.app_name,
         input.primary_domain,
-      ).catch((err) => console.error('[provision/diy] welcome email failed:', err));
+      ).catch((err) => console.error('[provision/self-managed] welcome email failed:', err));
     }
 
-    console.log('[provision/diy] complete -- appSlug:', appSlug, 'input:', safeInputForLogging);
+    console.log('[provision/self-managed] complete -- appSlug:', appSlug, 'input:', safeInputForLogging);
 
     return NextResponse.json(
       {
@@ -403,7 +403,7 @@ async function provisionDiy(ctx: ProvisionContext) {
           id: hostingAppId,
           slug: appSlug,
           domain: input.primary_domain,
-          managed_by: 'diy',
+          managed_by: 'self-managed',
           ssl_pending: sslPending,
           deploy_key_public: result.deployKeyPublic,
         },
@@ -413,7 +413,7 @@ async function provisionDiy(ctx: ProvisionContext) {
     );
   } catch (err) {
     // Fatal server-side failure after DB insert -- rollback
-    console.error('[provision/diy] server-side provisioning failed:', err);
+    console.error('[provision/self-managed] server-side provisioning failed:', err);
 
     await failOperation(adminDb, operation.id, err instanceof Error ? err.message : 'Unknown provisioning error');
 

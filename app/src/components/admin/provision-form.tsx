@@ -22,7 +22,7 @@ interface ProvisionResult {
     id: string;
     slug: string;
     domain: string;
-    managed_by?: 'diy' | 'runcloud';
+    managed_by?: 'self-managed' | 'runcloud';
     runcloud_app_id?: number;
     port?: number | null;
     deploy_template?: string | null;
@@ -153,7 +153,7 @@ export default function ProvisionForm({ customers, preselectedCustomerId }: Prov
         <div className="mb-4 text-4xl">&#10003;</div>
         <h2 className="font-display text-xl font-bold text-muted-white">Site Provisioned</h2>
         <p className="mt-2 text-sm text-slate">
-          {result.app.managed_by === 'diy' ? 'DIY' : 'RunCloud'} app created
+          {result.app.managed_by === 'self-managed' ? 'Self-Managed' : 'RunCloud'} app created
           {result.app.runcloud_app_id != null && ` (RunCloud ID: ${result.app.runcloud_app_id})`}
           {' '}and linked to customer.
           {result.app.port != null && ` Port: ${result.app.port}.`}

@@ -20,28 +20,52 @@ async function authorizeAndLookup(appSlug: string) {
     return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
   }
 
-  const { data: customer } = await supabase
-    .from('customers')
-    .select('is_admin')
-    .eq('id', user.id)
+  // Try user-scoped lookup first (fail-closed for non-owners)
+  const { data: ownedApp } = await supabase
+    .from('hosting_apps')
+    .select('id, app_slug, managed_by')
+    .eq('app_slug', appSlug)
+    .eq('customer_id', user.id)
     .single();
-
-  if (!customer?.is_admin) {
-    return { error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) };
-  }
 
   const adminDb = createAdminClient();
-  const { data: app } = await adminDb
-    .from('hosting_apps')
-    .select('id, app_slug')
-    .eq('app_slug', appSlug)
-    .single();
 
-  if (!app) {
-    return { error: NextResponse.json({ error: 'App not found' }, { status: 404 }) };
+  if (!ownedApp) {
+    // Not owned by user — check if admin
+    const { data: customer } = await supabase
+      .from('customers')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single();
+
+    if (!customer?.is_admin) {
+      return { error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) };
+    }
+
+    // Admin: look up via admin client
+    const { data: app } = await adminDb
+      .from('hosting_apps')
+      .select('id, app_slug, managed_by')
+      .eq('app_slug', appSlug)
+      .single();
+
+    if (!app) {
+      return { error: NextResponse.json({ error: 'App not found' }, { status: 404 }) };
+    }
+
+    if (app.managed_by !== 'self-managed') {
+      return { error: NextResponse.json({ error: 'Environment variables are only available for self-managed apps' }, { status: 400 }) };
+    }
+
+    return { adminDb, app };
   }
 
-  return { adminDb, app };
+  // Owner path: verify app is self-managed
+  if (ownedApp.managed_by !== 'self-managed') {
+    return { error: NextResponse.json({ error: 'Environment variables are only available for self-managed apps' }, { status: 400 }) };
+  }
+
+  return { adminDb, app: ownedApp };
 }
 
 /**

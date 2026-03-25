@@ -1,6 +1,6 @@
 // app/src/app/api/hosting/[appSlug]/status/route.ts
 //
-// Returns PM2 process status for a DIY-managed app.
+// Returns PM2 process status for a self-managed app.
 // Only meaningful for Node.js apps; static apps return { status: 'static' }.
 
 import { NextResponse } from 'next/server';
@@ -29,9 +29,9 @@ export async function GET(_req: Request, { params }: RouteContext) {
 
   if (!app) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  if (app.managed_by !== 'diy') {
+  if (app.managed_by !== 'self-managed') {
     return NextResponse.json(
-      { error: 'Status endpoint is only available for DIY-managed apps' },
+      { error: 'Status endpoint is only available for self-managed apps' },
       { status: 400 },
     );
   }

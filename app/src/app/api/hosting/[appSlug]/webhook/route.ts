@@ -49,9 +49,9 @@ export async function GET(_req: Request, { params }: RouteContext) {
 
   if (!app) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  if (app.managed_by !== 'diy') {
+  if (app.managed_by !== 'self-managed') {
     return NextResponse.json(
-      { error: 'Webhooks are only supported for DIY-managed apps' },
+      { error: 'Webhooks are only supported for self-managed apps' },
       { status: 400 },
     );
   }
@@ -100,9 +100,9 @@ export async function POST(req: Request, { params }: RouteContext) {
 
   if (!app) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  if (app.managed_by !== 'diy') {
+  if (app.managed_by !== 'self-managed') {
     return NextResponse.json(
-      { error: 'Webhooks are only supported for DIY-managed apps' },
+      { error: 'Webhooks are only supported for self-managed apps' },
       { status: 400 },
     );
   }

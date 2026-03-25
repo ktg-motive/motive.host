@@ -43,7 +43,7 @@ export default async function SiteDetailPage({ params }: PageProps) {
   let lastOperation: { operation_type: string; status: string; created_at: string; error_message: string | null } | null = null;
   let isAdmin = false;
 
-  if (app.managed_by !== 'diy') {
+  if (app.managed_by !== 'self-managed') {
     try {
       const rc = getRunCloudClient();
       const [webappResult, sslResult, domainsResult, gitResult, logResult] = await Promise.allSettled([
@@ -87,7 +87,7 @@ export default async function SiteDetailPage({ params }: PageProps) {
       console.error('RunCloud API unavailable:', err);
     }
   } else {
-    // DIY apps: derive SSL and domain state from DB record
+    // Self-managed apps: derive SSL and domain state from DB record
     const sslInstalled = app.ssl_pending === false;
     if (sslInstalled) {
       ssl = {

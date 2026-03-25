@@ -19,7 +19,7 @@ const NGINX_CONF_DIR = '/etc/nginx-rc/conf.d';
 const NGINX_LOG_DIR = '/var/log/nginx-rc';
 
 /**
- * App templates supported by the DIY pipeline.
+ * App templates supported by the self-managed pipeline.
  * WordPress is NOT included. WordPress apps remain on RunCloud.
  */
 export type AppTemplate = 'static' | 'nextjs' | 'express' | 'generic';

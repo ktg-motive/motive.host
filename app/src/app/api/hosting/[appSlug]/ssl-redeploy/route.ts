@@ -55,8 +55,8 @@ export async function POST(_req: Request, { params }: RouteContext) {
   }
 
   // 4. Redeploy SSL -- branch on managed_by
-  if (app.managed_by === 'diy') {
-    // DIY: force-renew via certbot
+  if (app.managed_by === 'self-managed') {
+    // Self-managed: force-renew via certbot
     // Cert name uses the bare domain (www. stripped) -- matches how provisioning issues the cert
     const certDomain = app.primary_domain?.toLowerCase().replace(/^www\./, '');
     if (!certDomain) {
@@ -130,7 +130,7 @@ export async function POST(_req: Request, { params }: RouteContext) {
       customer_id: user.id,
       hosting_app_id: app.id,
       action: 'ssl_redeploy',
-      description: app.managed_by === 'diy'
+      description: app.managed_by === 'self-managed'
         ? `SSL certificate force-renewed via certbot for ${app.primary_domain?.toLowerCase().replace(/^www\./, '')}`
         : 'SSL certificate redeployed via RunCloud',
       status: 'success',

@@ -69,8 +69,8 @@ export async function POST(_req: Request, { params }: RouteContext) {
     );
   }
 
-  // 4. Branch: DIY vs RunCloud
-  if (app.managed_by === 'diy') {
+  // 4. Branch: self-managed vs RunCloud
+  if (app.managed_by === 'self-managed') {
     return handleDiyDeploy(adminDb, app);
   }
 
@@ -79,7 +79,7 @@ export async function POST(_req: Request, { params }: RouteContext) {
 }
 
 /**
- * DIY deploy: durable operation + env sync + deployAndRestart
+ * Self-managed deploy: durable operation + env sync + deployAndRestart
  */
 async function handleDiyDeploy(
   adminDb: ReturnType<typeof createAdminClient>,
@@ -151,7 +151,7 @@ async function handleDiyDeploy(
           customer_id: app.customer_id,
           hosting_app_id: app.id,
           action: 'force_deploy',
-          description: `DIY deploy completed (${result.durationMs}ms)`,
+          description: `Deploy completed (${result.durationMs}ms)`,
           status: 'success',
         });
       } catch (actErr) {
@@ -178,7 +178,7 @@ async function handleDiyDeploy(
           customer_id: app.customer_id,
           hosting_app_id: app.id,
           action: 'force_deploy',
-          description: `DIY deploy failed: ${result.stderr.slice(0, 200)}`,
+          description: `Deploy failed: ${result.stderr.slice(0, 200)}`,
           status: 'error',
         });
       } catch (actErr) {

@@ -1,6 +1,6 @@
 // app/src/app/api/hosting/[appSlug]/deploy-log/route.ts
 //
-// Returns the last deploy log for a DIY-managed app.
+// Returns the last deploy log for a self-managed app.
 // Reads from disk: /home/motive-host/webapps/{appSlug}/.deploy.log
 
 import { NextResponse } from 'next/server';
@@ -29,9 +29,9 @@ export async function GET(_req: Request, { params }: RouteContext) {
 
   if (!app) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-  if (app.managed_by !== 'diy') {
+  if (app.managed_by !== 'self-managed') {
     return NextResponse.json(
-      { error: 'Deploy log endpoint is only available for DIY-managed apps' },
+      { error: 'Deploy log endpoint is only available for self-managed apps' },
       { status: 400 },
     );
   }
