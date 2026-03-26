@@ -22,7 +22,7 @@ export default async function HostingPage() {
       .single(),
     supabase
       .from('hosting_apps')
-      .select('app_slug, app_name, app_type, primary_domain, cached_status, cached_ssl_expiry, cached_last_deploy, runcloud_app_id, runcloud_server_id, managed_by')
+      .select('app_slug, app_name, app_type, primary_domain, cached_status, cached_ssl_expiry, cached_last_deploy, runcloud_app_id, runcloud_server_id, managed_by, umami_website_id')
       .eq('customer_id', user.id)
       .order('created_at', { ascending: false }),
     supabase

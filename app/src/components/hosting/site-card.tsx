@@ -12,6 +12,7 @@ interface SiteCardProps {
     cached_ssl_expiry: string | null;
     cached_last_deploy: string | null;
     managed_by?: string;
+    umami_website_id?: string | null;
   };
   live?: {
     status: string | null;
@@ -101,6 +102,17 @@ export default function SiteCard({ app, live }: SiteCardProps) {
               <span className="text-amber-400">SSL: No cert</span>
             )}
             {lastDeploy && <span>Deployed {formatRelativeDate(lastDeploy)}</span>}
+            {app.umami_website_id && (
+              <a
+                href={`https://analytics.motive.host/websites/${app.umami_website_id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="text-gold hover:text-gold-hover transition-colors"
+              >
+                Analytics
+              </a>
+            )}
           </div>
         </div>
       </Card>

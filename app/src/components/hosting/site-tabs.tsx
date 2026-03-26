@@ -25,6 +25,7 @@ interface HostingAppRow {
   deploy_template?: string | null;
   port?: number | null;
   ssl_pending?: boolean;
+  umami_website_id?: string | null;
 }
 
 interface LastOperation {
@@ -48,7 +49,7 @@ interface SiteTabsProps {
   isAdmin?: boolean;
 }
 
-type TabId = 'overview' | 'deployment' | 'env' | 'activity';
+type TabId = 'overview' | 'deployment' | 'env' | 'analytics' | 'activity';
 
 interface Tab {
   id: TabId;
@@ -79,6 +80,8 @@ export default function SiteTabs({
       : []),
     // Env vars: shown for all self-managed apps (backend checks ownership)
     ...(isSelfManaged ? [{ id: 'env' as const, label: 'Environment' }] : []),
+    // Analytics: shown for apps with Umami tracking
+    ...(app.umami_website_id ? [{ id: 'analytics' as const, label: 'Analytics' }] : []),
     { id: 'activity', label: 'Activity' },
   ];
 
@@ -131,6 +134,29 @@ export default function SiteTabs({
 
       {activeTab === 'env' && isSelfManaged && (
         <EnvVarsTab appSlug={appSlug} />
+      )}
+
+      {activeTab === 'analytics' && app.umami_website_id && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-semibold text-muted-white">Site Analytics</h2>
+            <a
+              href={`https://analytics.motive.host/websites/${app.umami_website_id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-gold hover:text-gold-hover transition-colors"
+            >
+              Open full dashboard
+            </a>
+          </div>
+          <iframe
+            src={`https://analytics.motive.host/websites/${app.umami_website_id}`}
+            sandbox="allow-scripts allow-same-origin"
+            className="w-full rounded-lg border border-border"
+            style={{ height: '800px' }}
+            title={`Analytics for ${app.app_name}`}
+          />
+        </div>
       )}
 
       {activeTab === 'activity' && (
