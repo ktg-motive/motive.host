@@ -108,7 +108,6 @@ export default function SiteCard({ app, live }: SiteCardProps) {
                 href={`https://analytics.motive.host/websites/${app.umami_website_id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
                 className="text-gold hover:text-gold-hover transition-colors"
               >
                 Analytics
