@@ -6,7 +6,7 @@ interface SiteCardProps {
   app: {
     app_slug: string;
     app_name: string;
-    app_type: 'wordpress' | 'nodejs' | 'static';
+    app_type: 'wordpress' | 'nodejs' | 'static' | 'python';
     primary_domain: string;
     cached_status: string | null;
     cached_ssl_expiry: string | null;
@@ -25,6 +25,7 @@ const typeStyles: Record<string, { bg: string; text: string; label: string }> = 
   wordpress: { bg: 'bg-blue-500/10', text: 'text-blue-400', label: 'WordPress' },
   nodejs: { bg: 'bg-green-500/10', text: 'text-green-400', label: 'Node.js' },
   static: { bg: 'bg-purple-500/10', text: 'text-purple-400', label: 'Static' },
+  python: { bg: 'bg-yellow-500/10', text: 'text-yellow-400', label: 'Python' },
 };
 
 function formatRelativeDate(iso: string): string {

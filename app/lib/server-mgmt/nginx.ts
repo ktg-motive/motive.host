@@ -8,6 +8,7 @@
 
 import { execSudo, writeSudoFile } from './exec';
 import { stat } from 'node:fs/promises';
+import { spawn } from 'node:child_process';
 
 /** Home directory for webapps. */
 const WEBAPPS_DIR = '/home/motive-host/webapps';
@@ -22,7 +23,7 @@ const NGINX_LOG_DIR = '/var/log/nginx-rc';
  * App templates supported by the self-managed pipeline.
  * WordPress is NOT included. WordPress apps remain on RunCloud.
  */
-export type AppTemplate = 'static' | 'nextjs' | 'express' | 'generic';
+export type AppTemplate = 'static' | 'nextjs' | 'express' | 'generic' | 'python';
 
 /**
  * Nginx state machine states for an app's configuration.
@@ -61,6 +62,10 @@ export interface ServerBlockOptions {
   wwwBehavior?: WwwBehavior;
   /** For static apps: the output directory (default: the app root). */
   staticOutputDir?: string;
+  /** When true, add basic auth directives to the server block. */
+  basicAuth?: boolean;
+  /** Monorepo subdirectory (affects static file paths for python apps). */
+  subdir?: string;
 }
 
 /**
@@ -123,7 +128,7 @@ export function buildCertDomains(options: {
  * Failure modes: Throws if template requires port but port is undefined.
  */
 export function generateServerBlock(options: ServerBlockOptions): string {
-  const { appSlug, domain, template, port, sslOnly, aliases, wwwBehavior, staticOutputDir } = options;
+  const { appSlug, domain, template, port, sslOnly, aliases, wwwBehavior, staticOutputDir, basicAuth, subdir } = options;
 
   const serverNames = buildServerNames({ domain, aliases, wwwBehavior });
 
@@ -153,10 +158,17 @@ export function generateServerBlock(options: ServerBlockOptions): string {
         proxy_buffers 4 256k;
         proxy_busy_buffers_size 256k;`;
 
+  const basicAuthDirectives = basicAuth
+    ? `
+    # Basic auth
+    auth_basic "Restricted";
+    auth_basic_user_file ${NGINX_CONF_DIR}/${appSlug}.d/.htpasswd;`
+    : '';
+
   const acmeLocation = `
     # ACME challenge for certbot webroot mode
     location ^~ /.well-known/acme-challenge/ {
-        root ${WEBAPPS_DIR}/${appSlug};
+        root ${WEBAPPS_DIR}/${appSlug};${basicAuth ? '\n        auth_basic off;' : ''}
     }`;
 
   const sslInclude = `
@@ -190,6 +202,7 @@ ${listenDirectives}
     access_log ${NGINX_LOG_DIR}/${appSlug}.access.log;
     error_log ${NGINX_LOG_DIR}/${appSlug}.error.log;
 ${securityHeaders}
+${basicAuthDirectives}
 
     location / {
         try_files $uri $uri/ /index.html;
@@ -220,6 +233,7 @@ ${listenDirectives}
     access_log ${NGINX_LOG_DIR}/${appSlug}.access.log;
     error_log ${NGINX_LOG_DIR}/${appSlug}.error.log;
 ${securityHeaders}
+${basicAuthDirectives}
 
     # Next.js static assets -- long cache, served from disk
     location /_next/static/ {
@@ -260,6 +274,7 @@ ${listenDirectives}
     access_log ${NGINX_LOG_DIR}/${appSlug}.access.log;
     error_log ${NGINX_LOG_DIR}/${appSlug}.error.log;
 ${securityHeaders}
+${basicAuthDirectives}
 
     location /public/ {
         alias ${WEBAPPS_DIR}/${appSlug}/public/;
@@ -271,6 +286,54 @@ ${securityHeaders}
     location / {
         proxy_pass http://127.0.0.1:${port};
 ${proxyHeaders}
+    }
+${acmeLocation}
+${sslInclude}
+}
+`;
+    }
+
+    case 'python': {
+      if (!port) throw new Error(`generateServerBlock: port is required for template '${template}'`);
+      const staticDir = subdir
+        ? `${WEBAPPS_DIR}/${appSlug}/${subdir}/static`
+        : `${WEBAPPS_DIR}/${appSlug}/static`;
+      return `# Managed by Motive Hosting -- do not edit manually
+# App: ${appSlug} | Type: python | Port: ${port}
+server {
+${listenDirectives}
+    server_name ${serverNames};
+
+    root ${WEBAPPS_DIR}/${appSlug};
+
+    access_log ${NGINX_LOG_DIR}/${appSlug}.access.log;
+    error_log ${NGINX_LOG_DIR}/${appSlug}.error.log;
+${securityHeaders}
+${basicAuthDirectives}
+
+    # Flask static files -- served from disk
+    location /static/ {
+        alias ${staticDir}/;
+        try_files $uri =404;
+        expires 30d;
+        add_header Cache-Control "public, immutable";
+        access_log off;
+    }
+
+    # All other requests proxy to Gunicorn
+    location / {
+        proxy_pass http://127.0.0.1:${port};
+
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Proxy buffer settings (prevents 502 on large headers/responses)
+        proxy_buffer_size 128k;
+        proxy_buffers 4 256k;
+        proxy_busy_buffers_size 256k;
     }
 ${acmeLocation}
 ${sslInclude}
@@ -505,4 +568,69 @@ export async function detectNginxState(appSlug: string): Promise<NginxState> {
     return 'http_only';
   } catch { /* no config at all */ }
   return 'http_only';
+}
+
+/**
+ * Write a .htpasswd file for basic auth into the app's nginx config directory.
+ *
+ * Uses subprocess spawn with password written to stdin to avoid exposing
+ * the password on the command line (visible in `ps`) or interpolating it
+ * into a shell string (quoting/special character breakage).
+ *
+ * @param appSlug - The app identifier
+ * @param user - The basic auth username
+ * @param password - The basic auth password (used once, not stored)
+ *
+ * Side effects: Writes /etc/nginx-rc/conf.d/{appSlug}.d/.htpasswd via htpasswd.
+ * Failure modes: Rejects if htpasswd binary fails or is not installed.
+ * Idempotency: Overwrites any existing .htpasswd file (-c flag).
+ */
+export async function writeBasicAuthHtpasswd(
+  appSlug: string,
+  user: string,
+  password: string,
+): Promise<void> {
+  const confDir = `${NGINX_CONF_DIR}/${appSlug}.d`;
+  const htpasswdPath = `${confDir}/.htpasswd`;
+
+  // Ensure the config directory exists
+  await execSudo('mkdir', ['-p', confDir]);
+
+  // Write htpasswd to a temp path in the user's home (not world-readable /tmp),
+  // then move it into the root-owned conf directory.
+  const tmpDir = '/home/motive-host/.cache/motive-hosting';
+  await execSudo('mkdir', ['-p', tmpDir]);
+  await execSudo('chown', ['motive-host:motive-host', tmpDir]);
+  await execSudo('chmod', ['700', tmpDir]);
+  const tmpPath = `${tmpDir}/htpasswd-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+  await new Promise<void>((resolve, reject) => {
+    // -i: read password from stdin
+    // -B: force bcrypt hash
+    // -c: create file (overwrite if exists)
+    const child = spawn('htpasswd', ['-i', '-B', '-c', tmpPath, user]);
+
+    let stderr = '';
+    child.stderr.on('data', (chunk: Buffer) => { stderr += chunk.toString(); });
+
+    child.on('error', (err) => {
+      reject(new Error(`htpasswd spawn failed: ${err.message}`));
+    });
+
+    child.on('close', (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`htpasswd failed (exit ${code}): ${stderr.slice(0, 500)}`));
+      }
+    });
+
+    // Write password to stdin and close
+    child.stdin.write(password);
+    child.stdin.end();
+  });
+
+  // Move the temp file into the nginx config directory (requires sudo)
+  await execSudo('mv', [tmpPath, htpasswdPath]);
+  await execSudo('chmod', ['644', htpasswdPath]);
 }

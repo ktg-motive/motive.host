@@ -35,6 +35,7 @@ export async function POST(request: Request) {
     .from('customers')
     .select('is_admin')
     .eq('id', user.id)
+    .is('disabled_at', null)
     .single();
 
   if (!customer?.is_admin) {
@@ -57,7 +58,11 @@ export async function POST(request: Request) {
   }
 
   const input = parsed.data;
-  const safeInputForLogging = { ...input, wp_admin_password: input.wp_admin_password ? '[REDACTED]' : undefined };
+  const safeInputForLogging = {
+    ...input,
+    wp_admin_password: input.wp_admin_password ? '[REDACTED]' : undefined,
+    basic_auth_password: input.basic_auth_password ? '[REDACTED]' : undefined,
+  };
 
   // WordPress with self-managed is not supported
   const isWordPress = input.app_type === 'wordpress';
@@ -142,16 +147,40 @@ async function provisionDiy(ctx: ProvisionContext) {
     assignedPort = (maxPortRow?.port ?? BASE_PORT) + 1;
   }
 
-  // ── Auto-configure DNS ────────────────────────────────────────────────
+  // ── Auto-configure DNS (subdomain-aware) ─────────────────────────────
   let sslPending = false;
   const serverIp = process.env.RUNCLOUD_SERVER_IP;
   const dnsOwnership = input.dns_ownership ?? 'motive';
 
-  console.log('[provision/self-managed] checking DNS for domain', normalizedDomain);
+  // Subdomain detection -- find the longest matching managed parent zone.
+  // Handles multi-level subdomains (a.b.example.com) by iterating suffixes.
+  let parentDomain: string | null = null;
+  let subdomain: string | null = null;
+
+  const parts = normalizedDomain.split('.');
+  if (parts.length > 2) {
+    for (let i = 1; i < parts.length - 1; i++) {
+      const candidateParent = parts.slice(i).join('.');
+      const { data: zone } = await adminDb
+        .from('domains')
+        .select('id, domain_name')
+        .eq('domain_name', candidateParent)
+        .maybeSingle();
+      if (zone) {
+        parentDomain = candidateParent;
+        subdomain = parts.slice(0, i).join('.');
+        break;
+      }
+    }
+  }
+
+  const domainToLookup = parentDomain ?? normalizedDomain;
+
+  console.log('[provision/self-managed] checking DNS for domain', normalizedDomain, subdomain ? `(subdomain: ${subdomain}, parent: ${parentDomain})` : '(root domain)');
   const { data: managedDomain } = await adminDb
     .from('domains')
     .select('id, domain_name')
-    .eq('domain_name', normalizedDomain)
+    .eq('domain_name', domainToLookup)
     .maybeSingle();
 
   if (dnsOwnership === 'motive' && managedDomain && serverIp) {
@@ -160,7 +189,7 @@ async function provisionDiy(ctx: ProvisionContext) {
       const opensrs = getOpenSRSClient();
       let existingRecords: Array<{ type: string; subdomain: string; ip_address?: string; hostname?: string }> = [];
       try {
-        const zone = await opensrs.getDnsZone(normalizedDomain);
+        const zone = await opensrs.getDnsZone(domainToLookup);
         existingRecords = zone.records;
       } catch {
         // Zone may not exist yet
@@ -169,21 +198,33 @@ async function provisionDiy(ctx: ProvisionContext) {
       type DnsChange = Parameters<typeof opensrs.updateDnsRecords>[1][number];
       const changes: DnsChange[] = [];
 
-      for (const r of existingRecords) {
-        if (r.type === 'A' && (r.subdomain === '@' || r.subdomain === '') && r.ip_address !== serverIp) {
-          changes.push({ action: 'remove', record: r as DnsChange['record'] });
+      if (subdomain) {
+        // Subdomain: add A record for the subdomain on the parent zone, skip www CNAME
+        for (const r of existingRecords) {
+          if (r.type === 'A' && r.subdomain === subdomain && r.ip_address !== serverIp) {
+            changes.push({ action: 'remove', record: r as DnsChange['record'] });
+          }
         }
-        if (r.subdomain === 'www' && !(r.type === 'CNAME' && r.hostname === `${normalizedDomain}.`)) {
-          changes.push({ action: 'remove', record: r as DnsChange['record'] });
+        changes.push(
+          { action: 'add', record: { type: 'A', subdomain, ip_address: serverIp } },
+        );
+      } else {
+        // Root domain: A for @, CNAME for www
+        for (const r of existingRecords) {
+          if (r.type === 'A' && (r.subdomain === '@' || r.subdomain === '') && r.ip_address !== serverIp) {
+            changes.push({ action: 'remove', record: r as DnsChange['record'] });
+          }
+          if (r.subdomain === 'www' && !(r.type === 'CNAME' && r.hostname === `${normalizedDomain}.`)) {
+            changes.push({ action: 'remove', record: r as DnsChange['record'] });
+          }
         }
+        changes.push(
+          { action: 'add', record: { type: 'A', subdomain: '@', ip_address: serverIp } },
+          { action: 'add', record: { type: 'CNAME', subdomain: 'www', hostname: `${normalizedDomain}.` } },
+        );
       }
 
-      changes.push(
-        { action: 'add', record: { type: 'A', subdomain: '@', ip_address: serverIp } },
-        { action: 'add', record: { type: 'CNAME', subdomain: 'www', hostname: `${normalizedDomain}.` } },
-      );
-
-      await opensrs.updateDnsRecords(normalizedDomain, changes);
+      await opensrs.updateDnsRecords(domainToLookup, changes);
       console.log('[provision/self-managed] DNS configured');
     } catch (err) {
       console.error('[provision/self-managed] DNS auto-config failed', err);
@@ -206,6 +247,8 @@ async function provisionDiy(ctx: ProvisionContext) {
   let template: AppTemplate;
   if (input.app_type === 'static') {
     template = 'static';
+  } else if (input.app_type === 'python') {
+    template = 'python';
   } else if (input.deploy_template) {
     template = input.deploy_template as AppTemplate;
   } else {
@@ -231,14 +274,18 @@ async function provisionDiy(ctx: ProvisionContext) {
         provisioned_by: user.id,
         port: assignedPort,
         git_subdir: input.git_subdir || null,
-        deploy_template: input.deploy_template || null,
+        deploy_template: input.app_type === 'python' ? 'python' : (input.deploy_template || null),
         deploy_method: input.git_provider || input.deploy_method || null,
         ssl_pending: sslPending,
         managed_by: 'self-managed',
         git_repo: input.git_repository || null,
         git_branch: input.git_branch || 'main',
-        www_behavior: input.www_behavior || 'add_www',
+        www_behavior: subdomain ? 'as_is' : (input.www_behavior || 'add_www'),
         dns_ownership: dnsOwnership,
+        python_module: input.app_type === 'python' ? (input.python_module ?? 'app:app') : null,
+        gunicorn_workers: input.app_type === 'python' ? (input.gunicorn_workers ?? 2) : null,
+        basic_auth_enabled: input.basic_auth_enabled ?? false,
+        basic_auth_user: input.basic_auth_enabled ? input.basic_auth_user : null,
       })
       .select()
       .single();
@@ -327,8 +374,14 @@ async function provisionDiy(ctx: ProvisionContext) {
       gitBranch: input.git_branch,
       gitSubdir: input.git_subdir,
       aliases: [],
-      wwwBehavior: input.www_behavior ?? 'add_www',
+      wwwBehavior: subdomain ? 'as_is' : (input.www_behavior ?? 'add_www'),
       dnsOwnership,
+      pythonModule: input.app_type === 'python' ? (input.python_module ?? 'app:app') : undefined,
+      gunicornWorkers: input.app_type === 'python' ? (input.gunicorn_workers ?? 2) : undefined,
+      subdir: input.git_subdir,
+      basicAuth: input.basic_auth_enabled && input.basic_auth_user && input.basic_auth_password
+        ? { user: input.basic_auth_user, password: input.basic_auth_password }
+        : undefined,
     });
 
     // Update ssl_pending based on actual SSL result
@@ -426,6 +479,10 @@ async function provisionDiy(ctx: ProvisionContext) {
           ssl_pending: sslPending,
           deploy_key_public: result.deployKeyPublic,
           umami_website_id: umamiWebsiteId,
+          python_module: input.app_type === 'python' ? (input.python_module ?? 'app:app') : undefined,
+          gunicorn_workers: input.app_type === 'python' ? (input.gunicorn_workers ?? 2) : undefined,
+          basic_auth_enabled: input.basic_auth_enabled ?? false,
+          basic_auth_user: input.basic_auth_enabled ? input.basic_auth_user : undefined,
         },
         warnings,
       },

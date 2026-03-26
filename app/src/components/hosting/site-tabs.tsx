@@ -12,7 +12,7 @@ interface HostingAppRow {
   id: string;
   app_slug: string;
   app_name: string;
-  app_type: 'wordpress' | 'nodejs' | 'static';
+  app_type: 'wordpress' | 'nodejs' | 'static' | 'python';
   primary_domain: string;
   runcloud_app_id: number;
   runcloud_server_id: number;
@@ -26,6 +26,10 @@ interface HostingAppRow {
   port?: number | null;
   ssl_pending?: boolean;
   umami_website_id?: string | null;
+  python_module?: string | null;
+  gunicorn_workers?: number | null;
+  basic_auth_enabled?: boolean | null;
+  basic_auth_user?: string | null;
 }
 
 interface LastOperation {

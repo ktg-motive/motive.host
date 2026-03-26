@@ -8,14 +8,14 @@ export {
   generateServerBlock, generateSslConf, generateRedirectConf,
   buildServerNames, buildCertDomains,
   writeServerBlock, removeServerBlock, writeSSLConfig, writeRedirectConfig,
-  detectNginxState,
+  detectNginxState, writeBasicAuthHtpasswd,
 } from './nginx';
 export type { ServerBlockOptions, AppTemplate, NginxState, WwwBehavior } from './nginx';
 
 export {
   createAppDirectory, removeAppDirectory, configureNginx, installSSL,
   generateDeployKey, seedKnownHosts, verifyRepoAccess, cloneRepo, provisionApp,
-  rollbackProvision,
+  rollbackProvision, setupPythonVenv, startPythonApp,
 } from './provision';
 export type { ProvisionAppOptions } from './provision';
 

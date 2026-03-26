@@ -29,6 +29,10 @@ interface ProvisionResult {
     deploy_method?: string | null;
     deploy_key_public?: string;
     ssl_pending?: boolean;
+    python_module?: string;
+    gunicorn_workers?: number;
+    basic_auth_enabled?: boolean;
+    basic_auth_user?: string;
   };
   warnings: string[];
 }
@@ -43,7 +47,7 @@ type FormState = 'idle' | 'submitting' | 'success' | 'error';
 
 export default function ProvisionForm({ customers, preselectedCustomerId }: ProvisionFormProps) {
   const [customerId, setCustomerId] = useState(preselectedCustomerId ?? '');
-  const [appType, setAppType] = useState<'wordpress' | 'nodejs' | 'static'>('nodejs');
+  const [appType, setAppType] = useState<'wordpress' | 'nodejs' | 'static' | 'python'>('nodejs');
   const [dnsOwnership, setDnsOwnership] = useState<'motive' | 'external'>('motive');
   const [primaryDomain, setPrimaryDomain] = useState('');
   const [appName, setAppName] = useState('');
@@ -54,6 +58,15 @@ export default function ProvisionForm({ customers, preselectedCustomerId }: Prov
   const [gitRepository, setGitRepository] = useState('');
   const [gitBranch, setGitBranch] = useState('main');
   const [gitSubdir, setGitSubdir] = useState('');
+
+  // Python fields
+  const [pythonModule, setPythonModule] = useState('app:app');
+  const [gunicornWorkers, setGunicornWorkers] = useState(2);
+
+  // Basic auth fields
+  const [basicAuthEnabled, setBasicAuthEnabled] = useState(false);
+  const [basicAuthUser, setBasicAuthUser] = useState('');
+  const [basicAuthPassword, setBasicAuthPassword] = useState('');
 
   // WordPress fields
   const [wpTitle, setWpTitle] = useState('');
@@ -103,11 +116,32 @@ export default function ProvisionForm({ customers, preselectedCustomerId }: Prov
       }
     }
 
+    if (appType === 'python') {
+      payload.deploy_template = 'python';
+      payload.python_module = pythonModule.trim() || 'app:app';
+      payload.gunicorn_workers = gunicornWorkers;
+      if (gitRepository.trim()) {
+        payload.git_provider = gitProvider;
+        payload.git_repository = gitRepository.trim();
+        payload.git_branch = gitBranch.trim() || 'main';
+      }
+      if (gitSubdir.trim()) {
+        payload.git_subdir = gitSubdir.trim();
+      }
+    }
+
     if (appType === 'wordpress') {
       if (wpTitle.trim()) payload.wp_title = wpTitle.trim();
       if (wpAdminUser.trim()) payload.wp_admin_user = wpAdminUser.trim();
       if (wpAdminPassword) payload.wp_admin_password = wpAdminPassword;
       if (wpAdminEmail.trim()) payload.wp_admin_email = wpAdminEmail.trim();
+    }
+
+    // Basic auth (all non-WordPress types)
+    if (appType !== 'wordpress' && basicAuthEnabled) {
+      payload.basic_auth_enabled = true;
+      payload.basic_auth_user = basicAuthUser.trim();
+      payload.basic_auth_password = basicAuthPassword;
     }
 
     try {
@@ -129,7 +163,7 @@ export default function ProvisionForm({ customers, preselectedCustomerId }: Prov
       setResult(data as ProvisionResult);
     } catch {
       setFormState('error');
-      setErrorInfo({ error: 'Network error — check your connection and try again' });
+      setErrorInfo({ error: 'Network error -- check your connection and try again' });
     }
   }
 
@@ -140,6 +174,11 @@ export default function ProvisionForm({ customers, preselectedCustomerId }: Prov
     setPrimaryDomain('');
     setAppName('');
     setGitRepository('');
+    setPythonModule('app:app');
+    setGunicornWorkers(2);
+    setBasicAuthEnabled(false);
+    setBasicAuthUser('');
+    setBasicAuthPassword('');
     setWpTitle('');
     setWpAdminUser('');
     setWpAdminPassword('');
@@ -159,6 +198,25 @@ export default function ProvisionForm({ customers, preselectedCustomerId }: Prov
           {result.app.port != null && ` Port: ${result.app.port}.`}
           {result.app.ssl_pending && ' SSL pending.'}
         </p>
+        {result.app.python_module && (
+          <div className="mt-3 rounded-lg border border-border bg-primary-bg p-3 text-left">
+            <p className="mb-1 text-xs font-medium uppercase tracking-wide text-slate">Python Config</p>
+            <p className="font-mono text-xs text-muted-white">
+              Module: {result.app.python_module} | Workers: {result.app.gunicorn_workers ?? 2}
+            </p>
+          </div>
+        )}
+        {result.app.basic_auth_enabled && result.app.basic_auth_user && (
+          <div className="mt-3 rounded-lg border border-border bg-primary-bg p-3 text-left">
+            <p className="mb-1 text-xs font-medium uppercase tracking-wide text-slate">Basic Auth Credentials</p>
+            <p className="font-mono text-xs text-muted-white">
+              Username: {result.app.basic_auth_user}
+            </p>
+            <p className="mt-1 text-xs text-slate/70">
+              Password was set during provisioning and is not stored. Save it now if needed.
+            </p>
+          </div>
+        )}
         {result.app.deploy_key_public && (
           <div className="mt-3 rounded-lg border border-border bg-primary-bg p-3 text-left">
             <p className="mb-1 text-xs font-medium uppercase tracking-wide text-slate">Deploy Key (add to your repo)</p>
@@ -221,7 +279,7 @@ export default function ProvisionForm({ customers, preselectedCustomerId }: Prov
         {/* App Type */}
         <div>
           <p className={labelClass}>App Type</p>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-4">
             <label className="flex items-center gap-2 text-sm text-muted-white">
               <input
                 type="radio"
@@ -248,6 +306,17 @@ export default function ProvisionForm({ customers, preselectedCustomerId }: Prov
               <input
                 type="radio"
                 name="appType"
+                value="python"
+                checked={appType === 'python'}
+                onChange={() => setAppType('python')}
+                className="accent-gold"
+              />
+              Python
+            </label>
+            <label className="flex items-center gap-2 text-sm text-muted-white">
+              <input
+                type="radio"
+                name="appType"
                 value="static"
                 checked={appType === 'static'}
                 onChange={() => setAppType('static')}
@@ -266,7 +335,7 @@ export default function ProvisionForm({ customers, preselectedCustomerId }: Prov
             type="text"
             value={primaryDomain}
             onChange={(e) => setPrimaryDomain(e.target.value)}
-            placeholder="example.com"
+            placeholder="example.com or sub.motive.host"
             required
             className={inputClass}
           />
@@ -315,13 +384,13 @@ export default function ProvisionForm({ customers, preselectedCustomerId }: Prov
               </label>
             </div>
             <p className="mt-1 text-xs text-slate/70">
-              {dnsOwnership === 'motive' ? 'DNS A/CNAME records will be auto-configured' : 'You\'ll configure DNS yourself — SSL will be pending'}
+              {dnsOwnership === 'motive' ? 'DNS A/CNAME records will be auto-configured' : 'You\'ll configure DNS yourself -- SSL will be pending'}
             </p>
           </div>
         )}
 
-        {/* Node.js / Static Git Config */}
-        {(appType === 'nodejs' || appType === 'static') && (
+        {/* Node.js / Static / Python Git Config */}
+        {(appType === 'nodejs' || appType === 'static' || appType === 'python') && (
           <div className="space-y-4 rounded-lg border border-border/50 p-4">
             <p className="text-xs font-medium uppercase tracking-wide text-slate">Deploy Configuration</p>
             {appType === 'nodejs' && (
@@ -338,6 +407,36 @@ export default function ProvisionForm({ customers, preselectedCustomerId }: Prov
                   <option value="generic">Generic Node.js</option>
                 </select>
               </div>
+            )}
+            {appType === 'python' && (
+              <>
+                <div>
+                  <label htmlFor="pythonModule" className={labelClass}>Python Module (module:callable)</label>
+                  <input
+                    id="pythonModule"
+                    type="text"
+                    value={pythonModule}
+                    onChange={(e) => setPythonModule(e.target.value)}
+                    placeholder="app:app"
+                    className={inputClass}
+                  />
+                  <p className="mt-1 text-xs text-slate/70">
+                    The WSGI module and callable for Gunicorn (e.g. app:app, wsgi:application)
+                  </p>
+                </div>
+                <div>
+                  <label htmlFor="gunicornWorkers" className={labelClass}>Gunicorn Workers</label>
+                  <input
+                    id="gunicornWorkers"
+                    type="number"
+                    value={gunicornWorkers}
+                    onChange={(e) => setGunicornWorkers(parseInt(e.target.value, 10) || 2)}
+                    min={1}
+                    max={8}
+                    className={inputClass}
+                  />
+                </div>
+              </>
             )}
             <div>
               <label htmlFor="gitProvider" className={labelClass}>Git Provider</label>
@@ -359,8 +458,12 @@ export default function ProvisionForm({ customers, preselectedCustomerId }: Prov
                 value={gitRepository}
                 onChange={(e) => setGitRepository(e.target.value)}
                 placeholder="owner/repo"
+                required={appType === 'python'}
                 className={inputClass}
               />
+              {appType === 'python' && (
+                <p className="mt-1 text-xs text-slate/70">Required for Python apps</p>
+              )}
             </div>
             <div>
               <label htmlFor="gitBranch" className={labelClass}>Branch</label>
@@ -384,6 +487,53 @@ export default function ProvisionForm({ customers, preselectedCustomerId }: Prov
                 className={inputClass}
               />
             </div>
+          </div>
+        )}
+
+        {/* Basic Auth (all non-WordPress types) */}
+        {appType !== 'wordpress' && (
+          <div className="space-y-4 rounded-lg border border-border/50 p-4">
+            <label className="flex items-center gap-2 text-sm text-muted-white">
+              <input
+                type="checkbox"
+                checked={basicAuthEnabled}
+                onChange={(e) => setBasicAuthEnabled(e.target.checked)}
+                className="accent-gold"
+              />
+              Enable Basic Auth
+            </label>
+            {basicAuthEnabled && (
+              <>
+                <div>
+                  <label htmlFor="basicAuthUser" className={labelClass}>Username</label>
+                  <input
+                    id="basicAuthUser"
+                    type="text"
+                    value={basicAuthUser}
+                    onChange={(e) => setBasicAuthUser(e.target.value)}
+                    placeholder="admin"
+                    required
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="basicAuthPassword" className={labelClass}>Password</label>
+                  <input
+                    id="basicAuthPassword"
+                    type="password"
+                    value={basicAuthPassword}
+                    onChange={(e) => setBasicAuthPassword(e.target.value)}
+                    placeholder="Min 8 characters"
+                    required
+                    minLength={8}
+                    className={inputClass}
+                  />
+                  <p className="mt-1 text-xs text-slate/70">
+                    Password is used once to generate htpasswd and is not stored in the database.
+                  </p>
+                </div>
+              </>
+            )}
           </div>
         )}
 

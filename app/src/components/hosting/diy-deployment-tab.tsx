@@ -7,7 +7,7 @@ interface DiyDeploymentTabProps {
   appSlug: string;
   app: {
     app_slug: string;
-    app_type: 'wordpress' | 'nodejs' | 'static';
+    app_type: 'wordpress' | 'nodejs' | 'static' | 'python';
     webhook_enabled?: boolean;
     git_branch?: string;
     git_repo?: string | null;

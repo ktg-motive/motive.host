@@ -4,7 +4,7 @@ interface SiteRequestCardProps {
   request: {
     id: string;
     domain: string;
-    app_type: 'wordpress' | 'nodejs' | 'static';
+    app_type: 'wordpress' | 'nodejs' | 'static' | 'python';
     status: 'pending' | 'approved';
     created_at: string;
   };
@@ -14,6 +14,7 @@ const typeStyles: Record<string, { bg: string; text: string; label: string }> = 
   wordpress: { bg: 'bg-blue-500/10', text: 'text-blue-400', label: 'WordPress' },
   nodejs: { bg: 'bg-green-500/10', text: 'text-green-400', label: 'Node.js' },
   static: { bg: 'bg-purple-500/10', text: 'text-purple-400', label: 'Static' },
+  python: { bg: 'bg-yellow-500/10', text: 'text-yellow-400', label: 'Python' },
 };
 
 const statusStyles: Record<string, { bg: string; text: string; label: string }> = {

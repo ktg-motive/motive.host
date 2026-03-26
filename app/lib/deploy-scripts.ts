@@ -17,6 +17,10 @@ export interface DeployScriptOptions {
   port: number;
   /** Optional subdirectory for monorepo projects (e.g., "app", "packages/web"). */
   subdir?: string;
+  /** Python WSGI module string (e.g. "app:app"). Required for python template. */
+  pythonModule?: string;
+  /** Number of Gunicorn workers (1-8). Required for python template. */
+  gunicornWorkers?: number;
 }
 
 // ── Templates ────────────────────────────────────────────────────────────
@@ -97,24 +101,51 @@ PORT=$APP_PORT pm2 start npm --name "$APP_NAME" -- start
 pm2 save
 `;
 
+const PYTHON_TEMPLATE = `#!/bin/bash
+set -e
+
+APP_DIR="/home/motive-host/webapps/__APP_SLUG__"
+APP_NAME="__APP_SLUG__"
+APP_PORT=__PORT__
+PYTHON_MODULE="__PYTHON_MODULE__"
+GUNICORN_WORKERS=__GUNICORN_WORKERS__
+
+cd "$APP_DIR"
+__SUBDIR_CD__
+WORK_DIR="$(pwd)"
+
+# Activate venv and install dependencies
+source "$APP_DIR/venv/bin/activate"
+pip install -r "$WORK_DIR/requirements.txt"
+
+# Restart Gunicorn via PM2
+pm2 delete "$APP_NAME" 2>/dev/null || true
+cd "$WORK_DIR" && pm2 start "$APP_DIR/venv/bin/gunicorn" \\
+  --name "$APP_NAME" --interpreter none -- \\
+  -w $GUNICORN_WORKERS -b 127.0.0.1:$APP_PORT $PYTHON_MODULE
+pm2 save
+`;
+
 const TEMPLATES: Record<DeployTemplate, string> = {
   nextjs: NEXTJS_TEMPLATE,
   express: EXPRESS_TEMPLATE,
   generic: GENERIC_TEMPLATE,
+  python: PYTHON_TEMPLATE,
 };
 
 /**
  * Generate a bash deploy script from a template.
  *
  * The returned script is suitable for use as a RunCloud git deploy script.
- * Template variables (`__APP_SLUG__`, `__PORT__`, `__SUBDIR_CD__`) are
- * replaced with the provided values.
+ * Template variables (`__APP_SLUG__`, `__PORT__`, `__SUBDIR_CD__`,
+ * `__PYTHON_MODULE__`, `__GUNICORN_WORKERS__`) are replaced with the
+ * provided values.
  *
  * @param options - Deploy script configuration
  * @returns The generated bash script as a string
  */
 export function generateDeployScript(options: DeployScriptOptions): string {
-  const { template, appSlug, port, subdir } = options;
+  const { template, appSlug, port, subdir, pythonModule, gunicornWorkers } = options;
 
   const raw = TEMPLATES[template];
   // Shell-quote the subdir to prevent injection (schema also validates safe chars)
@@ -123,5 +154,7 @@ export function generateDeployScript(options: DeployScriptOptions): string {
   return raw
     .replace(/__APP_SLUG__/g, appSlug)
     .replace(/__PORT__/g, String(port))
-    .replace(/__SUBDIR_CD__/g, subdirLine);
+    .replace(/__SUBDIR_CD__/g, subdirLine)
+    .replace(/__PYTHON_MODULE__/g, pythonModule ?? 'app:app')
+    .replace(/__GUNICORN_WORKERS__/g, String(gunicornWorkers ?? 2));
 }

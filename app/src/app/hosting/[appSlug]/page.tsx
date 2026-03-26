@@ -24,7 +24,7 @@ export default async function SiteDetailPage({ params }: PageProps) {
   // Fetch the hosting app by slug -- RLS ensures customer_id matches
   const { data: app } = await supabase
     .from('hosting_apps')
-    .select('id, app_slug, app_name, app_type, primary_domain, runcloud_app_id, runcloud_server_id, cached_status, managed_by, created_at, ssl_pending, domain_aliases, webhook_enabled, git_branch, git_repo, deploy_template, port, umami_website_id')
+    .select('id, app_slug, app_name, app_type, primary_domain, runcloud_app_id, runcloud_server_id, cached_status, managed_by, created_at, ssl_pending, domain_aliases, webhook_enabled, git_branch, git_repo, deploy_template, port, umami_website_id, python_module, gunicorn_workers, basic_auth_enabled, basic_auth_user')
     .eq('app_slug', appSlug)
     .eq('customer_id', user.id)
     .single();

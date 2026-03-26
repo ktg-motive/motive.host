@@ -102,21 +102,25 @@ async function postpullRestore(appDir: string): Promise<void> {
 }
 
 /**
- * Full deploy pipeline: git pull, build, PM2 restart (for Node.js)
- * or just git pull + build (for static).
+ * Full deploy pipeline: git pull, build, PM2 restart (for Node.js),
+ * pip install + gunicorn restart (for Python), or just git pull + build (for static).
  *
  * For static apps, PM2 is skipped entirely.
  *
- * Side effects: Pulls code, runs npm install + build, restarts PM2 process.
+ * Side effects: Pulls code, runs build/install, restarts PM2 process.
  * Failure modes: Returns { success: false } with error output if any step fails.
  *   Does NOT throw -- callers check result.success.
  * Idempotency: Yes (same code produces same build).
  */
 export async function deployAndRestart(options: DeployOptions & {
-  port?: number;  // Required for Node.js, null/undefined for static
-  template: DeployScriptOptions['template'] | 'static';
+  port?: number;  // Required for Node.js and Python, null/undefined for static
+  template: DeployScriptOptions['template'] | 'static' | 'python';
+  /** Python WSGI module string (e.g. "app:app"). Required when template === 'python'. */
+  pythonModule?: string;
+  /** Number of Gunicorn workers (1-8). Required when template === 'python'. */
+  gunicornWorkers?: number;
 }): Promise<DeployResult> {
-  const { appSlug, subdir, port, template } = options;
+  const { appSlug, subdir, port, template, pythonModule, gunicornWorkers } = options;
   const appDir = `${WEBAPPS_DIR}/${appSlug}`;
   const start = Date.now();
 
@@ -129,9 +133,16 @@ export async function deployAndRestart(options: DeployOptions & {
     stdout += pullResult.stdout;
     stderr += pullResult.stderr;
 
-    // Step 2: Build
+    // Step 2: Build / deploy based on template
     if (template === 'static') {
       stdout += await runStaticDeploy(appSlug, appDir, subdir);
+    } else if (template === 'python') {
+      stdout += await runPythonDeploy(appSlug, appDir, {
+        port: port!,
+        pythonModule: pythonModule ?? 'app:app',
+        gunicornWorkers: gunicornWorkers ?? 2,
+        subdir,
+      });
     } else {
       // Node.js deploy: use deploy-scripts.ts templates
       const deployScript = generateDeployScript({
@@ -199,6 +210,87 @@ async function runStaticDeploy(appSlug: string, appDir: string, subdir?: string)
   } catch {
     stdout += 'No build script found, skipping build\n';
   }
+
+  return stdout;
+}
+
+/**
+ * Run the Python deploy pipeline.
+ *
+ * 1. Activate venv and pip install requirements.txt
+ * 2. PM2 delete + restart gunicorn
+ * 3. PM2 save
+ *
+ * @param appSlug - The app identifier
+ * @param appDir - Absolute path to the app directory
+ * @param options.port - Port for gunicorn to bind to
+ * @param options.pythonModule - WSGI module string (e.g. "app:app")
+ * @param options.gunicornWorkers - Number of gunicorn worker processes
+ * @param options.subdir - Optional monorepo subdirectory
+ *
+ * Side effects: Installs Python packages, restarts gunicorn via PM2.
+ * Failure modes: Throws ExecError if pip install or PM2 fails.
+ */
+/** Validates python module format (defense-in-depth, matches provision.ts) */
+const PYTHON_MODULE_RE = /^[a-zA-Z_][a-zA-Z0-9_.]*:[a-zA-Z_][a-zA-Z0-9_]*$/;
+
+async function runPythonDeploy(appSlug: string, appDir: string, options: {
+  port: number;
+  pythonModule: string;
+  gunicornWorkers: number;
+  subdir?: string;
+}): Promise<string> {
+  const { port, pythonModule, gunicornWorkers, subdir } = options;
+
+  // Validate pythonModule (defense-in-depth — value comes from DB but could be corrupted)
+  if (!PYTHON_MODULE_RE.test(pythonModule)) {
+    throw new Error(`Invalid python_module format: ${pythonModule}`);
+  }
+
+  // Validate subdir has no path traversal
+  if (subdir && (subdir.includes('..') || subdir.startsWith('/'))) {
+    throw new Error(`Invalid subdir: ${subdir}`);
+  }
+
+  // Validate gunicornWorkers range
+  if (gunicornWorkers < 1 || gunicornWorkers > 8) {
+    throw new Error(`Invalid gunicorn_workers: ${gunicornWorkers}`);
+  }
+
+  const workDir = subdir ? `${appDir}/${subdir}` : appDir;
+  let stdout = '--- python deploy ---\n';
+
+  // Activate venv and install requirements (optional — matches provision contract)
+  try {
+    await execLocal('test', ['-f', `${workDir}/requirements.txt`]);
+    const installResult = await execBash(
+      `source "${appDir}/venv/bin/activate" && pip install -r "${workDir}/requirements.txt"`,
+      { cwd: workDir, timeout: BUILD_TIMEOUT },
+    );
+    stdout += installResult.stdout;
+  } catch {
+    stdout += 'No requirements.txt found, skipping pip install\n';
+  }
+
+  // PM2 delete (ignore failure if process doesn't exist)
+  try {
+    await execLocal('pm2', ['delete', appSlug]);
+    stdout += `Stopped existing PM2 process: ${appSlug}\n`;
+  } catch {
+    stdout += `No existing PM2 process: ${appSlug}\n`;
+  }
+
+  // Start gunicorn via PM2 (pythonModule is validated above, safe to interpolate)
+  const startResult = await execBash(
+    `cd "${workDir}" && pm2 start "${appDir}/venv/bin/gunicorn" ` +
+    `--name "${appSlug}" --interpreter none -- ` +
+    `-w ${gunicornWorkers} -b 127.0.0.1:${port} "${pythonModule}"`,
+  );
+  stdout += startResult.stdout;
+
+  // Save PM2 process list
+  const saveResult = await execLocal('pm2', ['save']);
+  stdout += saveResult.stdout;
 
   return stdout;
 }

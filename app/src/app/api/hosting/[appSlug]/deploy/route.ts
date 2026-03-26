@@ -35,7 +35,7 @@ export async function POST(_req: Request, { params }: RouteContext) {
     .single();
 
   let app;
-  const selectCols = 'id, app_slug, app_type, app_name, runcloud_app_id, customer_id, deploy_template, deploy_method, port, git_branch, git_subdir, managed_by, umami_website_id';
+  const selectCols = 'id, app_slug, app_type, app_name, runcloud_app_id, customer_id, deploy_template, deploy_method, port, git_branch, git_subdir, managed_by, umami_website_id, python_module, gunicorn_workers';
   if (customer?.is_admin) {
     const { data } = await adminDb
       .from('hosting_apps')
@@ -94,6 +94,8 @@ async function handleDiyDeploy(
     git_branch: string;
     git_subdir: string | null;
     umami_website_id: string | null;
+    python_module: string | null;
+    gunicorn_workers: number | null;
   },
 ) {
   // Recover any stale operations before checking for active ones
@@ -120,7 +122,9 @@ async function handleDiyDeploy(
     // Determine template for deploy
     const template = app.app_type === 'static'
       ? 'static' as const
-      : (app.deploy_template as 'nextjs' | 'express' | 'generic') ?? 'generic';
+      : app.app_type === 'python'
+        ? 'python' as const
+        : (app.deploy_template as 'nextjs' | 'express' | 'generic') ?? 'generic';
 
     // Run the deploy pipeline
     const result = await deployAndRestart({
@@ -129,6 +133,8 @@ async function handleDiyDeploy(
       subdir: app.git_subdir ?? undefined,
       port: app.port ?? undefined,
       template,
+      pythonModule: app.python_module ?? undefined,
+      gunicornWorkers: app.gunicorn_workers ?? undefined,
     });
 
     // Write deploy log to disk (best-effort)
