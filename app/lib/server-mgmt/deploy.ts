@@ -211,6 +211,16 @@ async function runStaticDeploy(appSlug: string, appDir: string, subdir?: string)
     stdout += 'No build script found, skipping build\n';
   }
 
+  // Re-symlink public → dist if dist/ exists (Vite/static output).
+  // Nginx root points at public/, so this makes the built site serveable.
+  try {
+    await execLocal('test', ['-d', `${workDir}/dist`]);
+    await execBash(`rm -rf "${workDir}/public" && ln -s dist "${workDir}/public"`, { cwd: workDir });
+    stdout += 'Symlinked public → dist\n';
+  } catch {
+    // No dist/ directory — site serves from public/ as-is
+  }
+
   return stdout;
 }
 
