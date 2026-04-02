@@ -62,8 +62,10 @@ export interface ServerBlockOptions {
   wwwBehavior?: WwwBehavior;
   /** For static apps: the output directory (default: the app root). */
   staticOutputDir?: string;
-  /** When true, add basic auth directives to the server block. */
+  /** When true, add basic auth directives to the entire server block. */
   basicAuth?: boolean;
+  /** Paths to protect with basic auth (e.g. ['/admin/']). Uses the same .htpasswd file. */
+  protectedPaths?: string[];
   /** Monorepo subdirectory (affects static file paths for python apps). */
   subdir?: string;
 }
@@ -128,7 +130,7 @@ export function buildCertDomains(options: {
  * Failure modes: Throws if template requires port but port is undefined.
  */
 export function generateServerBlock(options: ServerBlockOptions): string {
-  const { appSlug, domain, template, port, sslOnly, aliases, wwwBehavior, staticOutputDir, basicAuth, subdir } = options;
+  const { appSlug, domain, template, port, sslOnly, aliases, wwwBehavior, staticOutputDir, basicAuth, protectedPaths, subdir } = options;
 
   const serverNames = buildServerNames({ domain, aliases, wwwBehavior });
 
@@ -163,6 +165,26 @@ export function generateServerBlock(options: ServerBlockOptions): string {
     # Basic auth
     auth_basic "Restricted";
     auth_basic_user_file ${NGINX_CONF_DIR}/${appSlug}.d/.htpasswd;`
+    : '';
+
+  // Validate protected paths before interpolating into nginx config.
+  // Only allow lowercase alphanumeric segments separated by slashes.
+  const SAFE_PATH_RE = /^\/[a-z0-9_-]+(\/[a-z0-9_-]+)*\/$/;
+  const safePaths = (protectedPaths ?? []).filter(p => SAFE_PATH_RE.test(p));
+
+  const protectedPathBlocks = safePaths.length > 0
+    ? '\n' + safePaths.map(p => {
+      const isProxied = !!port && template !== 'static';
+      const innerDirective = isProxied
+        ? `        proxy_pass http://127.0.0.1:${port};\n${proxyHeaders}`
+        : `        try_files $uri $uri/ ${p}index.html;`;
+      return `    # Protected path: ${p}
+    location ^~ ${p} {
+        auth_basic "Restricted";
+        auth_basic_user_file ${NGINX_CONF_DIR}/${appSlug}.d/.htpasswd;
+${innerDirective}
+    }`;
+    }).join('\n\n')
     : '';
 
   const acmeLocation = `
@@ -213,6 +235,7 @@ ${basicAuthDirectives}
         add_header Cache-Control "public, immutable";
         access_log off;
     }
+${protectedPathBlocks}
 ${acmeLocation}
 ${sslInclude}
 ${dotfileBlock}
@@ -254,6 +277,7 @@ ${basicAuthDirectives}
         proxy_pass http://127.0.0.1:${port};
 ${proxyHeaders}
     }
+${protectedPathBlocks}
 ${acmeLocation}
 ${sslInclude}
 }
@@ -287,6 +311,7 @@ ${basicAuthDirectives}
         proxy_pass http://127.0.0.1:${port};
 ${proxyHeaders}
     }
+${protectedPathBlocks}
 ${acmeLocation}
 ${sslInclude}
 }
@@ -335,6 +360,7 @@ ${basicAuthDirectives}
         proxy_buffers 4 256k;
         proxy_busy_buffers_size 256k;
     }
+${protectedPathBlocks}
 ${acmeLocation}
 ${sslInclude}
 }

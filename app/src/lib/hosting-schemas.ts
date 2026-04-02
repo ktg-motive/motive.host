@@ -66,6 +66,10 @@ export const provisionSiteSchema = z.object({
   basic_auth_enabled: z.boolean().optional(),
   basic_auth_user: z.string().min(1).max(64).optional(),
   basic_auth_password: z.string().min(8).max(128).optional(),
+  // Per-path basic auth (e.g. ['/admin/']). Requires basic_auth_enabled + credentials.
+  protected_paths: z.array(
+    z.string().regex(/^\/[a-z0-9_-]+(\/[a-z0-9_-]+)*\/$/, 'Path must be lowercase segments with leading and trailing slash')
+  ).max(10).optional(),
   // WordPress config (required when app_type === 'wordpress')
   wp_title: z.string().optional(),
   wp_admin_user: z.string().optional(),
@@ -88,6 +92,9 @@ export const provisionSiteSchema = z.object({
   if (data.basic_auth_enabled) {
     if (!data.basic_auth_user) ctx.addIssue({ code: 'custom', path: ['basic_auth_user'], message: 'Required when basic auth is enabled' });
     if (!data.basic_auth_password) ctx.addIssue({ code: 'custom', path: ['basic_auth_password'], message: 'Required when basic auth is enabled' });
+  }
+  if ((data.protected_paths ?? []).length > 0 && !data.basic_auth_enabled) {
+    ctx.addIssue({ code: 'custom', path: ['protected_paths'], message: 'protected_paths requires basic_auth_enabled' });
   }
 });
 

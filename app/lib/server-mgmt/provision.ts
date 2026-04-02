@@ -51,6 +51,8 @@ export interface ProvisionAppOptions {
   subdir?: string;
   /** Optional basic auth credentials. Written to htpasswd during provision, password not stored. */
   basicAuth?: { user: string; password: string };
+  /** Paths to protect with basic auth (e.g. ['/admin/']). Uses the same .htpasswd file. */
+  protectedPaths?: string[];
 }
 
 /**
@@ -118,8 +120,10 @@ export async function installSSL(options: {
   wwwBehavior?: 'add_www' | 'no_www' | 'as_is';
   staticOutputDir?: string;
   staging?: boolean;
+  basicAuth?: boolean;
+  protectedPaths?: string[];
 }): Promise<boolean> {
-  const { domain, appSlug, template, port, aliases, wwwBehavior, staticOutputDir, staging } = options;
+  const { domain, appSlug, template, port, aliases, wwwBehavior, staticOutputDir, staging, basicAuth, protectedPaths } = options;
   const appDir = `${WEBAPPS_DIR}/${appSlug}`;
   const confDir = `${NGINX_CONF_DIR}/${appSlug}.d`;
 
@@ -153,7 +157,7 @@ export async function installSSL(options: {
     // Step 3: Rewrite main.conf with sslOnly: true (listen 443 ssl)
     await writeServerBlock({
       appSlug, domain, template, port, sslOnly: true,
-      aliases, wwwBehavior, staticOutputDir,
+      aliases, wwwBehavior, staticOutputDir, basicAuth, protectedPaths,
     });
 
     // Step 4: Write redirect.conf (owns port 80 -> 301 to HTTPS)
@@ -172,7 +176,7 @@ export async function installSSL(options: {
       // Restore main.conf to http-only (no sslOnly flag)
       await writeServerBlock({
         appSlug, domain, template, port,
-        aliases, wwwBehavior, staticOutputDir,
+        aliases, wwwBehavior, staticOutputDir, basicAuth, protectedPaths,
       });
     } catch (rollbackErr) {
       console.error(`[installSSL] Rollback also failed for ${domain}:`, rollbackErr);
@@ -407,40 +411,42 @@ export async function provisionApp(options: ProvisionAppOptions): Promise<{
     appSlug, domain, template, port,
     gitRepo, gitBranch, gitSubdir, aliases, wwwBehavior,
     dnsOwnership, staticOutputDir,
-    pythonModule, gunicornWorkers, subdir, basicAuth,
+    pythonModule, gunicornWorkers, subdir, basicAuth, protectedPaths,
   } = options;
 
   // Step 1: Create directory
   await createAppDirectory(appSlug);
 
-  // Step 2: Write Nginx config (HTTP only initially)
+  // Step 2: Basic auth htpasswd (BEFORE nginx config so .htpasswd exists when
+  // nginx reloads with auth_basic directives -- avoids HTTP 500 window).
+  // FATAL: if this fails, must throw to trigger rollback.
+  if (basicAuth) {
+    await writeBasicAuthHtpasswd(appSlug, basicAuth.user, basicAuth.password);
+  }
+
+  // Step 3: Write Nginx config (HTTP only initially)
   // Pass basicAuth and subdir flags so the server block includes auth directives
   // and correct static file paths for Python apps.
   await configureNginx({
     appSlug, domain, template, port,
     aliases, wwwBehavior, staticOutputDir,
     basicAuth: !!basicAuth,
+    protectedPaths,
     subdir: subdir ?? gitSubdir,
   });
 
-  // Step 3: SSL (best-effort -- DNS may not be pointed yet)
+  // Step 4: SSL (best-effort -- DNS may not be pointed yet)
   let sslInstalled = false;
   if (dnsOwnership !== 'external') {
     try {
       sslInstalled = await installSSL({
         domain, appSlug, template, port,
         aliases, wwwBehavior, staticOutputDir,
+        basicAuth: !!basicAuth, protectedPaths,
       });
     } catch (err) {
       console.warn(`[provision] SSL installation failed for ${domain}:`, err);
     }
-  }
-
-  // Step 4: Basic auth htpasswd (after nginx config is written)
-  // FATAL: if this fails, nginx has auth_basic enabled but no htpasswd file,
-  // meaning all requests will 500. Must throw to trigger rollback.
-  if (basicAuth) {
-    await writeBasicAuthHtpasswd(appSlug, basicAuth.user, basicAuth.password);
   }
 
   // Step 5: Deploy key + git clone (if repo specified)

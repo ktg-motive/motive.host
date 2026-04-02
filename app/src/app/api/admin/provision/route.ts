@@ -286,6 +286,7 @@ async function provisionDiy(ctx: ProvisionContext) {
         gunicorn_workers: input.app_type === 'python' ? (input.gunicorn_workers ?? 2) : null,
         basic_auth_enabled: input.basic_auth_enabled ?? false,
         basic_auth_user: input.basic_auth_enabled ? input.basic_auth_user : null,
+        protected_paths: input.protected_paths ?? [],
       })
       .select()
       .single();
@@ -382,6 +383,7 @@ async function provisionDiy(ctx: ProvisionContext) {
       basicAuth: input.basic_auth_enabled && input.basic_auth_user && input.basic_auth_password
         ? { user: input.basic_auth_user, password: input.basic_auth_password }
         : undefined,
+      protectedPaths: input.protected_paths,
     });
 
     // Update ssl_pending based on actual SSL result
@@ -483,6 +485,7 @@ async function provisionDiy(ctx: ProvisionContext) {
           gunicorn_workers: input.app_type === 'python' ? (input.gunicorn_workers ?? 2) : undefined,
           basic_auth_enabled: input.basic_auth_enabled ?? false,
           basic_auth_user: input.basic_auth_enabled ? input.basic_auth_user : undefined,
+          protected_paths: input.protected_paths ?? [],
         },
         warnings,
       },
