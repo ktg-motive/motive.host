@@ -120,3 +120,55 @@ export async function readEnvFile(appSlug: string): Promise<string | null> {
     return null;
   }
 }
+
+/**
+ * Parse the .env file for an app and return a plain key-value map.
+ *
+ * Reads the file written by writeEnvFile() / renderDotEnv() and reverses
+ * the escaping applied there. The format is: KEY="escaped-value"\n
+ *
+ * Escape sequences (inside double-quoted values):
+ *   \\  → \
+ *   \"  → "
+ *   \$  → $
+ *   \`  → `
+ *   \n  → newline
+ *
+ * Returns {} if the file does not exist.
+ */
+export async function parseEnvFile(appSlug: string): Promise<Record<string, string>> {
+  const raw = await readEnvFile(appSlug);
+  if (!raw) return {};
+
+  const result: Record<string, string> = {};
+
+  for (const line of raw.split('\n')) {
+    // Match KEY="value" (value may be empty)
+    const match = line.match(/^([A-Za-z_][A-Za-z0-9_]*)="(.*)"$/);
+    if (!match) continue;
+
+    const key = match[1];
+    const escaped = match[2];
+
+    // Reverse the escaping from renderDotEnv() — order matters:
+    // process \\ last so intermediate backslashes aren't double-unescaped.
+    let value = '';
+    for (let i = 0; i < escaped.length; i++) {
+      if (escaped[i] === '\\' && i + 1 < escaped.length) {
+        const next = escaped[i + 1];
+        if (next === '\\') { value += '\\'; i++; }
+        else if (next === '"') { value += '"'; i++; }
+        else if (next === '$') { value += '$'; i++; }
+        else if (next === '`') { value += '`'; i++; }
+        else if (next === 'n') { value += '\n'; i++; }
+        else { value += escaped[i]; } // unrecognized escape — keep literal
+      } else {
+        value += escaped[i];
+      }
+    }
+
+    result[key] = value;
+  }
+
+  return result;
+}

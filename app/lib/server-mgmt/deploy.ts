@@ -14,6 +14,7 @@
 import { writeFile } from 'node:fs/promises';
 import { execLocal, execBash, ExecError, BUILD_TIMEOUT, assertValidSlug } from './exec';
 import { generateDeployScript, type DeployScriptOptions } from '../deploy-scripts';
+import { parseEnvFile } from './env';
 
 const WEBAPPS_DIR = '/home/motive-host/webapps';
 const SSH_KEY_DIR = '/home/motive-host/.ssh';
@@ -241,6 +242,11 @@ async function runStaticDeploy(appSlug: string, appDir: string, subdir?: string)
  * Side effects: Installs Python packages, restarts gunicorn via PM2.
  * Failure modes: Throws ExecError if pip install or PM2 fails.
  */
+/** Single-quote a value for safe shell interpolation. */
+function shellQuote(value: string): string {
+  return `'${value.replace(/'/g, "'\\''")}'`;
+}
+
 /** Validates python module format (defense-in-depth, matches provision.ts) */
 const PYTHON_MODULE_RE = /^[a-zA-Z_][a-zA-Z0-9_.]*:[a-zA-Z_][a-zA-Z0-9_]*$/;
 
@@ -290,9 +296,16 @@ async function runPythonDeploy(appSlug: string, appDir: string, options: {
     stdout += `No existing PM2 process: ${appSlug}\n`;
   }
 
+  // Load env vars from .env file so they reach Gunicorn workers
+  const envVars = await parseEnvFile(appSlug);
+  const envPrefix = Object.entries(envVars)
+    .map(([k, v]) => `${k}=${shellQuote(v)}`)
+    .join(' ');
+
   // Start gunicorn via PM2 (pythonModule is validated above, safe to interpolate)
   const startResult = await execBash(
-    `cd "${workDir}" && pm2 start "${appDir}/venv/bin/gunicorn" ` +
+    `cd "${workDir}" && ${envPrefix ? envPrefix + ' ' : ''}` +
+    `pm2 start "${appDir}/venv/bin/gunicorn" ` +
     `--name "${appSlug}" --interpreter none -- ` +
     `-w ${gunicornWorkers} -b 127.0.0.1:${port} "${pythonModule}"`,
   );

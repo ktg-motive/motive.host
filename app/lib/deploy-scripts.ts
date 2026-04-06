@@ -118,6 +118,42 @@ WORK_DIR="$(pwd)"
 source "$APP_DIR/venv/bin/activate"
 pip install -r "$WORK_DIR/requirements.txt"
 
+# Export .env vars (decode escaped newlines so multiline secrets work)
+if [ -f "$APP_DIR/.env" ]; then
+  set +e
+  ENV_EXPORTS="$("$APP_DIR/venv/bin/python3" - "$APP_DIR/.env" << 'PYEOF'
+import sys, re
+env_path = sys.argv[1]
+with open(env_path) as f:
+    for line in f:
+        m = re.match(r'^([A-Za-z_][A-Za-z0-9_]*)="(.*)"$', line.strip())
+        if not m:
+            continue
+        key, raw = m.group(1), m.group(2)
+        # Reverse renderDotEnv escaping
+        val, i = [], 0
+        while i < len(raw):
+            if raw[i] == '\\' and i + 1 < len(raw):
+                c = raw[i + 1]
+                if c == '\\': val.append('\\')
+                elif c == '"': val.append('"')
+                elif c == '$': val.append('$')
+                elif c == chr(96): val.append(chr(96))
+                elif c == 'n': val.append('\n')
+                else: val.append(raw[i]); i += 1; continue
+                i += 2
+            else:
+                val.append(raw[i]); i += 1
+        v = ''.join(val).replace("'", "'\\''")
+        print(f"export {key}='{v}'")
+PYEOF
+  )"
+  if [ -n "$ENV_EXPORTS" ]; then
+    eval "$ENV_EXPORTS"
+  fi
+  set -e
+fi
+
 # Restart Gunicorn via PM2
 pm2 delete "$APP_NAME" 2>/dev/null || true
 cd "$WORK_DIR" && pm2 start "$APP_DIR/venv/bin/gunicorn" \\
