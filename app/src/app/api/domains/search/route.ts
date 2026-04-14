@@ -96,6 +96,8 @@ export async function POST(request: Request) {
         price: exactPrice,
         minPeriod: exactRules.minPeriod,
         periodNote: exactRules.minPeriod > 1 ? exactRules.note : undefined,
+        whoisPrivacy: exactRules.whoisPrivacy,
+        privacyNote: exactRules.whoisPrivacy ? undefined : exactRules.privacyNote,
         priceError: exactPriceError,
       },
       suggestions: suggestionsWithPrices,

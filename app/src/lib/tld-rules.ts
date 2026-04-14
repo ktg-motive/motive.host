@@ -4,10 +4,12 @@
 export interface TldRules {
   minPeriod: number // smallest legal registration period, in years
   maxPeriod: number // largest legal registration period, in years
+  whoisPrivacy: boolean // whether OpenSRS supports WHOIS privacy for this TLD
   note?: string // user-facing explanation when minPeriod > 1
+  privacyNote?: string // user-facing explanation when whoisPrivacy is false
 }
 
-export const DEFAULT_RULES: TldRules = { minPeriod: 1, maxPeriod: 10 }
+export const DEFAULT_RULES: TldRules = { minPeriod: 1, maxPeriod: 10, whoisPrivacy: true }
 
 // Only list TLDs that deviate from the default. Keys are matched as suffixes
 // against the full domain, longest-first — this lets ".co.uk" beat ".uk".
@@ -15,11 +17,13 @@ const TLD_RULES: Record<string, TldRules> = {
   '.ai': {
     minPeriod: 2,
     maxPeriod: 10,
+    whoisPrivacy: false,
     note: '.ai domains require a 2-year minimum registration.',
+    privacyNote: '.ai registry does not support WHOIS privacy.',
   },
   // Future entries (verified before adding):
-  // '.tm':    { minPeriod: 10, maxPeriod: 10, note: '.tm domains require a 10-year registration.' },
-  // '.co.uk': { minPeriod: 1, maxPeriod: 10 },
+  // '.tm':    { minPeriod: 10, maxPeriod: 10, whoisPrivacy: false, note: '...' },
+  // '.co.uk': { minPeriod: 1, maxPeriod: 10, whoisPrivacy: false },
 }
 
 // Sorted once at module load, longest suffix first. Keeps lookup O(n) but with

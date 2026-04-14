@@ -34,11 +34,15 @@ function checkRateLimit(request: Request, action: string, limit: number) {
   return null
 }
 
+// OpenSRS requires phone in +CC.NNNNNNNNNN format (e.g. +1.5551234567).
+// Accept 7-15 digits after the country code to cover international variations.
+const PHONE_RE = /^\+\d{1,3}\.\d{7,15}$/
+
 const contactSchema = z.object({
   first_name: z.string().min(1),
   last_name: z.string().min(1),
   email: z.string().email(),
-  phone: z.string().min(1),
+  phone: z.string().regex(PHONE_RE, 'Phone must be in format +CC.NNNNNNNNNN (e.g., +1.5551234567)'),
   address1: z.string().min(1),
   address2: z.string().optional(),
   city: z.string().min(1),
@@ -341,6 +345,12 @@ export async function PUT(request: Request) {
     }
 
     // 5. Register domain with OpenSRS
+    // Force privacy off for TLDs that don't support WHOIS privacy (e.g. .ai).
+    // OpenSRS returns a generic "Invalid data" (465) when privacy is requested
+    // on an unsupported TLD — trust the rules table, not the client.
+    const rules = getTldRules(domain)
+    const effectivePrivacy = rules.whoisPrivacy ? privacy : false
+
     let registrationResult
     try {
       registrationResult = await opensrs.registerDomain({
@@ -348,7 +358,7 @@ export async function PUT(request: Request) {
         period,
         contacts,
         autoRenew: autoRenew,
-        privacy: privacy,
+        privacy: effectivePrivacy,
         handleNow: true,
       })
     } catch (opensrsError) {
@@ -391,7 +401,7 @@ export async function PUT(request: Request) {
         registered_at: new Date().toISOString(),
         expires_at: expiresAt.toISOString(),
         auto_renew: autoRenew,
-        privacy_enabled: privacy,
+        privacy_enabled: effectivePrivacy,
         status: 'active',
         opensrs_order_id: registrationResult.id,
       })

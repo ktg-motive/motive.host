@@ -236,10 +236,12 @@ function PaymentStep({
               <span className="text-slate">Period</span>
               <span className="text-muted-white">{period} year{period > 1 ? 's' : ''}</span>
             </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-slate">WHOIS Privacy</span>
-              <span className="text-green-400">Included</span>
-            </div>
+            {payload.privacy && (
+              <div className="flex justify-between text-sm">
+                <span className="text-slate">WHOIS Privacy</span>
+                <span className="text-green-400">Included</span>
+              </div>
+            )}
           </div>
 
           <div className="mt-4 flex justify-between">
@@ -278,6 +280,8 @@ function RegisterForm() {
 
   const [minPeriod, setMinPeriod] = useState<number>(1)
   const [periodNote, setPeriodNote] = useState<string | null>(null)
+  const [whoisPrivacySupported, setWhoisPrivacySupported] = useState(true)
+  const [privacyNote, setPrivacyNote] = useState<string | null>(null)
   const [total, setTotal] = useState<number | null>(null)
   const [quoteLoading, setQuoteLoading] = useState(true)
   // Incremented to force the re-quote effect to re-run even when period is unchanged.
@@ -318,6 +322,10 @@ function RegisterForm() {
         setMinPeriod(mp)
         setPeriodNote(exact.periodNote ?? null)
         setPeriod((prev) => (prev < mp ? mp : prev))
+        const whoisOk = exact.whoisPrivacy !== false
+        setWhoisPrivacySupported(whoisOk)
+        setPrivacyNote(exact.privacyNote ?? null)
+        if (!whoisOk) setPrivacy(false)
         if (typeof exact.price === 'number') {
           setTotal(exact.price)
           // Search returned price for minPeriod years; avoid an immediate duplicate quote.
@@ -344,6 +352,9 @@ function RegisterForm() {
     if (!domain) return
     if (period < minPeriod) return // invalid, will be snapped by dropdown
     if (lastQuotedPeriod.current === period) return // already priced
+    // Skip mount-time firing before the initial search has set a price.
+    // Only fire if we have a prior successful quote OR user explicitly retried.
+    if (lastQuotedPeriod.current === null && quoteRetryKey === 0) return
     let cancelled = false
     const timer = setTimeout(async () => {
       try {
@@ -518,8 +529,11 @@ function RegisterForm() {
                     type="tel" required value={contact.phone}
                     onChange={(e) => updateContact('phone', e.target.value)}
                     placeholder="+1.5551234567"
+                    pattern="^\+\d{1,3}\.\d{7,15}$"
+                    title="Format: +CC.NNNNNNNNNN (e.g., +1.5551234567)"
                     className="w-full rounded-lg border border-border bg-card-content px-3 py-2 text-sm text-muted-white focus:border-gold focus:outline-none"
                   />
+                  <p className="mt-1 text-xs text-slate">Format: +CC.NNNNNNNNNN (e.g., +1.5551234567)</p>
                 </div>
               </div>
 
@@ -620,14 +634,21 @@ function RegisterForm() {
                 )}
               </div>
 
-              <label className="mt-4 flex items-center gap-2">
+              <label className={`mt-4 flex items-center gap-2 ${whoisPrivacySupported ? '' : 'opacity-60'}`}>
                 <input
-                  type="checkbox" checked={privacy}
+                  type="checkbox"
+                  checked={privacy && whoisPrivacySupported}
+                  disabled={!whoisPrivacySupported}
                   onChange={(e) => setPrivacy(e.target.checked)}
                   className="rounded border-border"
                 />
-                <span className="text-sm text-slate">WHOIS Privacy Protection (recommended)</span>
+                <span className="text-sm text-slate">
+                  WHOIS Privacy Protection{whoisPrivacySupported ? ' (recommended)' : ' (not available for this TLD)'}
+                </span>
               </label>
+              {privacyNote && (
+                <p className="mt-1.5 pl-6 text-xs text-slate">{privacyNote}</p>
+              )}
 
               <label className="mt-3 flex items-center gap-2">
                 <input

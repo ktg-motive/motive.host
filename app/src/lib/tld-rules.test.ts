@@ -13,8 +13,15 @@ describe('getTldRules', () => {
     const r = getTldRules('foo.ai')
     expect(r.minPeriod).toBe(2)
     expect(r.maxPeriod).toBe(10)
+    expect(r.whoisPrivacy).toBe(false)
     expect(typeof r.note).toBe('string')
     expect(r.note).toMatch(/2-year/)
+    expect(typeof r.privacyNote).toBe('string')
+  })
+
+  it('defaults whoisPrivacy to true for gTLDs', () => {
+    expect(getTldRules('foo.com').whoisPrivacy).toBe(true)
+    expect(getTldRules('foo.net').whoisPrivacy).toBe(true)
   })
 
   it('is case-insensitive', () => {
@@ -57,10 +64,11 @@ describe('longest-suffix precedence', () => {
   })
 
   it('resolves .co.uk over .uk when both rules exist', () => {
-    const restoreUk = __setTldRuleForTest('.uk', { minPeriod: 1, maxPeriod: 10, note: 'uk' })
+    const restoreUk = __setTldRuleForTest('.uk', { minPeriod: 1, maxPeriod: 10, whoisPrivacy: true, note: 'uk' })
     const restoreCoUk = __setTldRuleForTest('.co.uk', {
       minPeriod: 2,
       maxPeriod: 9,
+      whoisPrivacy: true,
       note: 'co.uk',
     })
     try {
