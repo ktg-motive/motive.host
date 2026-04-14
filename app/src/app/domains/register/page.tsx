@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useState, useEffect } from 'react'
+import { Suspense, useState, useEffect, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import { stripePromise } from '@/lib/stripe-client'
@@ -276,8 +276,14 @@ function RegisterForm() {
   const [privacy, setPrivacy] = useState(true)
   const [autoRenew, setAutoRenew] = useState(false)
 
-  const [price, setPrice] = useState<number | null>(null)
-  const [priceLoading, setPriceLoading] = useState(true)
+  const [minPeriod, setMinPeriod] = useState<number>(1)
+  const [periodNote, setPeriodNote] = useState<string | null>(null)
+  const [total, setTotal] = useState<number | null>(null)
+  const [quoteLoading, setQuoteLoading] = useState(true)
+  // Incremented to force the re-quote effect to re-run even when period is unchanged.
+  // Needed because re-selecting the same value in a <select> does not fire onChange,
+  // so the user has no way to retry a failed quote without this trigger.
+  const [quoteRetryKey, setQuoteRetryKey] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
@@ -289,26 +295,85 @@ function RegisterForm() {
   const [step, setStep] = useState<'contact' | 'payment'>('contact')
   const [submitting, setSubmitting] = useState(false)
 
+  // Period already priced by the last successful quote (initial search or re-quote).
+  // Lets the re-quote effect skip redundant calls when period === last quoted period.
+  const lastQuotedPeriod = useRef<number | null>(null)
+
+  // Initial fetch: get minPeriod + initial total from the search endpoint.
   useEffect(() => {
     if (!domain) return
-    async function fetchPrice() {
+    let cancelled = false
+    async function fetchInitial() {
       try {
         const res = await fetch('/api/domains/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ query: domain }),
         })
-        if (!res.ok) throw new Error('Price fetch failed')
+        if (!res.ok) throw new Error('Search failed')
         const data = await res.json()
-        if (data.exact?.price) setPrice(data.exact.price)
+        if (cancelled) return
+        const exact = data.exact ?? {}
+        const mp = typeof exact.minPeriod === 'number' ? exact.minPeriod : 1
+        setMinPeriod(mp)
+        setPeriodNote(exact.periodNote ?? null)
+        setPeriod((prev) => (prev < mp ? mp : prev))
+        if (typeof exact.price === 'number') {
+          setTotal(exact.price)
+          // Search returned price for minPeriod years; avoid an immediate duplicate quote.
+          lastQuotedPeriod.current = mp
+        } else if (exact.priceError) {
+          setError(exact.priceError)
+        } else {
+          setError('Unable to fetch pricing for this domain.')
+        }
       } catch {
-        setError('Unable to fetch pricing. Please go back and try again.')
+        if (!cancelled) setError('Unable to fetch pricing. Please go back and try again.')
       } finally {
-        setPriceLoading(false)
+        if (!cancelled) setQuoteLoading(false)
       }
     }
-    fetchPrice()
+    fetchInitial()
+    return () => {
+      cancelled = true
+    }
   }, [domain])
+
+  // Re-quote whenever the period changes (debounced to prevent bursts).
+  useEffect(() => {
+    if (!domain) return
+    if (period < minPeriod) return // invalid, will be snapped by dropdown
+    if (lastQuotedPeriod.current === period) return // already priced
+    let cancelled = false
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch('/api/domains/quote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ domain, period }),
+        })
+        if (!res.ok) throw new Error('Quote failed')
+        const data = await res.json()
+        if (!cancelled && typeof data.total === 'number') {
+          setTotal(data.total)
+          lastQuotedPeriod.current = period
+          setError(null)
+        }
+      } catch {
+        if (!cancelled) {
+          // Clear the stale total so the Order Summary no longer shows a price
+          // we cannot honor and the submit button disables.
+          setTotal(null)
+          lastQuotedPeriod.current = null
+          setError('Unable to update price for this term length.')
+        }
+      }
+    }, 250)
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [domain, period, minPeriod, quoteRetryKey])
 
   function updateContact(field: keyof ContactInfo, value: string) {
     setContact((prev) => ({ ...prev, [field]: value }))
@@ -328,7 +393,10 @@ function RegisterForm() {
 
       if (!res.ok) {
         const data = await res.json()
-        setError(data.error || 'Failed to initialize payment. Please try again.')
+        // Surface field-specific Zod errors (e.g., period below TLD minimum) when present.
+        const fieldErrors = data.details?.fieldErrors as Record<string, string[]> | undefined
+        const periodErr = fieldErrors?.period?.[0]
+        setError(periodErr || data.error || 'Failed to initialize payment. Please try again.')
         return
       }
 
@@ -370,7 +438,6 @@ function RegisterForm() {
     )
   }
 
-  const totalPrice = price ? price * period : null
   const payload: RegistrationPayload = { domain, period, contact, useForAll, privacy, autoRenew }
 
   return (
@@ -396,8 +463,21 @@ function RegisterForm() {
         <form onSubmit={handleContactSubmit} className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
             {error && (
-              <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-                {error}
+              <div className="flex items-center justify-between gap-3 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+                <span>{error}</span>
+                {total === null && !quoteLoading && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      lastQuotedPeriod.current = null
+                      setError(null)
+                      setQuoteRetryKey((k) => k + 1)
+                    }}
+                    className="shrink-0 rounded border border-red-500/40 px-2 py-1 text-xs text-red-300 hover:bg-red-500/10"
+                  >
+                    Retry
+                  </button>
+                )}
               </div>
             )}
 
@@ -529,11 +609,15 @@ function RegisterForm() {
                   className="w-full rounded-lg border border-border bg-card-content px-3 py-2 text-sm text-muted-white focus:border-gold focus:outline-none"
                 >
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((y) => (
-                    <option key={y} value={y}>
-                      {y} year{y > 1 ? 's' : ''}{price ? ` — $${price * y}` : ''}
+                    <option key={y} value={y} disabled={y < minPeriod}>
+                      {y} year{y > 1 ? 's' : ''}
+                      {y < minPeriod ? ' (not available for this TLD)' : ''}
                     </option>
                   ))}
                 </select>
+                {periodNote && (
+                  <p className="mt-1.5 text-xs text-slate">{periodNote}</p>
+                )}
               </div>
 
               <label className="mt-4 flex items-center gap-2">
@@ -580,10 +664,10 @@ function RegisterForm() {
 
               <div className="mt-4 flex justify-between">
                 <span className="font-medium text-muted-white">Total</span>
-                {priceLoading ? (
+                {quoteLoading ? (
                   <span className="text-slate">Loading...</span>
-                ) : totalPrice !== null ? (
-                  <span className="text-xl font-bold text-gold">${totalPrice}</span>
+                ) : total !== null ? (
+                  <span className="text-xl font-bold text-gold">${total}</span>
                 ) : (
                   <span className="text-slate">--</span>
                 )}
@@ -591,7 +675,7 @@ function RegisterForm() {
 
               <button
                 type="submit"
-                disabled={submitting || !price}
+                disabled={submitting || total === null}
                 className="mt-6 w-full rounded-lg bg-gold px-4 py-3 font-medium text-primary-bg transition-colors hover:bg-gold-hover disabled:opacity-50"
               >
                 {submitting ? 'Preparing payment...' : 'Continue to Payment →'}

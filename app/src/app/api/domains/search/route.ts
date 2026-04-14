@@ -3,6 +3,7 @@ import { createOpenSRSClient } from '@opensrs'
 import { getCustomerPrice } from '@/lib/pricing'
 import { rateLimit, getClientIp } from '@/lib/rate-limit'
 import { validateDomainQuery } from '@/lib/domain-validation'
+import { getTldRules } from '@/lib/tld-rules'
 
 const opensrs = createOpenSRSClient({
   apiKey: process.env.OPENSRS_API_KEY!,
@@ -44,29 +45,46 @@ export async function POST(request: Request) {
       opensrs.suggestDomains(query),
     ])
 
-    // Get prices for available domains
+    // Get quote (respecting per-TLD min period) for the exact domain.
+    // We return the total for `minPeriod` years — authoritative, no derivation.
     let exactPrice: number | undefined
+    let exactPriceError: string | undefined
+    const exactRules = getTldRules(domain)
+
     if (exactResult.status === 'available') {
       try {
-        const priceResult = await opensrs.getDomainPrice(domain)
+        const priceResult = await opensrs.getDomainPrice(domain, exactRules.minPeriod)
         exactPrice = getCustomerPrice(priceResult.price)
-      } catch {
-        // Price lookup failed — still show as available without price
+      } catch (err) {
+        console.error('Price lookup failed for exact domain', { domain, err })
+        exactPriceError = 'Pricing is temporarily unavailable for this domain.'
       }
     }
 
-    // Get prices for available suggestions (limit to first 6)
+    // Suggestions — same deal, each at its own min period
     const availableSuggestions = suggestions
       .filter((s) => s.status === 'available' && s.domain !== domain)
       .slice(0, 6)
 
     const suggestionsWithPrices = await Promise.all(
       availableSuggestions.map(async (s) => {
+        const rules = getTldRules(s.domain)
         try {
-          const priceResult = await opensrs.getDomainPrice(s.domain)
-          return { domain: s.domain, status: s.status, price: getCustomerPrice(priceResult.price) }
-        } catch {
-          return { domain: s.domain, status: s.status, price: undefined }
+          const priceResult = await opensrs.getDomainPrice(s.domain, rules.minPeriod)
+          return {
+            domain: s.domain,
+            status: s.status,
+            price: getCustomerPrice(priceResult.price),
+            minPeriod: rules.minPeriod,
+          }
+        } catch (err) {
+          console.error('Price lookup failed for suggestion', { domain: s.domain, err })
+          return {
+            domain: s.domain,
+            status: s.status,
+            price: undefined,
+            minPeriod: rules.minPeriod,
+          }
         }
       })
     )
@@ -76,6 +94,9 @@ export async function POST(request: Request) {
         domain,
         status: exactResult.status,
         price: exactPrice,
+        minPeriod: exactRules.minPeriod,
+        periodNote: exactRules.minPeriod > 1 ? exactRules.note : undefined,
+        priceError: exactPriceError,
       },
       suggestions: suggestionsWithPrices,
     })

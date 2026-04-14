@@ -7,6 +7,7 @@ import { sendRegistrationConfirmation } from '@/lib/sendgrid'
 import { getCustomerPrice, priceToCents } from '@/lib/pricing'
 import { validateDomain } from '@/lib/domain-validation'
 import { rateLimit, getClientIp } from '@/lib/rate-limit'
+import { getTldRules } from '@/lib/tld-rules'
 import type { DomainContact } from '@opensrs/types'
 
 const opensrs = createOpenSRSClient({
@@ -57,34 +58,60 @@ const domainField = z.string().min(1).superRefine((val, ctx) => {
   return result.valid ? result.domain : val
 })
 
-const intentSchema = z.object({
-  domain: domainField,
-  period: z.number().int().min(1).max(10).default(1),
-  contact: contactSchema,
-  useForAll: z.boolean().default(true),
-  adminContact: contactSchema.optional(),
-  techContact: contactSchema.optional(),
-  billingContact: contactSchema.optional(),
-  privacy: z.boolean().default(true),
-  autoRenew: z.boolean().default(false),
-})
+const periodRefinement = (
+  data: { domain: string; period: number },
+  ctx: z.RefinementCtx
+) => {
+  const rules = getTldRules(data.domain)
+  if (data.period < rules.minPeriod) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['period'],
+      message:
+        rules.note ?? `This TLD requires a minimum registration of ${rules.minPeriod} years.`,
+    })
+  }
+  if (data.period > rules.maxPeriod) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['period'],
+      message: `This TLD allows a maximum registration of ${rules.maxPeriod} years.`,
+    })
+  }
+}
+
+export const intentSchema = z
+  .object({
+    domain: domainField,
+    period: z.number().int().min(1).max(10).default(1),
+    contact: contactSchema,
+    useForAll: z.boolean().default(true),
+    adminContact: contactSchema.optional(),
+    techContact: contactSchema.optional(),
+    billingContact: contactSchema.optional(),
+    privacy: z.boolean().default(true),
+    autoRenew: z.boolean().default(false),
+  })
+  .superRefine(periodRefinement)
 
 const cancelSchema = z.object({
   paymentIntentId: z.string().min(1),
 })
 
-const confirmSchema = z.object({
-  paymentIntentId: z.string().min(1),
-  domain: domainField,
-  period: z.number().int().min(1).max(10),
-  contact: contactSchema,
-  useForAll: z.boolean().default(true),
-  adminContact: contactSchema.optional(),
-  techContact: contactSchema.optional(),
-  billingContact: contactSchema.optional(),
-  privacy: z.boolean().default(true),
-  autoRenew: z.boolean().default(false),
-})
+export const confirmSchema = z
+  .object({
+    paymentIntentId: z.string().min(1),
+    domain: domainField,
+    period: z.number().int().min(1).max(10),
+    contact: contactSchema,
+    useForAll: z.boolean().default(true),
+    adminContact: contactSchema.optional(),
+    techContact: contactSchema.optional(),
+    billingContact: contactSchema.optional(),
+    privacy: z.boolean().default(true),
+    autoRenew: z.boolean().default(false),
+  })
+  .superRefine(periodRefinement)
 
 // POST creates a PaymentIntent and returns clientSecret.
 // PATCH confirms the PaymentIntent server-side (placeholder until Stripe Elements is wired up).
@@ -119,10 +146,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Domain is no longer available' }, { status: 409 })
     }
 
-    // Get price and create PaymentIntent
-    const priceResult = await opensrs.getDomainPrice(domain)
-    const customerPrice = getCustomerPrice(priceResult.price)
-    const amountCents = priceToCents(customerPrice) * period
+    // Get authoritative total for the requested period — do not derive or scale.
+    // OpenSRS pricing is not guaranteed linear across terms.
+    const priceResult = await opensrs.getDomainPrice(domain, period)
+    const customerTotal = getCustomerPrice(priceResult.price)
+    const amountCents = priceToCents(customerTotal)
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountCents,

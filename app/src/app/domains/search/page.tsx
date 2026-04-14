@@ -9,6 +9,9 @@ interface SearchResult {
   domain: string
   status: 'available' | 'taken' | 'error'
   price?: number
+  minPeriod?: number
+  periodNote?: string
+  priceError?: string
 }
 
 interface SearchResponse {
@@ -120,20 +123,38 @@ function SearchForm() {
               </div>
               {results.exact.status === 'available' && (
                 <div className="flex items-center gap-4">
-                  {results.exact.price !== undefined && (
-                    <span className="text-2xl font-bold text-gold">
-                      ${results.exact.price}/yr
+                  {results.exact.price !== undefined ? (
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-gold">
+                        ${results.exact.price}
+                      </div>
+                      <div className="text-xs text-slate">
+                        {results.exact.minPeriod && results.exact.minPeriod > 1
+                          ? `${results.exact.minPeriod} yrs`
+                          : 'per year'}
+                      </div>
+                    </div>
+                  ) : results.exact.priceError ? (
+                    <span className="text-xs text-red-400">{results.exact.priceError}</span>
+                  ) : null}
+                  {results.exact.price !== undefined ? (
+                    <Link
+                      href={`/domains/register?domain=${encodeURIComponent(results.exact.domain)}`}
+                      className="rounded-lg bg-gold px-5 py-2.5 font-medium text-primary-bg transition-colors hover:bg-gold-hover"
+                    >
+                      Register
+                    </Link>
+                  ) : (
+                    <span className="rounded-lg bg-card-content px-5 py-2.5 font-medium text-slate opacity-60" title="Pricing unavailable — try again later">
+                      Register
                     </span>
                   )}
-                  <Link
-                    href={`/domains/register?domain=${encodeURIComponent(results.exact.domain)}`}
-                    className="rounded-lg bg-gold px-5 py-2.5 font-medium text-primary-bg transition-colors hover:bg-gold-hover"
-                  >
-                    Register
-                  </Link>
                 </div>
               )}
             </div>
+            {results.exact.periodNote && (
+              <p className="mt-3 text-xs text-slate">{results.exact.periodNote}</p>
+            )}
           </Card>
 
           {/* Suggestions */}
@@ -147,16 +168,29 @@ function SearchForm() {
                   <Card key={s.domain} className="flex items-center justify-between py-4">
                     <div>
                       <p className="font-mono text-sm text-muted-white">{s.domain}</p>
-                      {s.price !== undefined && (
-                        <p className="mt-0.5 text-sm text-gold">${s.price}/yr</p>
+                      {s.price !== undefined ? (
+                        <p className="mt-0.5 text-sm text-gold">
+                          ${s.price}
+                          <span className="ml-1 text-xs text-slate">
+                            {s.minPeriod && s.minPeriod > 1 ? `/ ${s.minPeriod} yrs` : '/ yr'}
+                          </span>
+                        </p>
+                      ) : (
+                        <p className="mt-0.5 text-xs text-slate">Price unavailable</p>
                       )}
                     </div>
-                    <Link
-                      href={`/domains/register?domain=${encodeURIComponent(s.domain)}`}
-                      className="rounded-lg border border-gold px-3 py-1.5 text-sm text-gold transition-colors hover:bg-gold hover:text-primary-bg"
-                    >
-                      Register
-                    </Link>
+                    {s.price !== undefined ? (
+                      <Link
+                        href={`/domains/register?domain=${encodeURIComponent(s.domain)}`}
+                        className="rounded-lg border border-gold px-3 py-1.5 text-sm text-gold transition-colors hover:bg-gold hover:text-primary-bg"
+                      >
+                        Register
+                      </Link>
+                    ) : (
+                      <span className="rounded-lg border border-border px-3 py-1.5 text-sm text-slate opacity-60" title="Pricing unavailable">
+                        Register
+                      </span>
+                    )}
                   </Card>
                 ))}
               </div>
