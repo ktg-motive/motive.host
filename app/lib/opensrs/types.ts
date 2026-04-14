@@ -96,15 +96,23 @@ export interface RegisterDomainResponse {
   registration_code: string;
   async_reason?: string;
   whois_privacy_state?: string;
+  /**
+   * Order status from a follow-up GET_ORDER_INFO call after SW_REGISTER.
+   * OpenSRS can return is_success=1 on SW_REGISTER while leaving the order
+   * in a non-terminal state (e.g. "declined", "pending") that will not
+   * actually process. Populated by registerDomain after verification.
+   */
+  verified_status?: string;
 }
 
 export interface OrderInfoResponse {
-  id: string;
-  domain: string;
-  status: string;
-  order_date: string;
-  contacts: Record<string, DomainContact>;
-  nameservers: string[];
+  id?: string;
+  domain?: string;
+  status?: string;
+  order_date?: string;
+  contacts?: Record<string, DomainContact>;
+  nameservers?: string[];
+  [key: string]: unknown;
 }
 
 // ─── DNS ─────────────────────────────────────────────────────────────────────

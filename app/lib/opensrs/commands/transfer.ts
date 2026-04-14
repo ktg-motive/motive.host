@@ -6,6 +6,7 @@ import type {
   ProcessTransferResponse,
 } from '../types';
 import { OpenSRSError } from '../types';
+import { generateRegistrantPassword } from './register';
 
 function formatContact(contact: DomainContact): Record<string, string> {
   const result: Record<string, string> = {
@@ -120,7 +121,7 @@ export function createTransferCommands(client: OpenSRSClient) {
             .split('@')[0]
             .replace(/[^a-zA-Z0-9]/g, '')
             .slice(0, 30) || 'user',
-        reg_password: crypto.randomUUID().slice(0, 16),
+        reg_password: generateRegistrantPassword(16),
         auto_renew: params.autoRenew ? '1' : '0',
         f_whois_privacy: params.privacy ? '1' : '0',
       };
