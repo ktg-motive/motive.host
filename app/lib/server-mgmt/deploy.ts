@@ -189,9 +189,53 @@ async function runStaticDeploy(appSlug: string, appDir: string, subdir?: string)
   try {
     await execLocal('test', ['-f', `${workDir}/package.json`]);
   } catch {
-    stdout += 'No package.json found, skipping build\n';
+    // Plain HTML mode: nginx serves ${appDir}/dist, but there's no build step.
+    // Symlink dist -> subdir so files are reachable.
+    // Without a subdir, dist would point at the repo root, exposing .git, .env, etc.
+    if (!subdir) {
+      throw new Error(
+        `Plain HTML mode requires git_subdir (no package.json at ${appDir}). ` +
+        `Set git_subdir to the directory containing your HTML files.`
+      );
+    }
+    // Defense-in-depth: re-validate subdir at use, since git_subdir can be
+    // mutated in the DB outside the Zod-validated provision path. Mirrors
+    // the provision schema (hosting-schemas.ts git_subdir): leading char
+    // must be alphanumeric/underscore, body permits ./- and /, no ...
+    if (!/^[a-zA-Z0-9_][a-zA-Z0-9_.\-\/]*$/.test(subdir) || subdir.includes('..')) {
+      throw new Error(`Invalid subdir: ${subdir}`);
+    }
+    // Verify the source dir actually exists -- otherwise we'd create a
+    // dangling symlink and silently mark the deploy successful.
+    try {
+      await execLocal('test', ['-d', workDir]);
+    } catch {
+      throw new Error(
+        `Plain HTML mode: ${workDir} not found after git pull. ` +
+        `Check that git_subdir ("${subdir}") matches a directory in the repo.`
+      );
+    }
+    // If the source IS dist/ (common layout for checked-in static output),
+    // nginx already serves it -- no symlink needed.
+    if (subdir === 'dist') {
+      stdout += `No package.json found, plain HTML mode (source is dist/, serving directly)\n`;
+      return stdout;
+    }
+    // Remove any existing dist symlink (test -L), then create a fresh one.
+    // Avoids shell interpolation by using execLocal directly.
+    await execLocal('test', ['-L', `${appDir}/dist`])
+      .then(() => execLocal('rm', ['-f', `${appDir}/dist`]))
+      .catch(() => { /* not a symlink -- leave any real dist/ alone */ });
+    await execLocal('ln', ['-s', subdir, `${appDir}/dist`]);
+    stdout += `No package.json found, plain HTML mode (dist -> ${subdir})\n`;
     return stdout;
   }
+
+  // If a prior plain-HTML deploy left dist/ as a symlink, remove it
+  // before build so the build tool writes into a real directory.
+  await execLocal('test', ['-L', `${appDir}/dist`])
+    .then(() => execLocal('rm', ['-f', `${appDir}/dist`]))
+    .catch(() => { /* not a symlink */ });
 
   // npm install
   const installResult = await execBash('npm install --production=false', {
