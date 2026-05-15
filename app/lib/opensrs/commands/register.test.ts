@@ -176,14 +176,15 @@ describe('registerDomain — order status verification', () => {
     expect(result.verified_status).toBe('completed')
   })
 
-  it('throws when order status is not a terminal success state (e.g. pending)', async () => {
+  it('returns pending=true when order status stays non-terminal through the polling window', async () => {
     const spy = makeHandler({ orderId: '383680739', orderStatus: 'pending' })
     const client = makeStubClient(spy.handler)
     const register = createRegisterCommands(client)
 
-    await expect(register.registerDomain(baseParams)).rejects.toThrow(
-      /did not reach a terminal success state/
-    )
+    const result = await register.registerDomain(baseParams)
+    expect(result.id).toBe('383680739')
+    expect(result.pending).toBe(true)
+    expect(result.verified_status).toBe('pending')
   })
 
   it('throws when order status is "declined"', async () => {
@@ -205,14 +206,15 @@ describe('registerDomain — order status verification', () => {
     expect(infoCalls).toHaveLength(1)
   })
 
-  it('throws when GET_ORDER_INFO keeps failing', async () => {
-    const spy = makeHandler({ infoThrows: true })
+  it('returns pending=true when GET_ORDER_INFO keeps failing (lookup error is non-terminal)', async () => {
+    const spy = makeHandler({ orderId: '999', infoThrows: true })
     const client = makeStubClient(spy.handler)
     const register = createRegisterCommands(client)
 
-    await expect(register.registerDomain(baseParams)).rejects.toThrow(
-      /status lookup error: order info unavailable/
-    )
+    const result = await register.registerDomain(baseParams)
+    expect(result.id).toBe('999')
+    expect(result.pending).toBe(true)
+    expect(result.verified_status).toBe('unknown')
   })
 
   it('accepts "processed" as a terminal success state', async () => {

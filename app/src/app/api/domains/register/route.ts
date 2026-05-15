@@ -392,7 +392,11 @@ export async function PUT(request: Request) {
     const expiresAt = new Date()
     expiresAt.setFullYear(expiresAt.getFullYear() + period)
 
-    // 7. Insert domain record — fail hard if this doesn't work
+    // 7. Insert domain record — fail hard if this doesn't work.
+    // If OpenSRS confirmed the order is in flight but didn't return a terminal
+    // success status in time, save as 'pending' so a reconciler can confirm
+    // later. Better than refunding a registration that actually completed.
+    const domainStatus = registrationResult.pending ? 'pending' : 'active'
     const { data: domainRecord, error: domainError } = await supabase
       .from('domains')
       .insert({
@@ -402,7 +406,7 @@ export async function PUT(request: Request) {
         expires_at: expiresAt.toISOString(),
         auto_renew: autoRenew,
         privacy_enabled: effectivePrivacy,
-        status: 'active',
+        status: domainStatus,
         opensrs_order_id: registrationResult.id,
       })
       .select()
@@ -487,6 +491,7 @@ export async function PUT(request: Request) {
       success: true,
       domain,
       orderId: registrationResult.id,
+      pending: domainStatus === 'pending',
     })
   } catch (error) {
     console.error('Registration confirmation error:', error)

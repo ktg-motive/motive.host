@@ -76,9 +76,12 @@ const TERMINAL_FAILURE_STATUSES = new Set([
   'failed',
 ]);
 
-// Number of attempts and delay (ms) for post-SW_REGISTER status verification.
-// OpenSRS order info can lag briefly behind SW_REGISTER, so a short retry is
-// worthwhile. Delays are ~500ms / 1s / 2s which keeps worst case under 4s.
+// Inter-attempt sleeps (ms) for post-SW_REGISTER status verification.
+// The loop polls immediately on attempt 0, then sleeps VERIFY_DELAYS_MS[i]
+// before attempt i+1. With 3 attempts and delays [500, 1000], total elapsed
+// time before declaring "no terminal status seen" is ~1.5s + GET_ORDER_INFO
+// latency. The trailing 2000 is unused (only N-1 sleeps fire for N attempts)
+// and kept for ease of future tuning.
 const VERIFY_DELAYS_MS = [500, 1000, 2000];
 
 function sleep(ms: number): Promise<void> {
@@ -159,10 +162,13 @@ export function createRegisterCommands(client: OpenSRSClient) {
 
       // Verify the order actually landed in a terminal success state. OpenSRS
       // returns is_success=1 on SW_REGISTER as soon as it accepts the order
-      // for processing, but the order can still be declined, left pending, or
-      // stuck as a draft at the registry level. A follow-up GET_ORDER_INFO
-      // tells us whether registration actually completed. If not, throw so
-      // the register route's catch block runs the refund path.
+      // for processing. Most orders flip to "completed" within 1-2 seconds, but
+      // some legitimately stay "pending" (or return empty status) longer than
+      // our polling window. To avoid false-negative refunds for orders that
+      // are actually fine, we only throw on a *terminal failure* status —
+      // declined/cancelled/failed. For anything else (status still pending,
+      // empty, or unreadable after retries) we return pending=true and let
+      // the caller insert as 'pending' and reconcile later.
       if (result.id) {
         let lastStatus: string | undefined;
         let lastError: unknown;
@@ -198,9 +204,13 @@ export function createRegisterCommands(client: OpenSRSClient) {
 
         const statusMsg = lastStatus ?? 'unknown';
         const errSuffix = lastError instanceof Error ? ` (status lookup error: ${lastError.message})` : '';
-        throw new Error(
-          `OpenSRS registration did not reach a terminal success state after SW_REGISTER returned order ${result.id}. Last status: ${statusMsg}.${errSuffix}`
+        // Non-terminal outcome: order id is valid, status is unconfirmed but
+        // not failed. Return pending so the caller saves the order and a
+        // reconciler can flip to active once OpenSRS confirms.
+        console.warn(
+          `OpenSRS order ${result.id} not confirmed within verification window — returning pending. Last status: ${statusMsg}.${errSuffix}`
         );
+        return { ...result, verified_status: statusMsg, pending: true };
       }
 
       return result;

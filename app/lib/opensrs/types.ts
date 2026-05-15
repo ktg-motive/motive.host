@@ -103,6 +103,15 @@ export interface RegisterDomainResponse {
    * actually process. Populated by registerDomain after verification.
    */
   verified_status?: string;
+  /**
+   * True when SW_REGISTER returned a valid order id but post-SW polling did
+   * not see a terminal success status within the verification window. The
+   * order may still complete asynchronously at OpenSRS — callers should treat
+   * this as a tentative success (insert with status='pending') and reconcile
+   * via a follow-up GET_ORDER_INFO. Terminal failure statuses (declined,
+   * cancelled, etc.) still throw rather than returning pending=true.
+   */
+  pending?: boolean;
 }
 
 export interface OrderInfoResponse {
