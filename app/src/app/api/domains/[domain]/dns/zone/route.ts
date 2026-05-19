@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getOpenSRSClient } from '@/lib/opensrs-client'
+import { OpenSRSError } from '@opensrs/types'
+
+// OpenSRS response codes whose responseText is safe to surface to the user
+// (validation / not-found errors). Auth/server-side codes get a generic message.
+const USER_FACING_OPENSRS_CODES = new Set([400, 460, 465])
 
 // POST /api/domains/[domain]/dns/zone -- create DNS zone if none exists
 export async function POST(
@@ -51,6 +56,9 @@ export async function POST(
       return NextResponse.json({ success: true, alreadyExists: true })
     }
     console.error('DNS zone creation error:', error)
+    if (error instanceof OpenSRSError && USER_FACING_OPENSRS_CODES.has(error.responseCode)) {
+      return NextResponse.json({ error: error.responseText }, { status: 400 })
+    }
     return NextResponse.json({ error: 'Failed to create DNS zone' }, { status: 500 })
   }
 }

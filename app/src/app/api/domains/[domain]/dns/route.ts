@@ -3,7 +3,12 @@ import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { getOpenSRSClient } from '@/lib/opensrs-client'
 import { dnsRecordSchema } from '@/lib/dns-validation'
+import { OpenSRSError } from '@opensrs/types'
 import type { DnsRecord, DnsRecordChange } from '@opensrs/types'
+
+// OpenSRS response codes whose responseText is safe to surface to the user
+// (validation / not-found errors). Auth/server-side codes get a generic message.
+const USER_FACING_OPENSRS_CODES = new Set([400, 460, 465])
 
 // GET /api/domains/[domain]/dns -- fetch all DNS records
 export async function GET(
@@ -138,6 +143,9 @@ export async function PUT(
       return NextResponse.json({ error: message }, { status: 409 })
     }
     console.error('DNS update error:', error)
+    if (error instanceof OpenSRSError && USER_FACING_OPENSRS_CODES.has(error.responseCode)) {
+      return NextResponse.json({ error: error.responseText }, { status: 400 })
+    }
     return NextResponse.json({ error: 'Failed to update DNS records' }, { status: 500 })
   }
 }

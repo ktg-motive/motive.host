@@ -3,7 +3,12 @@ import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { getOpenSRSClient } from '@/lib/opensrs-client'
 import { dnsRecordSchema } from '@/lib/dns-validation'
+import { OpenSRSError } from '@opensrs/types'
 import type { DnsRecord, DnsRecordChange } from '@opensrs/types'
+
+// OpenSRS response codes whose responseText is safe to surface to the user
+// (validation / not-found errors). Auth/server-side codes get a generic message.
+const USER_FACING_OPENSRS_CODES = new Set([400, 460, 465])
 
 const deleteSchema = z.object({
   record: dnsRecordSchema,
@@ -74,6 +79,9 @@ export async function DELETE(
     })
   } catch (error) {
     console.error('DNS delete error:', error)
+    if (error instanceof OpenSRSError && USER_FACING_OPENSRS_CODES.has(error.responseCode)) {
+      return NextResponse.json({ error: error.responseText }, { status: 400 })
+    }
     return NextResponse.json({ error: 'Failed to delete DNS record' }, { status: 500 })
   }
 }
