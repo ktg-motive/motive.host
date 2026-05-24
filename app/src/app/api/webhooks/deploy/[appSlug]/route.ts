@@ -136,7 +136,7 @@ export async function POST(req: Request, { params }: RouteContext) {
     // Determine template for deploy
     const template = app.app_type === 'static'
       ? 'static' as const
-      : (app.deploy_template as 'nextjs' | 'express' | 'generic') ?? 'generic';
+      : (app.deploy_template as 'nextjs' | 'express' | 'generic' | 'bun') ?? 'generic';
 
     // Run the deploy
     const result = await deployAndRestart({

@@ -124,7 +124,7 @@ async function handleDiyDeploy(
       ? 'static' as const
       : app.app_type === 'python'
         ? 'python' as const
-        : (app.deploy_template as 'nextjs' | 'express' | 'generic') ?? 'generic';
+        : (app.deploy_template as 'nextjs' | 'express' | 'generic' | 'bun') ?? 'generic';
 
     // Run the deploy pipeline
     const result = await deployAndRestart({

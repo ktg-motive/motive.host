@@ -18,6 +18,7 @@ import { parseEnvFile } from './env';
 
 const WEBAPPS_DIR = '/home/motive-host/webapps';
 const SSH_KEY_DIR = '/home/motive-host/.ssh';
+const BUN_BIN = '/home/motive-host/.bun/bin/bun';
 
 export interface DeployOptions {
   appSlug: string;
@@ -115,7 +116,7 @@ async function postpullRestore(appDir: string): Promise<void> {
  */
 export async function deployAndRestart(options: DeployOptions & {
   port?: number;  // Required for Node.js and Python, null/undefined for static
-  template: DeployScriptOptions['template'] | 'static' | 'python';
+  template: DeployScriptOptions['template'] | 'static' | 'python' | 'bun';
   /** Python WSGI module string (e.g. "app:app"). Required when template === 'python'. */
   pythonModule?: string;
   /** Number of Gunicorn workers (1-8). Required when template === 'python'. */
@@ -144,6 +145,8 @@ export async function deployAndRestart(options: DeployOptions & {
         gunicornWorkers: gunicornWorkers ?? 2,
         subdir,
       });
+    } else if (template === 'bun') {
+      stdout += await runBunDeploy(appSlug, appDir, subdir);
     } else {
       // Node.js deploy: use deploy-scripts.ts templates
       const deployScript = generateDeployScript({
@@ -265,6 +268,71 @@ async function runStaticDeploy(appSlug: string, appDir: string, subdir?: string)
   } catch {
     // No dist/ directory — site serves from public/ as-is
   }
+
+  return stdout;
+}
+
+/**
+ * Run the Bun deploy pipeline (e.g. SvelteKit with svelte-adapter-bun).
+ *
+ * 1. bun install + bun run build in the app (or subdir) directory
+ * 2. PM2 restart the long-lived `bun ./build/index.js` process
+ *
+ * Unlike the Python path, env vars do NOT need to be injected at PM2 start:
+ * Bun auto-loads the .env file from the process working directory on startup,
+ * and the webhook/force-deploy routes rewrite that .env (from the DB) before
+ * this runs. A `pm2 restart` spawns a fresh Bun process in the same cwd, which
+ * re-reads the updated .env. Falls back to `pm2 start` on first deploy.
+ *
+ * Side effects: Installs deps, builds, restarts the PM2 process.
+ * Failure modes: Throws ExecError if bun install/build or PM2 fails.
+ */
+async function runBunDeploy(appSlug: string, appDir: string, subdir?: string): Promise<string> {
+  assertValidSlug(appSlug);
+
+  // Validate subdir: allowlist + no traversal (matches runStaticDeploy)
+  if (subdir && (!/^[a-zA-Z0-9_][a-zA-Z0-9_.\-\/]*$/.test(subdir) || subdir.includes('..'))) {
+    throw new Error(`Invalid subdir: ${subdir}`);
+  }
+
+  const workDir = subdir ? `${appDir}/${subdir}` : appDir;
+  let stdout = '--- bun deploy ---\n';
+
+  const installResult = await execBash(`"${BUN_BIN}" install`, {
+    cwd: workDir,
+    timeout: BUILD_TIMEOUT,
+  });
+  stdout += installResult.stdout;
+
+  const buildResult = await execBash(`"${BUN_BIN}" run build`, {
+    cwd: workDir,
+    timeout: BUILD_TIMEOUT,
+  });
+  stdout += buildResult.stdout;
+
+  // Restart the existing process (Bun re-reads .env from cwd on start).
+  // On first deploy the process won't exist yet -- fall back to pm2 start.
+  // PM2 cwd is the repo root (appDir), where writeEnvFile writes .env, so Bun's
+  // auto-load finds it even for monorepo (subdir) layouts. The adapter-bun build
+  // output lives under workDir, so the entry point is relative to appDir.
+  const entryPoint = subdir ? `${subdir}/build/index.js` : './build/index.js';
+  try {
+    const restartResult = await execLocal('pm2', ['restart', appSlug, '--update-env']);
+    stdout += restartResult.stdout;
+  } catch (err) {
+    stdout += `pm2 restart failed (${err instanceof Error ? err.message : 'unknown'}), starting fresh\n`;
+    const startResult = await execLocal('pm2', [
+      'start', BUN_BIN,
+      '--name', appSlug,
+      '--cwd', appDir,
+      '--interpreter', 'none',
+      '--', entryPoint,
+    ]);
+    stdout += startResult.stdout;
+  }
+
+  const saveResult = await execLocal('pm2', ['save']);
+  stdout += saveResult.stdout;
 
   return stdout;
 }
