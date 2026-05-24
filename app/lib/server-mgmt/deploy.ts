@@ -315,9 +315,15 @@ async function runBunDeploy(appSlug: string, appDir: string, subdir?: string): P
   // PM2 cwd is the repo root (appDir), where writeEnvFile writes .env, so Bun's
   // auto-load finds it even for monorepo (subdir) layouts. The adapter-bun build
   // output lives under workDir, so the entry point is relative to appDir.
+  //
+  // IMPORTANT: do NOT pass --update-env. This deploy runs inside the Customer
+  // Hub PM2 process, so --update-env would overwrite the app's environment with
+  // the Hub's (e.g. its PORT), and Bun won't override an already-set PORT from
+  // .env -- the app would bind to the wrong port. Plain restart keeps the app's
+  // own saved env, and Bun reloads .env from cwd for any new/changed values.
   const entryPoint = subdir ? `${subdir}/build/index.js` : './build/index.js';
   try {
-    const restartResult = await execLocal('pm2', ['restart', appSlug, '--update-env']);
+    const restartResult = await execLocal('pm2', ['restart', appSlug]);
     stdout += restartResult.stdout;
   } catch (err) {
     stdout += `pm2 restart failed (${err instanceof Error ? err.message : 'unknown'}), starting fresh\n`;
