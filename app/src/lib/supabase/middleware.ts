@@ -57,6 +57,16 @@ export async function updateSession(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname
 
+  // Webhook endpoints authenticate via HMAC signature (verified in the route),
+  // not session cookies, and are server-to-server POSTs with no Origin/Referer.
+  // CSRF — which protects cookie-authenticated mutations — does not apply, so
+  // skip it here; otherwise validateCsrf rejects every webhook as "missing
+  // origin information". These paths are not in PROTECTED_API_PREFIXES, so no
+  // session auth is bypassed.
+  if (pathname.startsWith('/api/webhooks/')) {
+    return supabaseResponse
+  }
+
   // Let public paths through immediately (login, forgot-password, etc.)
   // No CSRF check needed — these forms don't have session cookies to protect.
   if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
