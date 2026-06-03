@@ -27,17 +27,21 @@ export function createUserCommands(client: OMAClient) {
 
       if (options.password !== undefined) attributes.password = options.password;
       if (options.type !== undefined) attributes.type = options.type;
-      if (options.displayName !== undefined) attributes.display_name = options.displayName;
+      // OMA's attribute is `name` — `display_name` is rejected with Error 4
+      // ("Requestor lacks permission to change one or more of the requested attributes").
+      if (options.displayName !== undefined) attributes.name = options.displayName;
       if (options.suspended !== undefined) attributes.suspended = options.suspended;
       if (options.passwordChangeRequired !== undefined) {
         attributes.password_change_required = options.passwordChangeRequired;
       }
       if (options.forwardEmail !== undefined) attributes.forward_email = options.forwardEmail;
 
+      // OMA's mailbox-size attribute is `quota` (MB) — `disk_space` is rejected
+      // with Error 4, which blocked all mailbox creation (BUG-13).
       if (options.storageTier !== undefined) {
-        attributes.disk_space = STORAGE_TIERS[options.storageTier].mb;
+        attributes.quota = STORAGE_TIERS[options.storageTier].mb;
       } else if (options.diskSpaceMB !== undefined) {
-        attributes.disk_space = options.diskSpaceMB;
+        attributes.quota = options.diskSpaceMB;
       }
 
       await client.request('change_user', { user: email, attributes });
