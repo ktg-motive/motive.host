@@ -29,9 +29,9 @@ interface MailboxDetailProps {
 }
 
 const TIER_LABELS: Record<string, string> = {
-  basic: 'Motive Mail Basic (10 GB)',
-  standard: 'Motive Mail Standard (25 GB)',
-  plus: 'Motive Mail Plus (50 GB)',
+  basic: 'Motive Mail Basic (5 GB)',
+  standard: 'Motive Mail Standard (10 GB)',
+  plus: 'Motive Mail Plus (15 GB)',
 };
 
 const TIER_PRICES: Record<string, string> = {

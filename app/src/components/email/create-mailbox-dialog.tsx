@@ -18,7 +18,7 @@ interface CreateMailboxDialogProps {
 export default function CreateMailboxDialog({ open, onClose, domain, onCreated }: CreateMailboxDialogProps) {
   const [localPart, setLocalPart] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [storageTier, setStorageTier] = useState<StorageTier>('standard');
+  const [storageTier, setStorageTier] = useState<StorageTier>('basic');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
@@ -60,7 +60,7 @@ export default function CreateMailboxDialog({ open, onClose, domain, onCreated }
     }
     setLocalPart('');
     setDisplayName('');
-    setStorageTier('standard');
+    setStorageTier('basic');
     setError('');
     setGeneratedPassword(null);
     onClose();

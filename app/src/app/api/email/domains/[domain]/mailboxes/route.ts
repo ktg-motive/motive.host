@@ -7,7 +7,7 @@ import { stripe } from '@/lib/stripe';
 import { createMailboxSchema } from '@/lib/email-schemas';
 import { generatePassword } from '@/lib/password';
 import { getStripePriceId } from '@/lib/email-pricing';
-import { STORAGE_TIERS } from '@opensrs-email';
+import { STORAGE_TIERS, OMAError } from '@opensrs-email';
 import { handleApiError } from '@/lib/api-utils';
 
 export async function GET(
@@ -87,6 +87,14 @@ export async function POST(
         storageTier,
       });
     } catch (err) {
+      // OMA Error 6 = quota above the per-mailbox cap. Give precise, actionable copy
+      // instead of letting it fall through to a generic 502 (BUG-15).
+      if (err instanceof OMAError && err.code === 6) {
+        return NextResponse.json(
+          { error: 'Storage tier exceeds the maximum allowed per mailbox. Choose a smaller tier.' },
+          { status: 422 },
+        );
+      }
       const message = err instanceof Error ? err.message : 'OMA error';
       if (message.includes('already exists')) {
         return NextResponse.json({ error: 'Email address already in use' }, { status: 409 });

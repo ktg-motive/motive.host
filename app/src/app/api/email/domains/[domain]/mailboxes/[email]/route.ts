@@ -116,8 +116,15 @@ export async function PATCH(
       updates.storage_quota_bytes = STORAGE_TIERS[newTier].bytes;
 
       // Step 1: Apply OMA changes early (done below with other OMA options)
-      // Step 2: Update domain storage counters
-      const oldBytes = STORAGE_TIERS[mailbox.storage_tier as StorageTier].bytes;
+      // Step 2: Update domain storage counters.
+      // Source oldBytes from the row's stored quota, not STORAGE_TIERS[oldTier] —
+      // the domain counter was incremented by the stored value at creation, and tier
+      // sizes can be redefined over time (BUG-15), so the constant may not match what
+      // this row actually contributed.
+      // storage_quota_bytes / storage_provisioned_bytes are bigint columns, which the
+      // Supabase client can surface as strings — coerce with Number() so the counter
+      // arithmetic below is numeric addition, not string concatenation.
+      const oldBytes = Number(mailbox.storage_quota_bytes);
       const newBytes = STORAGE_TIERS[newTier].bytes;
       const diff = newBytes - oldBytes;
       if (diff !== 0) {
@@ -130,7 +137,7 @@ export async function PATCH(
           await supabase
             .from('email_domains')
             .update({
-              storage_provisioned_bytes: Math.max(0, emailDomain.storage_provisioned_bytes + diff),
+              storage_provisioned_bytes: Math.max(0, Number(emailDomain.storage_provisioned_bytes) + diff),
             })
             .eq('id', mailbox.email_domain_id);
         }

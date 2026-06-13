@@ -112,10 +112,13 @@ export class OMAError extends Error {
 
 // ── Storage Tier Mapping ───────────────────────────────────────────────────
 
+// Sizes are capped under OMA's per-mailbox quota_maximum of 20480 MB (20 GB), a
+// reseller-level limit we cannot raise via API (BUG-15). `mb` is sent to OMA as
+// the `quota`; `bytes` is stored in email_mailboxes.storage_quota_bytes.
 export const STORAGE_TIERS = {
-  basic:    { label: 'Basic (10 GB)',    mb: 10240,  bytes: 10737418240 },
-  standard: { label: 'Standard (25 GB)', mb: 25600,  bytes: 26843545600 },
-  plus:     { label: 'Plus (50 GB)',     mb: 51200,  bytes: 53687091200 },
+  basic:    { label: 'Basic (5 GB)',     mb: 5120,   bytes: 5368709120 },
+  standard: { label: 'Standard (10 GB)', mb: 10240,  bytes: 10737418240 },
+  plus:     { label: 'Plus (15 GB)',     mb: 15360,  bytes: 16106127360 },
 } as const;
 
 export type StorageTier = keyof typeof STORAGE_TIERS;

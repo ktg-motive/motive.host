@@ -3,9 +3,9 @@
 import type { StorageTier } from '@opensrs-email';
 
 const TIERS: Array<{ value: StorageTier; label: string; price: string; storage: string }> = [
-  { value: 'basic',    label: 'Basic',    price: '$3/mo', storage: '10 GB' },
-  { value: 'standard', label: 'Standard', price: '$5/mo', storage: '25 GB' },
-  { value: 'plus',     label: 'Plus',     price: '$8/mo', storage: '50 GB' },
+  { value: 'basic',    label: 'Basic',    price: '$3/mo', storage: '5 GB' },
+  { value: 'standard', label: 'Standard', price: '$5/mo', storage: '10 GB' },
+  { value: 'plus',     label: 'Plus',     price: '$8/mo', storage: '15 GB' },
 ];
 
 interface TierSelectorProps {
