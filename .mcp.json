@@ -7,7 +7,8 @@
         "@modelcontextprotocol/server-memory"
       ],
       "env": {
-        "MEMORY_FILE_PATH": "/Users/Kai/Dev/Active/motive.host/memory-bank/project-memory.jsonl"
+        "MEMORY_PERSIST": "true",
+        "MEMORY_FILE_PATH": "/Users/Kai/Dev/Active/motive.host/memory-bank/project-memory.json"
       }
     }
   }

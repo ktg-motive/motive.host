@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/motive-ai-lab/motiverig/main/plugins/rig/core/schemas/rig.schema.json",
+  "$comment": "developers is the roster and the contract. It is the single source of truth for who works on this project: session-wrap refuses to write a file for anyone not listed, standup reads session files for everyone who is, and the edit guard scopes claims per developer. Adding a collaborator starts with a commit that adds their handle here. Removing one starts with a commit that takes it out.",
+  "project": "motive-host",
+  "github": {
+    "repo": "ktg-motive/motive.host"
+  },
+  "developers": [
+    "kai"
+  ],
+  "memoryBank": {
+    "root": "memory-bank",
+    "sessions": "memory-bank/sessions",
+    "contextMaxKB": 20,
+    "graphFile": "memory-bank/project-memory.json",
+    "graphMaxKB": 50
+  },
+  "briefing": {
+    "owner": "product-manager"
+  }
+}
