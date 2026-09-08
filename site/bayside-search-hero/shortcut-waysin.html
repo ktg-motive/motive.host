@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=700, initial-scale=1">
+<title>BaySide Surety, S3. Three ways in</title>
+<style>
+@font-face {
+  font-family: "Butler";
+  src: url("fonts/Butler_Regular.otf") format("opentype");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Libre Franklin";
+  src: url("fonts/LibreFranklin-Variable.woff2") format("woff2");
+  font-weight: 100 900; font-style: normal; font-display: swap;
+}
+* { box-sizing: border-box; }
+    body { margin: 0; font-family: "Libre Franklin", "Helvetica Neue", Arial, sans-serif; color: #1b1817; -webkit-font-smoothing: antialiased; }
+    a { color: #8d1c2c; text-decoration: none; }
+    a:hover { color: #6e1522; }
+    :focus-visible { outline: 2px solid #8d1c2c; outline-offset: 2px; }
+    .navlink { border-bottom: 2px solid transparent; }
+    .navlink:hover { border-bottom-color: #8d1c2c; }
+    .sbar:focus-within { border-color: #8d1c2c; box-shadow: 0 0 0 3px rgba(141, 28, 44, 0.18); }
+    .sinput { font: inherit; border: 0; outline: 0; background: transparent; width: 100%; color: #1b1817; }
+    .sinput::placeholder { color: #a9a29e; }
+    .btnp { transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease; }
+    .btnp:hover { background: #6e1522; border-color: #6e1522; }
+    .row { transition: background-color 100ms ease; }
+    .row:hover { background: #f2f0ec; }
+    .chip { transition: border-color 140ms ease, color 140ms ease; }
+    .chip:hover { border-color: #8d1c2c; color: #8d1c2c; }
+    .chk { position: relative; padding-left: 28px; }
+    .chk::before { content: ""; position: absolute; left: 0; top: 0.2em; width: 1.05em; height: 1.05em; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%238D1C2C" stroke-width="2.4"><rect x="2" y="2" width="20" height="20"/><path d="M7 12.5l3.5 3.5L17.5 8" stroke-linecap="square"/></svg>'); background-size: contain; background-repeat: no-repeat; }
+    .cred { display: inline-flex; align-items: center; gap: 8px; }
+    .cred::before { content: ""; width: 1em; height: 1em; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="%238D1C2C" stroke-width="2.4"><rect x="2" y="2" width="20" height="20"/><path d="M7 12.5l3.5 3.5L17.5 8" stroke-linecap="square"/></svg>'); background-size: contain; background-repeat: no-repeat; flex-shrink: 0; }
+    .dashes { display: inline-block; width: 56px; height: 2px; color: #b9848a; background-image: repeating-linear-gradient(90deg, currentColor 0 14px, transparent 14px 20px, currentColor 20px 26px, transparent 26px 34px); }
+    .sel { appearance: none; font: inherit; color: #1b1817; background: transparent; border: 0; outline: 0; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="%235C5654" stroke-width="1.8"><path d="M4 6l4 4 4-4"/></svg>'); background-repeat: no-repeat; background-position: right 0 center; background-size: 16px; padding-right: 24px; cursor: pointer; }
+    .tab { transition: color 140ms ease, border-color 140ms ease; }
+html { background: #e8e4e2; }
+body { display: flex; justify-content: center; }
+.bsg-page { box-shadow: 0 2px 40px rgba(27,24,23,0.18); }
+</style>
+</head>
+<body>
+<div class="bsg-page">
+<div style="width: 700px; min-height: 660px; background: #ffffff; padding: 34px 32px;">
+    <div style="display: inline-flex; align-items: center; gap: 12px; font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #8d1c2c;">
+      <span class="dashes"></span>
+      <span>Surety bonds, placed direct</span>
+    </div>
+    <h1 style="font-family: Butler, Georgia, serif; font-weight: 400; font-size: 40px; line-height: 1.08; letter-spacing: -0.01em; color: #1b1817; margin: 16px 0 0;">Headline, line one.<br />Headline, line two.</h1>
+      <span style="display: inline-block; margin-top: 12px; padding: 4px 9px; border: 1px dashed #c9c2bf; border-radius: 3px; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #8a8380;">Placeholder copy, CraftShow</span>
+    <div style="position: relative; margin-top: 24px;">
+      <div class="sbar" style="display: flex; align-items: center; gap: 14px; height: 72px; background: #ffffff; border: 1px solid #e3dfda; border-radius: 3px; padding: 0 8px 0 20px; box-shadow: 0 1px 2px rgba(27, 24, 23, 0.06), 0 4px 16px rgba(27, 24, 23, 0.05);">
+        <span style="display: inline-flex; flex-shrink: 0; color: #5c5654;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.7-3.7"></path></svg></span>
+        <input data-bsg="input" class="sinput" type="text" value="" placeholder="Search bonds by name" aria-label="Search bonds" style="font-size: 18px; font-weight: 500;" />
+        <button class="btnp" type="button" style="flex-shrink: 0; background: #8d1c2c; border: 1px solid #6e1522; color: #ffffff; font-family: inherit; font-size: 15px; font-weight: 600; line-height: 1; padding: 0 22px; height: 54px; border-radius: 3px; cursor: pointer;">Search</button>
+      </div>
+        <div data-bsg="panel" style="position: absolute; top: 82px; left: 0; width: 100%; display: none; background: #ffffff; border: 1px solid #e3dfda; border-radius: 3px; box-shadow: 0 1px 2px rgba(27, 24, 23, 0.06), 0 12px 32px rgba(27, 24, 23, 0.14); overflow: hidden; z-index: 5;">
+          <div data-bsg="empty" style="display: none; padding: 24px 26px; font-size: 15px; color: #5c5654;">No match on that name. BaySide places hard-to-place bonds too: <a href="tel:+12516610745" style="font-weight: 700;">(251) 661-0745</a>.</div>
+          <div data-bsg="list" style="display: none; padding: 8px 0;">
+            
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; padding: 14px 26px; border-top: 1px solid #e3dfda; background: #faf9f7; font-size: 14px; color: #5c5654;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8d1c2c" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.4 3h3l1.5 4-2.1 1.5a12.5 12.5 0 0 0 5.7 5.7L16 12.1l4 1.5v3a1.6 1.6 0 0 1-1.8 1.6A16.6 16.6 0 0 1 3.8 5.8 1.6 1.6 0 0 1 5.4 4z"></path></svg>
+            <span>Not listed, or not sure? Call BaySide: <a href="tel:+12516610745" style="font-weight: 700;">(251) 661-0745</a></span>
+          </div>
+        </div>
+    </div>
+    <div style="margin-top: 20px; border: 1px solid #e3dfda; border-radius: 3px; overflow: hidden;">
+      <div style="padding: 14px 18px 16px; border-bottom: 1px solid #e3dfda;">
+        <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #5c5654;">Know roughly what you need</div>
+        <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-top: 10px;">
+          
+            <button data-bsg="chip" class="chip" type="button" style="background: #ffffff; border: 1px solid #e3dfda; color: #1b1817; font-family: inherit; font-size: 13px; font-weight: 500; padding: 8px 13px; border-radius: 3px; cursor: pointer;">Notary Bonds</button>
+          
+
+            <button data-bsg="chip" class="chip" type="button" style="background: #ffffff; border: 1px solid #e3dfda; color: #1b1817; font-family: inherit; font-size: 13px; font-weight: 500; padding: 8px 13px; border-radius: 3px; cursor: pointer;">Bid Bond</button>
+          
+
+            <button data-bsg="chip" class="chip" type="button" style="background: #ffffff; border: 1px solid #e3dfda; color: #1b1817; font-family: inherit; font-size: 13px; font-weight: 500; padding: 8px 13px; border-radius: 3px; cursor: pointer;">Guardian Bond</button>
+          
+
+            <button data-bsg="chip" class="chip" type="button" style="background: #ffffff; border: 1px solid #e3dfda; color: #1b1817; font-family: inherit; font-size: 13px; font-weight: 500; padding: 8px 13px; border-radius: 3px; cursor: pointer;">ICC Property Broker Bond</button>
+          
+        </div>
+      </div>
+      <a href="#" style="display: flex; align-items: center; gap: 12px; padding: 15px 18px; border-bottom: 1px solid #e3dfda; color: #1b1817;">
+        <span style="display: inline-flex; flex-shrink: 0; color: #8d1c2c;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6h11"></path><path d="M9 12h11"></path><path d="M9 18h11"></path><path d="M4.5 6h.01"></path><path d="M4.5 12h.01"></path><path d="M4.5 18h.01"></path></svg></span>
+        <span style="display: flex; flex-direction: column; gap: 2px;">
+          <span style="font-size: 15px; font-weight: 600;">Want to look through them</span>
+          <span style="font-size: 13px; color: #5c5654;">All 52 bonds, grouped by line.</span>
+        </span>
+        <span style="margin-left: auto; display: inline-flex;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8d1c2c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"></path><path d="M12 6l6 6-6 6"></path></svg></span>
+      </a>
+      <a href="#" style="display: flex; align-items: center; gap: 12px; padding: 15px 18px; background: #faf9f7; color: #1b1817;">
+        <span style="display: inline-flex; flex-shrink: 0; color: #8d1c2c;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M9.6 9.4a2.5 2.5 0 1 1 3.1 2.4c-.6.2-.9.7-.9 1.3v.5"></path><path d="M11.8 16.7h.4"></path></svg></span>
+        <span style="display: flex; flex-direction: column; gap: 2px;">
+          <span style="font-size: 15px; font-weight: 600;">No idea where to start</span>
+          <span style="font-size: 13px; color: #5c5654;">Answer three questions.</span>
+        </span>
+        <span style="margin-left: auto; display: inline-flex;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8d1c2c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"></path><path d="M12 6l6 6-6 6"></path></svg></span>
+      </a>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px 26px; margin-top: 28px; padding-top: 18px; border-top: 1px solid #e3dfda; font-size: 14px; font-weight: 600; color: #1b1817;">
+      <span class="cred">A-Rated Carriers</span>
+      <span class="cred">Treasury Listed</span>
+      <span class="cred">Surety Only, Since 2000</span>
+    </div>
+  </div>
+</div>
+<template id="bsg-proto">
+<div data-bsg="head" style="display: block; padding: 12px 26px 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #8d1c2c;">COMMERCIAL</div>
+<div data-bsg="item" class="row" style="display: none; align-items: center; gap: 16px; padding: 13px 26px; cursor: pointer;">
+                  <span style="font-size: 16px; font-weight: 600; color: #1b1817;" data-bsg="name"></span>
+                  <span style="font-size: 13px; color: #5c5654;" data-bsg="note"></span>
+                  <span style="margin-left: auto; display: inline-flex;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8d1c2c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"></path><path d="M12 6l6 6-6 6"></path></svg></span>
+                </div>
+</template>
+<script src="search.js" defer></script>
+</body>
+</html>
